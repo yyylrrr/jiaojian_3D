@@ -83,6 +83,30 @@ export const constantRoutes = [
       }
     ]
   },
+  // {
+  //   path: '/map',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'basicimap',
+  //       component: () => import('@/views/maps/basicmap'),
+  //       name: 'Map',
+  //       meta: { title: 'Map', icon: 'documentation' }
+  //     }
+  //   ]
+  // },
+  {
+    path: '/set',
+    component: Layout,
+    children: [
+      {
+        path: 'set',
+        component: () => import('@/views/maps/set'),
+        name: 'setMap',
+        meta: { title: 'setMap', icon: 'documentation' }
+      }
+    ]
+  },
   {
     path: '/documentation',
     component: Layout,
