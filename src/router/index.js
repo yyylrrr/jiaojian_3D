@@ -196,6 +196,44 @@ export const asyncRoutes = [
   },
 
   {
+    path: '/background-write',
+    component: Layout,
+    redirect: '/background-write/work-info-write',
+    alwaysShow: true, // will always show the root menu
+    name: 'background-write',
+    meta: {
+      title: '后台填报界面',
+      icon: 'lock',
+    },
+    children: [
+      {
+        path: 'work-info-write',
+        component: () => import('@/views/background-write/work-info-write'),
+        name: 'work-info-write',
+        meta: {
+          title: '施工信息填报',
+        }
+      },
+      {
+        path: 'warn-info-manage',
+        component: () => import('@/views/background-write/warn-info-manage'),
+        name: 'warn-info-manage',
+        meta: {
+          title: '预警信息管理'
+        }
+      },
+      {
+        path: 'warn-rule-maintain',
+        component: () => import('@/views/background-write/warn-rule-maintain'),
+        name: 'warn-rule-maintain',
+        meta: {
+          title: '预警规则维护',
+        }
+      }
+    ]
+  },
+
+  {
     path: '/icon',
     component: Layout,
     children: [
