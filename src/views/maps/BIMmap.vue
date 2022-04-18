@@ -2,8 +2,7 @@
   <div>
     <div id="viewDiv" />
     <div class="sliderblock">
-      <span class="demonstration">默认</span>
-      <el-slider v-model="levelvalue" :max="20" @input="changeModel" />
+      <el-slider v-model="levelvalue" :max="20"  :marks="marks" @input="changeModel" />
     </div>
   </div>
 
@@ -32,7 +31,13 @@ export default {
   data() {
     return {
       levelvalue: 5,
-      webscene: null
+      webscene: null,
+      marks:{
+        0:"0",
+        5:"5",
+        10:"10",
+        20:"20"
+      }
     }
   },
 
@@ -155,11 +160,16 @@ export default {
   height: calc(100vh - 84px);;
 }
 .sliderblock {
-  background-color:cadetblue;
+  background-color:whitesmoke;
   left: 100px;
   top: 10px;
-  width: 10%;
+  width: 200px;
+  height: 50px;
   position: absolute;
   z-index: 991;
+}
+.el-slider{
+  width: 180px;
+  margin-left: 10px;
 }
 </style>
