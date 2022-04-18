@@ -43,11 +43,6 @@ export default {
   mounted() {
     this.init()
   },
-  //   watch:{
-  //       levelvalue:{
-
-  //       }
-  //   },
 
   methods: {
     init() {
@@ -149,7 +144,6 @@ export default {
       view.ui.add(legend, 'top-right')
     },
     changeModel() {
-      //   console.log("Level < " + this.levelvalue)
       const filterLayer = this.webscene.layers.getItemAt(0)
       filterLayer.definitionExpression = 'Level < ' + this.levelvalue
     }
