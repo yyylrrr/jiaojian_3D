@@ -83,18 +83,18 @@ export const constantRoutes = [
       }
     ]
   },
-  // {
-  //   path: '/map',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: 'basicimap',
-  //       component: () => import('@/views/maps/basicmap'),
-  //       name: 'Map',
-  //       meta: { title: 'Map', icon: 'documentation' }
-  //     }
-  //   ]
-  // },
+  {
+    path: '/map',
+    component: Layout,
+    children: [
+      {
+        path: 'BIMmap',
+        component: () => import('@/views/maps/BIMmap'),
+        name: 'BIMMap',
+        meta: { title: 'BIMMap', icon: 'documentation' }
+      }
+    ]
+  },
   {
     path: '/set',
     component: Layout,
