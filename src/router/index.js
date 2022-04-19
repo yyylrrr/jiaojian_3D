@@ -95,57 +95,57 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/set',
-    component: Layout,
-    children: [
-      {
-        path: 'set',
-        component: () => import('@/views/maps/set'),
-        name: 'setMap',
-        meta: { title: 'setMap', icon: 'documentation' }
-      }
-    ]
-  },
-  {
-    path: '/documentation',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/documentation/index'),
-        name: 'Documentation',
-        meta: { title: 'Documentation', icon: 'documentation', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/guide',
-    component: Layout,
-    redirect: '/guide/index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/guide/index'),
-        name: 'Guide',
-        meta: { title: 'Guide', icon: 'guide', noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/profile/index'),
-        name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
-      }
-    ]
-  }
+  // {
+  //   path: '/set',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'set',
+  //       component: () => import('@/views/maps/set'),
+  //       name: 'setMap',
+  //       meta: { title: 'setMap', icon: 'documentation' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/documentation',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/documentation/index'),
+  //       name: 'Documentation',
+  //       meta: { title: 'Documentation', icon: 'documentation', affix: true }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/guide',
+  //   component: Layout,
+  //   redirect: '/guide/index',
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/guide/index'),
+  //       name: 'Guide',
+  //       meta: { title: 'Guide', icon: 'guide', noCache: true }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/profile',
+  //   component: Layout,
+  //   redirect: '/profile/index',
+  //   hidden: true,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/profile/index'),
+  //       name: 'Profile',
+  //       meta: { title: 'Profile', icon: 'user', noCache: true }
+  //     }
+  //   ]
+  // }
 ]
 
 /**
@@ -153,6 +153,45 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
+
+  {
+    path: '/background-write',
+    component: Layout,
+    redirect: '/background-write/work-info-write',
+    alwaysShow: true, // will always show the root menu
+    name: 'background-write',
+    meta: {
+      title: '后台填报界面',
+      icon: 'documentation',
+    },
+    children: [
+      {
+        path: 'work-info-write',
+        component: () => import('@/views/background-write/work-info-write'),
+        name: 'work-info-write',
+        meta: {
+          title: '施工信息填报',
+        }
+      },
+      {
+        path: 'warn-info-manage',
+        component: () => import('@/views/background-write/warn-info-manage'),
+        name: 'warn-info-manage',
+        meta: {
+          title: '预警信息管理'
+        }
+      },
+      {
+        path: 'warn-rule-maintain',
+        component: () => import('@/views/background-write/warn-rule-maintain'),
+        name: 'warn-rule-maintain',
+        meta: {
+          title: '预警规则维护',
+        }
+      }
+    ]
+  },
+
   {
     path: '/permission',
     component: Layout,
@@ -190,44 +229,6 @@ export const asyncRoutes = [
         meta: {
           title: 'Role Permission',
           roles: ['admin']
-        }
-      }
-    ]
-  },
-
-  {
-    path: '/background-write',
-    component: Layout,
-    redirect: '/background-write/work-info-write',
-    alwaysShow: true, // will always show the root menu
-    name: 'background-write',
-    meta: {
-      title: '后台填报界面',
-      icon: 'lock',
-    },
-    children: [
-      {
-        path: 'work-info-write',
-        component: () => import('@/views/background-write/work-info-write'),
-        name: 'work-info-write',
-        meta: {
-          title: '施工信息填报',
-        }
-      },
-      {
-        path: 'warn-info-manage',
-        component: () => import('@/views/background-write/warn-info-manage'),
-        name: 'warn-info-manage',
-        meta: {
-          title: '预警信息管理'
-        }
-      },
-      {
-        path: 'warn-rule-maintain',
-        component: () => import('@/views/background-write/warn-rule-maintain'),
-        name: 'warn-rule-maintain',
-        meta: {
-          title: '预警规则维护',
         }
       }
     ]

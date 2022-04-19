@@ -1,9 +1,43 @@
 <template>
   <div>
     <div id="viewDiv" />
-    <div class="sliderblock">
-      <el-slider v-model="levelvalue" :max="20"  :marks="marks" @input="changeModel" />
+    <div class="mainMenu">
+      <el-dropdown @command="handleMenuCommand">
+        <el-button type="primary">
+          基础功能
+          <i class="el-icon-arrow-down el-icon--right" />
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="showLayer">模型管理</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
+
+    <dialog-drag
+      v-show="layerTreeVisible"
+      id="dialog-1"
+      class="dialog-3"
+      title="模型目录"
+      pinned="false"
+      :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
+      @close="closeLayerTreePanel"
+    >
+      <el-scrollbar :native="false" style="height: 100%">
+        <el-tree
+          show-checkbox
+          :data="modelTreeData"
+          :props="defaultProps"
+          node-key="id"
+          :default-expanded-keys="[1, 2]"
+          :default-checked-keys="defaultChecked"
+        />
+      </el-scrollbar>
+    </dialog-drag>
+
+    <div class="sliderblock">
+      <el-slider v-model="levelvalue" :max="20" vertical
+      height="200px" :marks="marks" @input="changeModel" />
+    </div>	
   </div>
 
 </template>
@@ -20,24 +54,76 @@ import Collection from '@arcgis/core/core/Collection'
 import SceneLayer from '@arcgis/core/layers/SceneLayer'
 import Legend from '@arcgis/core/widgets/Legend'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
+import DialogDrag from 'vue-dialog-drag'
 
 export default {
   name: '',
 
-  components: {},
+  components: {
+		DialogDrag,
+	},
 
   props: {},
 
   data() {
     return {
+      layerTreeVisible: false,
       levelvalue: 5,
       webscene: null,
       marks:{
         0:"0",
         5:"5",
         10:"10",
+				15:"15",
         20:"20"
-      }
+      },
+    	modelTreeData: [{
+          label: '三号横洞作业面',
+          children: [{
+            label: '初支开挖',
+            children: [{
+              label: '里程段',
+							children: [{
+								label: 'DK200+100~DK200+120',
+								children: [{
+									label: '构件模型',
+									children: [{
+										label: '喷混模型'
+									}, {
+										label: '拱架模型'
+									}]
+								}]
+							}, {
+								label: 'DK200+240~DK200+280',
+								children: [{
+									label: '构件模型',
+									children: [{
+										label: '拱架模型'
+									}]
+								}]
+							}]
+            }]
+          }, {
+							label: '仰拱',
+							children: [{
+								label: '里程段',
+								children: [{
+									label: 'DK200+240~DK200+280',
+									children: [{
+										label: '构件模型',
+										children: [{
+											label: '拱架模型'
+										}]
+									}]
+								}]
+							}]
+						}]
+        }],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+			defaultChecked: [],
     }
   },
 
@@ -151,25 +237,46 @@ export default {
     changeModel() {
       const filterLayer = this.webscene.layers.getItemAt(0)
       filterLayer.definitionExpression = 'Level < ' + this.levelvalue
-    }
+    },
+
+    // 处理菜单事件
+    handleMenuCommand(command) {
+      if (command === 'showLayer') {
+        this.layerTreeVisible = true
+      }
+    },
+    // 关闭图层面板
+    closeLayerTreePanel() {
+      this.layerTreeVisible = false
+    },
   }
 }
 </script>
+
+<style src="vue-dialog-drag/dist/vue-dialog-drag.css"></style>
+<style src="vue-dialog-drag/dist/dialog-styles.css"></style>
+
 <style scoped>
 #viewDiv {
   height: calc(100vh - 84px);;
 }
-.sliderblock {
-  background-color:whitesmoke;
-  left: 100px;
+.mainMenu {
+  left: 80px;
   top: 10px;
-  width: 200px;
-  height: 50px;
   position: absolute;
   z-index: 991;
 }
-.el-slider{
-  width: 180px;
-  margin-left: 10px;
+.sliderblock {
+	background: #9093991A;
+	border: 1px solid #bfcbd9;
+  left: 10px;
+  top: 220px;
+  height: 220px;
+	width: 60px;
+  position: absolute;
+  z-index: 991;
+}
+.el-slider.is-vertical {
+	top: 10px;
 }
 </style>
