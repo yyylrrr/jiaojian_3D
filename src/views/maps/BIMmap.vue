@@ -35,9 +35,15 @@
     </dialog-drag>
 
     <div class="sliderblock">
-      <el-slider v-model="levelvalue" :max="20" vertical
-      height="200px" :marks="marks" @input="changeModel" />
-    </div>	
+      <el-slider
+        v-model="levelvalue"
+        :max="20"
+        vertical
+        height="200px"
+        :marks="marks"
+        @input="changeModel"
+      />
+    </div>
   </div>
 
 </template>
@@ -60,8 +66,8 @@ export default {
   name: '',
 
   components: {
-		DialogDrag,
-	},
+    DialogDrag
+  },
 
   props: {},
 
@@ -70,60 +76,60 @@ export default {
       layerTreeVisible: false,
       levelvalue: 5,
       webscene: null,
-      marks:{
-        0:"0",
-        5:"5",
-        10:"10",
-				15:"15",
-        20:"20"
+      marks: {
+        0: '0',
+        5: '5',
+        10: '10',
+        15: '15',
+        20: '20'
       },
     	modelTreeData: [{
-          label: '三号横洞作业面',
+        label: '三号横洞作业面',
+        children: [{
+          label: '初支开挖',
           children: [{
-            label: '初支开挖',
+            label: '里程段',
             children: [{
-              label: '里程段',
-							children: [{
-								label: 'DK200+100~DK200+120',
-								children: [{
-									label: '构件模型',
-									children: [{
-										label: '喷混模型'
-									}, {
-										label: '拱架模型'
-									}]
-								}]
-							}, {
-								label: 'DK200+240~DK200+280',
-								children: [{
-									label: '构件模型',
-									children: [{
-										label: '拱架模型'
-									}]
-								}]
-							}]
+              label: 'DK200+100~DK200+120',
+              children: [{
+                label: '构件模型',
+                children: [{
+                  label: '喷混模型'
+                }, {
+                  label: '拱架模型'
+                }]
+              }]
+            }, {
+              label: 'DK200+240~DK200+280',
+              children: [{
+                label: '构件模型',
+                children: [{
+                  label: '拱架模型'
+                }]
+              }]
             }]
-          }, {
-							label: '仰拱',
-							children: [{
-								label: '里程段',
-								children: [{
-									label: 'DK200+240~DK200+280',
-									children: [{
-										label: '构件模型',
-										children: [{
-											label: '拱架模型'
-										}]
-									}]
-								}]
-							}]
-						}]
-        }],
+          }]
+        }, {
+          label: '仰拱',
+          children: [{
+            label: '里程段',
+            children: [{
+              label: 'DK200+240~DK200+280',
+              children: [{
+                label: '构件模型',
+                children: [{
+                  label: '拱架模型'
+                }]
+              }]
+            }]
+          }]
+        }]
+      }],
       defaultProps: {
         children: 'children',
         label: 'label'
       },
-			defaultChecked: [],
+      defaultChecked: []
     }
   },
 
@@ -248,7 +254,7 @@ export default {
     // 关闭图层面板
     closeLayerTreePanel() {
       this.layerTreeVisible = false
-    },
+    }
   }
 }
 </script>

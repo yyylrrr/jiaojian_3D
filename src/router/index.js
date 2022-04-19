@@ -94,7 +94,7 @@ export const constantRoutes = [
         meta: { title: 'BIMMap', icon: 'documentation' }
       }
     ]
-  },
+  }
   // {
   //   path: '/set',
   //   component: Layout,
@@ -162,7 +162,7 @@ export const asyncRoutes = [
     name: 'background-write',
     meta: {
       title: '后台填报界面',
-      icon: 'documentation',
+      icon: 'documentation'
     },
     children: [
       {
@@ -170,7 +170,7 @@ export const asyncRoutes = [
         component: () => import('@/views/background-write/work-info-write'),
         name: 'work-info-write',
         meta: {
-          title: '施工信息填报',
+          title: '施工信息填报'
         }
       },
       {
@@ -186,7 +186,7 @@ export const asyncRoutes = [
         component: () => import('@/views/background-write/warn-rule-maintain'),
         name: 'warn-rule-maintain',
         meta: {
-          title: '预警规则维护',
+          title: '预警规则维护'
         }
       }
     ]
