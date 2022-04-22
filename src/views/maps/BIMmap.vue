@@ -9,6 +9,7 @@
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="showLayer">模型管理</el-dropdown-item>
+					<el-dropdown-item command="registerService">注册服务</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -34,6 +35,31 @@
       </el-scrollbar>
     </dialog-drag>
 
+    <dialog-drag
+      v-show="layerRegisterService"
+      id="dialog-1"
+      class="dialog-2"
+      title="注册服务"
+      pinned="false"
+      :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
+      @close="closeRegisterService"
+    >
+		<el-input v-model="registerInfo.name"
+		size="medium" class="inputbox"
+		autosize placeholder="name"></el-input>
+		<el-input v-model="registerInfo.url"
+		size="medium" class="inputbox"
+		autosize placeholder="url"></el-input>
+		<el-input v-model="registerInfo.version"
+		size="medium" class="inputbox"
+		autosize placeholder="version"></el-input>
+		<el-row>
+			<el-col class="button-group">
+				<el-button size="medium" type="primary" @click="doRegisterService">确认</el-button>
+				<el-button size="medium" type="danger" @click="closeRegisterService">取消</el-button>
+			</el-col>
+		</el-row>
+    </dialog-drag>
     <div class="sliderblock">
       <el-slider
         v-model="levelvalue"
@@ -60,6 +86,7 @@ import Collection from '@arcgis/core/core/Collection'
 import SceneLayer from '@arcgis/core/layers/SceneLayer'
 import Legend from '@arcgis/core/widgets/Legend'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
 
 export default {
@@ -74,6 +101,7 @@ export default {
   data() {
     return {
       layerTreeVisible: false,
+			layerRegisterService: false,
       levelvalue: 5,
       webscene: null,
       marks: {
@@ -129,7 +157,12 @@ export default {
         children: 'children',
         label: 'label'
       },
-      defaultChecked: []
+      defaultChecked: [],
+			registerInfo: {
+				name: '',
+				url: '',
+				version: '',
+			}
     }
   },
 
@@ -250,11 +283,31 @@ export default {
       if (command === 'showLayer') {
         this.layerTreeVisible = true
       }
+			else if (command === 'registerService') {
+				this.layerRegisterService = true
+			}
     },
     // 关闭图层面板
     closeLayerTreePanel() {
       this.layerTreeVisible = false
-    }
+    },
+		closeRegisterService() {
+			this.layerRegisterService = false
+		},
+		doRegisterService() {
+			console.log(this.registerInfo.url);
+			const fl = new SceneLayer({
+				url : this.registerInfo.url
+			});// map.add(fl);
+			fl.load().then(function() {
+				let query = fl.createQuery();
+				query.outFields = [ "*" ];
+				fl.queryFeatures(query).then(function (results){
+					console.log(results.features);  // prints all the client-side features to the console
+				});
+			});
+			this.layerRegisterService = false
+		}
   }
 }
 </script>
@@ -263,26 +316,34 @@ export default {
 <style src="vue-dialog-drag/dist/dialog-styles.css"></style>
 
 <style scoped>
-#viewDiv {
-  height: calc(100vh - 84px);;
-}
-.mainMenu {
-  left: 80px;
-  top: 10px;
-  position: absolute;
-  z-index: 991;
-}
-.sliderblock {
-	background: #9093991A;
-	border: 1px solid #bfcbd9;
-  left: 10px;
-  top: 220px;
-  height: 220px;
-	width: 60px;
-  position: absolute;
-  z-index: 991;
-}
-.el-slider.is-vertical {
-	top: 10px;
-}
+	#viewDiv {
+		height: calc(100vh - 84px);;
+	}
+	.mainMenu {
+		left: 80px;
+		top: 10px;
+		position: absolute;
+		z-index: 991;
+	}
+	.sliderblock {
+		background: #9093991A;
+		border: 1px solid #bfcbd9;
+		left: 10px;
+		top: 220px;
+		height: 220px;
+		width: 60px;
+		position: absolute;
+		z-index: 991;
+	}
+	.el-slider.is-vertical {
+		top: 10px;
+	}
+	.inputbox {
+		padding: 5px;
+	}
+	.button-group {
+		margin-top: 5px;
+		display:flex;
+		justify-content:center;
+	}
 </style>
