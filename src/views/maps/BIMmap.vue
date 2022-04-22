@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { loadModules } from 'esri-loader'
 import WebScene from '@arcgis/core/WebScene'
 import SceneView from '@arcgis/core/views/SceneView'
@@ -111,51 +112,10 @@ export default {
         15: '15',
         20: '20'
       },
-    	modelTreeData: [{
-        label: '三号横洞作业面',
-        children: [{
-          label: '初支开挖',
-          children: [{
-            label: '里程段',
-            children: [{
-              label: 'DK200+100~DK200+120',
-              children: [{
-                label: '构件模型',
-                children: [{
-                  label: '喷混模型'
-                }, {
-                  label: '拱架模型'
-                }]
-              }]
-            }, {
-              label: 'DK200+240~DK200+280',
-              children: [{
-                label: '构件模型',
-                children: [{
-                  label: '拱架模型'
-                }]
-              }]
-            }]
-          }]
-        }, {
-          label: '仰拱',
-          children: [{
-            label: '里程段',
-            children: [{
-              label: 'DK200+240~DK200+280',
-              children: [{
-                label: '构件模型',
-                children: [{
-                  label: '拱架模型'
-                }]
-              }]
-            }]
-          }]
-        }]
-      }],
+      modelTreeData:[],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'name'
       },
       defaultChecked: [],
 			registerInfo: {
@@ -168,7 +128,9 @@ export default {
 
   computed: {},
 
-  created() {},
+  created() {
+    this.json2tree()
+  },
 
   mounted() {
     this.init()
@@ -246,7 +208,7 @@ export default {
 
         // retrieve the layer view of the scene layer
         view.whenLayerView(sceneLayer).then((sceneLayerView) => {
-          view.on('click', (event) => {
+          view.on('click', () => {
             sceneLayerView.queryFeatures().then((result) => {
               console.log(result.features)
             })
@@ -273,9 +235,35 @@ export default {
 
       view.ui.add(legend, 'top-right')
     },
+    //滑块控制
     changeModel() {
       const filterLayer = this.webscene.layers.getItemAt(0)
       filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+    },
+    //json节点生成tree
+    json2tree(){
+       axios
+        .request({
+          url: '/BIMContents.json', // 读取public目录下节点json文件
+          method: 'get'
+        }).then(res =>{
+              let nodelist = res.data.nodes; 
+              let list = nodelist.reduce(function(prev, item){
+                                  prev[item.parent] ? prev[item.parent].push(item) : prev[item.parent] = [item];
+                                  return prev
+                          },{});
+       
+              for (let key in list) {
+                  list[key].forEach(function (item) {
+                                        item.id = item.code + "_" +item.c_id;
+                                        item.children = list[item.code] ? list[item.code] : [];
+                                    });
+              }
+            
+              this.modelTreeData = list[""]; 
+              console.log(this.modelTreeData) ;
+        })
+
     },
 
     // 处理菜单事件
