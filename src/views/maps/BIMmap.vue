@@ -144,7 +144,7 @@ import Query from "@arcgis/core/rest/support/Query";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import DialogDrag from "vue-dialog-drag";
-import { getServer } from "@/api/bim.js";
+import { getjsontree,getServer } from "@/api/bim.js";
 
 export default {
   name: "",
@@ -180,7 +180,7 @@ export default {
         label: "name",
       },
       templist: null,
-      expandedkeys: ["010101_", "010102_", "01010101_", "01010102_"],
+      expandedkeys: ["010101", "010102", "01010101", "01010102"],
       // defaultChecked: [],
       registerInfo: {
         name: "",
@@ -333,23 +333,21 @@ export default {
     //BIM目录树
     //json节点生成tree
     json2tree() {
-      axios
-        .request({
-          url: "/BIMContents.json", // 读取public目录下节点json文件
-          method: "get",
-        })
-        .then((res) => {
-          let nodelist = res.data.nodes;
+        getjsontree().then((res) => {
+          debugger
+          let nodelist = res;
+          console.log(nodelist);
           let list = nodelist.reduce(function (prev, item) {
-            prev[item.parent]
-              ? prev[item.parent].push(item)
-              : (prev[item.parent] = [item]);
+            prev[item.pCode]
+              ? prev[item.pCode].push(item)
+              : (prev[item.pCode] = [item]);
             return prev;
           }, {});
-
+          console.log(list);
           for (let key in list) {
             list[key].forEach(function (item) {
-              item.id = item.code + "_" + item.c_id;
+              // item.id = item.code + "_" + item.bimKey;
+               item.id = item.code;
               item.children = list[item.code] ? list[item.code] : [];
             });
           }
@@ -387,7 +385,7 @@ export default {
     //双击节点
     handleNodeClick(data, node, self) {
         let highlight = null;
-      const objectId  = data.c_id;
+      const objectId  = data.bimKey;
       console.log(data,objectId);
       const queryExtent = new Query({
           objectIds: [objectId]
