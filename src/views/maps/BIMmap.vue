@@ -70,6 +70,94 @@
         @input="changeModel"
       />
     </div>
+		<div>
+			<el-card class="box-card">
+			<el-card class="box-title">
+				<dt class="title-font">构件施工信息</dt>
+			</el-card>
+			<div class="msg">
+            <el-row>
+              <el-col class="info" :span="24">
+                <div class="grid-content bg-purple">模型名称</div>
+              </el-col>
+              <el-col class="info" :span="8">
+                <div class="grid-content bg-purple">名称</div>
+              </el-col>
+              <el-col class="info" :span="16">
+                <div class="grid-content bg-purple">{{"无"}}</div>
+              </el-col>
+              <el-col class="info" :span="8">
+                <div class="grid-content bg-purple">名称</div>
+              </el-col>
+              <el-col class="info" :span="16">
+                <div class="grid-content bg-purple">{{"无"}}</div>
+              </el-col>
+              <el-col class="info" :span="8">
+                <div class="grid-content bg-purple">名称</div>
+              </el-col>
+              <el-col class="info" :span="16">
+                <div class="grid-content bg-purple">{{"无"}}</div>
+              </el-col>
+              <el-col class="info" :span="8">
+                <div class="grid-content bg-purple">名称</div>
+              </el-col>
+              <el-col class="info" :span="16">
+                <div class="grid-content bg-purple">{{"无"}}</div>
+              </el-col>
+              <el-col class="info" :span="8">
+                <div class="grid-content bg-purple">名称</div>
+              </el-col>
+              <el-col class="info" :span="16">
+                <div class="grid-content bg-purple">{{"无"}}</div>
+              </el-col>							
+            </el-row>
+			</div>
+			<el-card class="box-titlee">
+				<dt class="title-font">预警统计</dt>
+			</el-card>
+				<div class="merge-button-group">
+					<el-button type="primary" size="small" round plain class="merge-button">今日</el-button>
+					<el-button type="primary" size="small" round plain class="merge-button">昨日</el-button>
+					<el-button type="primary" size="small" round plain class="merge-button">近七日</el-button>
+				</div>
+				<div class="type-button-group">
+					<el-button type="primary" size="mini" round plain class="type-button">初支开挖</el-button>
+					<el-button type="primary" size="mini" round plain class="type-button">仰拱</el-button>
+				</div>
+				<div class="type-button-groupp">
+					<el-button type="primary" size="mini" round plain class="type-button">防、排水</el-button>
+					<el-button type="primary" size="mini" round plain class="type-button">二衬</el-button>
+				</div>
+			<div class="msg">
+				<el-table
+					border
+					style="width: 100%">
+					<el-table-column
+						type="index"
+						label="序号">
+					</el-table-column>
+					<el-table-column
+						label="构件">
+					</el-table-column>
+					<el-table-column
+						label="循环类型">
+					</el-table-column>
+					<el-table-column
+						label="里程段">
+					</el-table-column>
+					<el-table-column
+						label="指标项">
+					</el-table-column>
+					<el-table-column
+						label="预警详情">
+					</el-table-column>
+					<el-table-column
+						label="开始时间">
+					</el-table-column>
+				</el-table>
+			</div>
+			</el-card>
+		</div>
   </div>
 
 </template>
@@ -122,7 +210,8 @@ export default {
 				name: '',
 				url: '',
 				version: '',
-			}
+				components: []
+			},
     }
   },
 
@@ -226,14 +315,14 @@ export default {
         view: view
       })
       // view.ui.empty("top-left");
-      view.ui.add(layerList, 'top-right')
+      // view.ui.add(layerList, 'top-right')
       //   setSliceWidget();
 
-      const legend = new Legend({
-        view: view
-      })
+      // const legend = new Legend({
+      //   view: view
+      // })
 
-      view.ui.add(legend, 'top-right')
+      // view.ui.add(legend, 'top-right')
     },
     //滑块控制
     changeModel() {
@@ -266,6 +355,29 @@ export default {
 
     },
 
+		submitRegisterService() {
+			var that = this
+			const fl = new SceneLayer({
+				url : this.registerInfo.url
+			});// map.add(fl);
+			fl.load().then(function() {
+				let query = fl.createQuery();
+				query.outFields = [ "*" ];
+				fl.queryFeatures(query).then(function (results){
+					var ar = []
+					// console.log(results.features[0].attributes.oid);  // prints all the client-side features to the console
+					for (let i = 0; i < results.features.length; i++) {
+						// console.log(results.features[i].attributes.oid)
+						var tt = {};
+						tt.oid = results.features[i].attributes.oid
+						ar.push(tt)
+					}
+					that.registerInfo.components = ar
+					console.lo
+				});
+			});
+		},
+
     // 处理菜单事件
     handleMenuCommand(command) {
       if (command === 'showLayer') {
@@ -284,16 +396,8 @@ export default {
 		},
 		doRegisterService() {
 			console.log(this.registerInfo.url);
-			const fl = new SceneLayer({
-				url : this.registerInfo.url
-			});// map.add(fl);
-			fl.load().then(function() {
-				let query = fl.createQuery();
-				query.outFields = [ "*" ];
-				fl.queryFeatures(query).then(function (results){
-					console.log(results.features);  // prints all the client-side features to the console
-				});
-			});
+			this.submitRegisterService()
+			
 			this.layerRegisterService = false
 		}
   }
@@ -305,7 +409,7 @@ export default {
 
 <style scoped>
 	#viewDiv {
-		height: calc(100vh - 84px);;
+		height: calc(100vh - 50px);;
 	}
 	.mainMenu {
 		left: 80px;
@@ -333,5 +437,80 @@ export default {
 		margin-top: 5px;
 		display:flex;
 		justify-content:center;
+	}
+  .box-card {
+    width: 22%;
+		z-index: 991;
+		position: absolute;
+		background: #02233960;
+		border: 1px solid #4B9696;
+		top: 5px;
+		right: 5px;
+		height: 97%;
+  }
+	.box-title {
+		width: 40%;
+		background: #12374F;
+		height: 38px;
+		border: 1px solid #03C4DBD1;
+	}
+	.box-titlee {
+		width: 40%;
+		background: #12374F;
+		height: 38px;
+		margin-top: 170px;
+		border: 1px solid #03C4DBD1;
+	}
+	.title-font {
+    font-size: 15px;
+    font-weight: bold;
+		margin-top: -10px;
+		color: aliceblue;
+		text-align:center;
+	}
+	.msg {
+		margin-top: 3%;
+		margin-left: 10%;
+		width: 80%;
+		font-size: 14px;
+		color: #606266;
+	}
+	.merge-button-group {
+		margin-top: 3%;
+		width: 58%;
+	}
+	.type-button-group{
+		margin-top: -12%;
+		margin-left: 61%;
+		width: 40%;
+	}
+	.type-button-groupp{
+		margin-top: 1%;
+		margin-left: 61%;
+		width: 40%;
+	}
+	.merge-button {
+		background-color:transparent;
+		color: #2193FF;
+		font-weight: bold;
+		border: 1px solid #2193FF;
+		width: 30%;
+	}
+	.type-button{
+		background-color:transparent;
+		border: 1px solid #027DB4;
+		color: #F2F2F2;
+	}
+	.info {
+		border: 1px solid #facd9152;
+	}
+	.el-row {
+		height: 40px;
+	}
+	.el-col {
+		/* border-radius: 4px; */
+		text-align: center;
+		line-height: 30px;
+		color:  #fff;
 	}
 </style>

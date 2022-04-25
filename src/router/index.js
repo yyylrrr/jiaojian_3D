@@ -70,25 +70,26 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
+  // {
+  //   path: '/',
+  //   component: Layout,
+  //   redirect: '/dashboard',
+  //   children: [
+  //     {
+  //       path: 'dashboard',
+  //       component: () => import('@/views/dashboard/index'),
+  //       name: 'Dashboard',
+  //       meta: { title: 'Dashboard', icon: 'dashboard' }
+  //     }
+  //   ]
+  // },
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/map',
     children: [
       {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/map',
-    component: Layout,
-    children: [
-      {
-        path: 'BIMmap',
+        path: 'map',
         component: () => import('@/views/maps/BIMmap'),
         name: 'BIMMap',
         meta: { title: 'BIMMap', icon: 'documentation' }

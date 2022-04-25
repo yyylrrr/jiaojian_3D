@@ -17,7 +17,7 @@
 
 <script>
 import RightPanel from '@/components/RightPanel'
-import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
+import { AppMain, Navbar, Settings, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
 
@@ -28,7 +28,7 @@ export default {
     Navbar,
     RightPanel,
     Settings,
-    Sidebar,
+    // Sidebar,
     TagsView
   },
   mixins: [ResizeMixin],
@@ -43,7 +43,7 @@ export default {
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
-        openSidebar: this.sidebar.opened,
+        openSidebar: !this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
