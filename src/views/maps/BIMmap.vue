@@ -9,7 +9,9 @@
         </el-button>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="showLayer">模型管理</el-dropdown-item>
-					<el-dropdown-item command="registerService">注册服务</el-dropdown-item>
+          <el-dropdown-item command="registerService"
+            >注册服务</el-dropdown-item
+          >
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -24,13 +26,50 @@
       @close="closeLayerTreePanel"
     >
       <el-scrollbar :native="false" style="height: 100%">
+        <el-select
+          class="select1"
+          v-model="level1value"
+          clearable
+          placeholder="请选择"
+          @change="getlevel2value"
+        >
+          <el-option
+            v-for="item in level1option"
+            :key="item.id"
+            :label="item.name"
+            :value="item.children"
+          >
+          </el-option>
+        </el-select>
+        <el-select
+          class="select2"
+          v-model="level2value"
+          clearable
+          placeholder="请选择"
+          @change="getlevel2tree"
+        >
+          <el-option
+            v-for="item in level2option"
+            :key="item.id"
+            :label="item.name"
+            :value="item.children"
+          >
+          </el-option>
+        </el-select>
+        <el-input
+          class="searchinput"
+          placeholder="输入关键字进行过滤"
+          v-model="filterText"
+        >
+        </el-input>
         <el-tree
-          show-checkbox
           :data="modelTreeData"
           :props="defaultProps"
           node-key="id"
-          :default-expanded-keys="[1, 2]"
-          :default-checked-keys="defaultChecked"
+          :default-expanded-keys="expandedkeys"
+          :filter-node-method="filterNode"
+          @node-click="handleNodeClick"
+          ref="tree"
         />
       </el-scrollbar>
     </dialog-drag>
@@ -44,21 +83,37 @@
       :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
       @close="closeRegisterService"
     >
-		<el-input v-model="registerInfo.name"
-		size="medium" class="inputbox"
-		autosize placeholder="name"></el-input>
-		<el-input v-model="registerInfo.url"
-		size="medium" class="inputbox"
-		autosize placeholder="url"></el-input>
-		<el-input v-model="registerInfo.version"
-		size="medium" class="inputbox"
-		autosize placeholder="version"></el-input>
-		<el-row>
-			<el-col class="button-group">
-				<el-button size="medium" type="primary" @click="doRegisterService">确认</el-button>
-				<el-button size="medium" type="danger" @click="closeRegisterService">取消</el-button>
-			</el-col>
-		</el-row>
+      <el-input
+        v-model="registerInfo.name"
+        size="medium"
+        class="inputbox"
+        autosize
+        placeholder="name"
+      ></el-input>
+      <el-input
+        v-model="registerInfo.url"
+        size="medium"
+        class="inputbox"
+        autosize
+        placeholder="url"
+      ></el-input>
+      <el-input
+        v-model="registerInfo.version"
+        size="medium"
+        class="inputbox"
+        autosize
+        placeholder="version"
+      ></el-input>
+      <el-row>
+        <el-col class="button-group">
+          <el-button size="medium" type="primary" @click="doRegisterService"
+            >确认</el-button
+          >
+          <el-button size="medium" type="danger" @click="closeRegisterService"
+            >取消</el-button
+          >
+        </el-col>
+      </el-row>
     </dialog-drag>
     <div class="sliderblock">
       <el-slider
@@ -71,30 +126,31 @@
       />
     </div>
   </div>
-
 </template>
 
 <script>
-import axios from 'axios'
-import { loadModules } from 'esri-loader'
-import WebScene from '@arcgis/core/WebScene'
-import SceneView from '@arcgis/core/views/SceneView'
-import BuildingSceneLayer from '@arcgis/core/layers/BuildingSceneLayer'
-import Slice from '@arcgis/core/widgets/Slice'
-import SlicePlane from '@arcgis/core/analysis/SlicePlane'
-import LayerList from '@arcgis/core/widgets/LayerList'
-import Collection from '@arcgis/core/core/Collection'
-import SceneLayer from '@arcgis/core/layers/SceneLayer'
-import Legend from '@arcgis/core/widgets/Legend'
-import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
-import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
-import DialogDrag from 'vue-dialog-drag'
+import axios from "axios";
+import { loadModules } from "esri-loader";
+import WebScene from "@arcgis/core/WebScene";
+import SceneView from "@arcgis/core/views/SceneView";
+import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
+import Slice from "@arcgis/core/widgets/Slice";
+import SlicePlane from "@arcgis/core/analysis/SlicePlane";
+import LayerList from "@arcgis/core/widgets/LayerList";
+import Collection from "@arcgis/core/core/Collection";
+import SceneLayer from "@arcgis/core/layers/SceneLayer";
+import Legend from "@arcgis/core/widgets/Legend";
+import Query from "@arcgis/core/rest/support/Query";
+import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import DialogDrag from "vue-dialog-drag";
+import { getServer } from "@/api/bim.js";
 
 export default {
-  name: '',
+  name: "",
 
   components: {
-    DialogDrag
+    DialogDrag,
   },
 
   props: {},
@@ -102,38 +158,51 @@ export default {
   data() {
     return {
       layerTreeVisible: false,
-			layerRegisterService: false,
+      layerRegisterService: false,
       levelvalue: 5,
       webscene: null,
+      view:null,
       marks: {
-        0: '0',
-        5: '5',
-        10: '10',
-        15: '15',
-        20: '20'
+        0: "0",
+        5: "5",
+        10: "10",
+        15: "15",
+        20: "20",
       },
-      modelTreeData:[],
+      level1value: "",
+      level2value: "",
+      level1option: [],
+      level2option: [],
+      filterText: "",
+      modelTreeData: [],
       defaultProps: {
-        children: 'children',
-        label: 'name'
+        children: "children",
+        label: "name",
       },
-      defaultChecked: [],
-			registerInfo: {
-				name: '',
-				url: '',
-				version: '',
-			}
-    }
+      templist: null,
+      expandedkeys: ["010101_", "010102_", "01010101_", "01010102_"],
+      // defaultChecked: [],
+      registerInfo: {
+        name: "",
+        url: "",
+        version: "",
+      },
+    };
   },
-
+  watch: {
+    filterText(val) {
+      this.$refs.tree.filter(val);
+    },
+  },
   computed: {},
 
   created() {
-    this.json2tree()
+    this.json2tree();
+     this.geturlServer();
   },
 
   mounted() {
-    this.init()
+    this.init();
   },
 
   methods: {
@@ -144,194 +213,282 @@ export default {
         //     id: "f9011ca2bf0b42e78a507070b492472f",//92c97bd4e91447d6b3319da22bfa9147
         //     portal: 'http://portal.ehjedu.cn/arcgis'
         // }
-      })
+      });
 
-      const view = new SceneView({
-        container: 'viewDiv',
-        map: this.webscene
-      })
+       this.view = new SceneView({
+        container: "viewDiv",
+        map: this.webscene,
+        qualityProfile: "high",
+        environment: {
+          lighting: {
+            directShadowsEnabled: true,
+            ambientOcclusionEnabled: true,
+          },
+        },
+        // by default the highlight color is set to cyan
+        highlightOptions: {
+          haloColor: [255, 38, 150],
+          color: [255, 255, 255],
+          fillOpacity: 0.3,
+        },
+      });
 
       const typeRenderer = {
-        type: 'unique-value',
+        type: "unique-value",
         legendOptions: {
-          title: 'Level'
+          title: "Level",
         },
-        field: 'Level',
+        field: "Level",
         uniqueValueInfos: [
           {
             value: 11,
             symbol: {
-              type: 'mesh-3d',
+              type: "mesh-3d",
               symbolLayers: [
                 {
-                  type: 'fill',
-                  material: { color: '#FD7F6F', colorMixMode: 'replace' }
-                }
-              ]
+                  type: "fill",
+                  material: { color: "#FD7F6F", colorMixMode: "replace" },
+                },
+              ],
             },
-            label: '11'
+            label: "11",
           },
           {
             value: 19,
             symbol: {
-              type: 'mesh-3d',
+              type: "mesh-3d",
               symbolLayers: [
                 {
-                  type: 'fill',
-                  material: { color: '#7EB0D5', colorMixMode: 'replace' }
-                }
-              ]
+                  type: "fill",
+                  material: { color: "#7EB0D5", colorMixMode: "replace" },
+                },
+              ],
             },
-            label: '19'
-          }
-        ]
-      }
+            label: "19",
+          },
+        ],
+      };
       const layer = new SceneLayer({
-        url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer',
+        // url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
         renderer: typeRenderer,
-        title: 'Renderer Scene Layer'
-      })
+        title: "Renderer Scene Layer",
+      });
 
-      this.webscene.layers.add(layer)
+      this.webscene.layers.add(layer);
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
         // 过滤模型
-        const filterLayer = this.webscene.layers.getItemAt(0)
-        filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+        const filterLayer = this.webscene.layers.getItemAt(0);
+        filterLayer.definitionExpression = "Level < " + this.levelvalue;
         // retrieve the scene layer from the webscene - in this case it is the first layer
-        const sceneLayer = this.webscene.layers.getItemAt(0)
-        console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
+        const sceneLayer = this.webscene.layers.getItemAt(0);
+        console.log(sceneLayer.declaredClass + ", " + sceneLayer.title);
 
         // get all attributes for the query
-        sceneLayer.outFields = ['*']
+        sceneLayer.outFields = ["*"];
 
         // retrieve the layer view of the scene layer
-        view.whenLayerView(sceneLayer).then((sceneLayerView) => {
-          view.on('click', () => {
+        this.view.whenLayerView(sceneLayer).then((sceneLayerView) => {
+          this.view.on("click", () => {
             sceneLayerView.queryFeatures().then((result) => {
-              console.log(result.features)
-            })
-          })
+              console.log(result.features);
+            });
+          });
 
           // const filter = new FeatureFilter({
           //     where: "Level > 10"
           // });
           // sceneLayerView.filter = filter;
-        })
-      })
+        });
+      });
 
       // Add a layer list widget
       const layerList = new LayerList({
-        view: view
-      })
+        view: this.view,
+      });
       // view.ui.empty("top-left");
-      view.ui.add(layerList, 'top-right')
+      // view.ui.add(layerList, "top-right");
       //   setSliceWidget();
 
-      const legend = new Legend({
-        view: view
-      })
+      // const legend = new Legend({
+      //   view: view,
+      // });
 
-      view.ui.add(legend, 'top-right')
+      // view.ui.add(legend, "top-right");
     },
+   
+   geturlServer(){
+      getServer().then(res =>{
+         console.log(res);
+     }).catch(error => {
+        console.log(error)
+      })
+   },
     //滑块控制
     changeModel() {
-      const filterLayer = this.webscene.layers.getItemAt(0)
-      filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+      const filterLayer = this.webscene.layers.getItemAt(0);
+      filterLayer.definitionExpression = "Level < " + this.levelvalue;
     },
+    //BIM目录树
     //json节点生成tree
-    json2tree(){
-       axios
+    json2tree() {
+      axios
         .request({
-          url: '/BIMContents.json', // 读取public目录下节点json文件
-          method: 'get'
-        }).then(res =>{
-              let nodelist = res.data.nodes; 
-              let list = nodelist.reduce(function(prev, item){
-                                  prev[item.parent] ? prev[item.parent].push(item) : prev[item.parent] = [item];
-                                  return prev
-                          },{});
-       
-              for (let key in list) {
-                  list[key].forEach(function (item) {
-                                        item.id = item.code + "_" +item.c_id;
-                                        item.children = list[item.code] ? list[item.code] : [];
-                                    });
-              }
-            
-              this.modelTreeData = list[""]; 
-              console.log(this.modelTreeData) ;
+          url: "/BIMContents.json", // 读取public目录下节点json文件
+          method: "get",
         })
+        .then((res) => {
+          let nodelist = res.data.nodes;
+          let list = nodelist.reduce(function (prev, item) {
+            prev[item.parent]
+              ? prev[item.parent].push(item)
+              : (prev[item.parent] = [item]);
+            return prev;
+          }, {});
 
+          for (let key in list) {
+            list[key].forEach(function (item) {
+              item.id = item.code + "_" + item.c_id;
+              item.children = list[item.code] ? list[item.code] : [];
+            });
+          }
+
+          this.templist = list;
+
+          this.level1option = list[""];
+          // this.modelTreeData = list["0101"];
+          // console.log(this.modelTreeData);
+        });
     },
+    //获取二级下拉列表信息
+    getlevel2value(item) {
+      if (!item) {
+        // 如果取消一级二级不存在
+        this.level2option = [];
+        return;
+      }
+      this.level2option = item;
+      this.modelTreeData = item;
+    },
+    //通过二级下拉列表获取新的BIM目录树
+    getlevel2tree(item) {
+      if (!item) {
+        return;
+      }
+      this.modelTreeData = item;
+    },
+    //过滤节点树
+    filterNode(value, data) {
+      // console.log(value, data,9999);
+      if (!value) return true;
+      return data.name.indexOf(value) !== -1;
+    },
+    //双击节点
+    handleNodeClick(data, node, self) {
+        let highlight = null;
+      const objectId  = data.c_id;
+      console.log(data,objectId);
+      const queryExtent = new Query({
+          objectIds: [objectId]
+        });
+        const campusSceneLayer = this.webscene.layers.getItemAt(0);
+        this.view.whenLayerView(campusSceneLayer).then((campusLayerView)=>{
+              campusLayerView.queryExtent(queryExtent).then((result) => {
+                // zoom to the extent of the feature; we use the expand method as we don't want to zoom very close to it
+                view.goTo(result.extent.expand(4), { speedFactor: 0.5 });
+              });
+              // if any, remove the previous highlights
+              if (highlight) {
+                highlight.remove();
+              }
+              // highlight the feature with the returned objectId
+              highlight = campusLayerView.highlight([objectId]);
+        })
+       
 
+
+
+      // var target = this.sDTilesCollection.get(data.id)
+      // if (Cesium.defined(target)) {
+      //   this.viewer.flyTo(target)
+      // }
+    },
     // 处理菜单事件
     handleMenuCommand(command) {
-      if (command === 'showLayer') {
-        this.layerTreeVisible = true
+      if (command === "showLayer") {
+        this.layerTreeVisible = true;
+      } else if (command === "registerService") {
+        this.layerRegisterService = true;
       }
-			else if (command === 'registerService') {
-				this.layerRegisterService = true
-			}
     },
     // 关闭图层面板
     closeLayerTreePanel() {
-      this.layerTreeVisible = false
+      this.layerTreeVisible = false;
     },
-		closeRegisterService() {
-			this.layerRegisterService = false
-		},
-		doRegisterService() {
-			console.log(this.registerInfo.url);
-			const fl = new SceneLayer({
-				url : this.registerInfo.url
-			});// map.add(fl);
-			fl.load().then(function() {
-				let query = fl.createQuery();
-				query.outFields = [ "*" ];
-				fl.queryFeatures(query).then(function (results){
-					console.log(results.features);  // prints all the client-side features to the console
-				});
-			});
-			this.layerRegisterService = false
-		}
-  }
-}
+    closeRegisterService() {
+      this.layerRegisterService = false;
+    },
+    doRegisterService() {
+      console.log(this.registerInfo.url);
+      const fl = new SceneLayer({
+        url: this.registerInfo.url,
+      }); // map.add(fl);
+      fl.load().then(function () {
+        let query = fl.createQuery();
+        query.outFields = ["*"];
+        fl.queryFeatures(query).then(function (results) {
+          console.log(results.features); // prints all the client-side features to the console
+        });
+      });
+      this.layerRegisterService = false;
+    },
+  },
+};
 </script>
 
 <style src="vue-dialog-drag/dist/vue-dialog-drag.css"></style>
 <style src="vue-dialog-drag/dist/dialog-styles.css"></style>
 
 <style scoped>
-	#viewDiv {
-		height: calc(100vh - 84px);;
-	}
-	.mainMenu {
-		left: 80px;
-		top: 10px;
-		position: absolute;
-		z-index: 991;
-	}
-	.sliderblock {
-		background: #9093991A;
-		border: 1px solid #bfcbd9;
-		left: 10px;
-		top: 220px;
-		height: 220px;
-		width: 60px;
-		position: absolute;
-		z-index: 991;
-	}
-	.el-slider.is-vertical {
-		top: 10px;
-	}
-	.inputbox {
-		padding: 5px;
-	}
-	.button-group {
-		margin-top: 5px;
-		display:flex;
-		justify-content:center;
-	}
+#viewDiv {
+  height: calc(100vh - 84px);
+}
+.mainMenu {
+  left: 80px;
+  top: 10px;
+  position: absolute;
+  z-index: 991;
+}
+.sliderblock {
+  background: #9093991a;
+  border: 1px solid #bfcbd9;
+  left: 10px;
+  top: 220px;
+  height: 220px;
+  width: 60px;
+  position: absolute;
+  z-index: 991;
+}
+.el-slider.is-vertical {
+  top: 10px;
+}
+.inputbox {
+  padding: 5px;
+}
+.button-group {
+  margin-top: 5px;
+  display: flex;
+  justify-content: center;
+}
+.select1,
+.select2 {
+  width: 134px;
+}
+.select2 {
+  margin-left: 20px;
+}
+.searchinput {
+  margin: 10px 0;
+}
 </style>
