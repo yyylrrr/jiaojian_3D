@@ -258,7 +258,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getjsontree, getServer, uploadBIM } from '@/api/bim.js'
+import { getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
 
 export default {
   name: '',
@@ -302,7 +302,7 @@ export default {
         components: []
       },
       templist: null,
-      expandedkeys: ['010101', '010102', '01010101', '01010102'],
+      expandedkeys: ['01010101', '01010102', '0101010101', '0101010102'],
       featuresArray: []
     }
   },
@@ -543,7 +543,7 @@ export default {
 
     geturlServer() {
       getServer().then(res => {
-        console.log(res, '获取服务地址')
+        console.log(res.data, '获取服务地址')
       }).catch(error => {
         console.log(error)
       })
@@ -557,7 +557,7 @@ export default {
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
-        const nodelist = res
+        const nodelist = res.data
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
@@ -576,9 +576,9 @@ export default {
 
         this.templist = list
 
-        this.level1option = list['']
+        this.level1option = list['0101']
         // this.modelTreeData = list["0101"];
-        // console.log(this.modelTreeData);
+        //  console.log(this.level1option);
       })
     },
     // 获取二级下拉列表信息
