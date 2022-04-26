@@ -248,6 +248,7 @@ import BuildingSceneLayer from "@arcgis/core/layers/BuildingSceneLayer";
 import Slice from "@arcgis/core/widgets/Slice";
 import SlicePlane from "@arcgis/core/analysis/SlicePlane";
 import LayerList from "@arcgis/core/widgets/LayerList";
+import LayerView from "@arcgis/core/views/layers/LayerView";
 import Collection from "@arcgis/core/core/Collection";
 import SceneLayer from "@arcgis/core/layers/SceneLayer";
 import Legend from "@arcgis/core/widgets/Legend";
@@ -255,7 +256,7 @@ import Query from "@arcgis/core/rest/support/Query";
 import FeatureFilter from "@arcgis/core/layers/support/FeatureFilter";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import DialogDrag from "vue-dialog-drag";
-import { getServer } from "@/api/bim.js";
+import { getjsontree,getServer,uploadBIM } from "@/api/bim.js";
 
 export default {
   name: "",
@@ -270,9 +271,10 @@ export default {
     return {
       layerTreeVisible: false,
       layerRegisterService: false,
-      levelvalue: 20,
+      levelvalue: 500,
       webscene: null,
       view:null,
+      highlight:null,
       marks: {
         0: "0",
         5: "5",
@@ -298,8 +300,8 @@ export default {
 				components: []
 			},
       templist: null,
-      expandedkeys: ["010101_", "010102_", "01010101_", "01010102_"],
-      // defaultChecked: [],
+      expandedkeys: ["010101", "010102", "01010101", "01010102"],
+       featuresArray: [],
     }
   },
   watch: {
@@ -354,7 +356,7 @@ export default {
         field: "Level",
         uniqueValueInfos: [
           {
-            value: 11,
+            value: 17,
             symbol: {
               type: "mesh-3d",
               symbolLayers: [
@@ -364,10 +366,10 @@ export default {
                 },
               ],
             },
-            label: "11",
+            label: "17",
           },
           {
-            value: 19,
+            value: 18,
             symbol: {
               type: "mesh-3d",
               symbolLayers: [
@@ -377,11 +379,12 @@ export default {
                 },
               ],
             },
-            label: "19",
+            label: "18",
           },
         ],
       };
       const layer = new SceneLayer({
+          //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
         url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer",
         renderer: typeRenderer,
         title: "Renderer Scene Layer",
@@ -405,7 +408,7 @@ export default {
         this.view.whenLayerView(sceneLayer).then((sceneLayerView) => {
           this.view.on("click", () => {
             sceneLayerView.queryFeatures().then((result) => {
-              console.log(result.features);
+              console.log(result.features,"sceneLayerView");
             });
           });
 
@@ -420,20 +423,20 @@ export default {
       const layerList = new LayerList({
         view: this.view,
       });
-      // view.ui.empty("top-left");
-      // view.ui.add(layerList, "top-right");
+      // this.view.ui.empty("top-left");
+      // this.view.ui.add(layerList, "top-right");
       //   setSliceWidget();
 
       // const legend = new Legend({
-      //   view: view,
+      //   view: this.view,
       // });
 
-      // view.ui.add(legend, "top-right");
+      // this.view.ui.add(legend, "top-right");
     },
    
    geturlServer(){
       getServer().then(res =>{
-         console.log(res);
+         console.log(res,"获取服务地址");
      }).catch(error => {
         console.log(error)
       })
@@ -446,23 +449,20 @@ export default {
     //BIM目录树
     //json节点生成tree
     json2tree() {
-      axios
-        .request({
-          url: "/BIMContents.json", // 读取public目录下节点json文件
-          method: "get",
-        })
-        .then((res) => {
-          let nodelist = res.data.nodes;
+        getjsontree().then((res) => {
+          let nodelist = res;
+          // console.log(nodelist);
           let list = nodelist.reduce(function (prev, item) {
-            prev[item.parent]
-              ? prev[item.parent].push(item)
-              : (prev[item.parent] = [item]);
+            prev[item.pCode]
+              ? prev[item.pCode].push(item)
+              : (prev[item.pCode] = [item]);
             return prev;
           }, {});
-
+          // console.log(list);
           for (let key in list) {
             list[key].forEach(function (item) {
-              item.id = item.code + "_" + item.c_id;
+              // item.id = item.code + "_" + item.bimKey;
+               item.id = item.code;
               item.children = list[item.code] ? list[item.code] : [];
             });
           }
@@ -497,31 +497,54 @@ export default {
       if (!value) return true;
       return data.name.indexOf(value) !== -1;
     },
-    //双击节点
-    handleNodeClick(data, node, self) {
-        let highlight = null;
-      const objectId  = data.c_id;
-      console.log(data,objectId);
-      const queryExtent = new Query({
-          objectIds: [objectId]
+
+    getobjectId(campusSceneLayer,bimKey){
+      return  this.view.whenLayerView(campusSceneLayer).then(
+                            async (campusSceneLayerView)=>{
+               let result = await campusSceneLayerView.queryFeatures()
+
+               
+
+                const tempfeature = result.features.find( item =>{
+                        return  item.attributes.element_id == bimKey;
+                      })
+                      console.log(tempfeature,bimKey);
+                const objectId = tempfeature.attributes.oid;
+                return objectId;
         });
+    },
+    //双击节点
+    async handleNodeClick(data, node, self) {
+    
+      var selfthis = this;
+      // let highlight = null;
+      const bimKey  = data.bimKey;
+      const url = data.url;
+                  //    const queryExtent = new Query({
+                  //         objectIds: [objectId]
+                  //       });
         const campusSceneLayer = this.webscene.layers.getItemAt(0);
-        this.view.whenLayerView(campusSceneLayer).then((campusLayerView)=>{
-              campusLayerView.queryExtent(queryExtent).then((result) => {
-                // zoom to the extent of the feature; we use the expand method as we don't want to zoom very close to it
-                view.goTo(result.extent.expand(4), { speedFactor: 0.5 });
-              });
-              // if any, remove the previous highlights
-              if (highlight) {
-                highlight.remove();
-              }
-              // highlight the feature with the returned objectId
-              highlight = campusLayerView.highlight([objectId]);
-        })
-      // var target = this.sDTilesCollection.get(data.id)
-      // if (Cesium.defined(target)) {
-      //   this.viewer.flyTo(target)
-      // }
+        //第一个异步  queryExtent
+        const objectId = await this.getobjectId(campusSceneLayer,bimKey);
+        console.log(objectId);
+        const queryExtent = new Query({
+                          objectIds: [objectId]
+                        });
+        this.view.whenLayerView(campusSceneLayer).then( async (campusSceneLayerView)=>{
+                let result = await campusSceneLayerView.queryExtent(queryExtent)
+                if(result.extent){
+                   selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
+                      .catch((error) => {
+                                if (error.name != "AbortError") {
+                                      console.error(error);
+                                }
+                            });
+                 }
+                if (this.highlight) {
+                     this.highlight.remove();
+                }
+                this.highlight = campusSceneLayerView.highlight([objectId]);
+         })
     },
 
 		submitRegisterService() {
@@ -534,15 +557,24 @@ export default {
 				query.outFields = [ "*" ];
 				fl.queryFeatures(query).then(function (results){
 					var ar = []
-					// console.log(results.features[0].attributes.oid);  // prints all the client-side features to the console
-					for (let i = 0; i < results.features.length; i++) {
-						// console.log(results.features[i].attributes.oid)
-						var tt = {};
-						tt.oid = results.features[i].attributes.oid
-						ar.push(tt)
+          
+					//  console.log(results.features,111);  // prints all the client-side features to the console
+           
+					 for (let i = 0; i < results.features.length; i++) {
+						var bimattributes = {};
+            bimattributes.bimKey = results.features[i].attributes.element_id;
+            bimattributes.componentTypeName = "喷混模型" ;
+            bimattributes.cycleType = results.features[i].attributes.type;
+            bimattributes.ebs = results.features[i].attributes.ebs编码;
+            bimattributes.endSegment =  results.features[i].attributes.结束里程 ;
+            bimattributes.startSegment =  results.features[i].attributes.起始里程 ;
+            bimattributes.surroundRockGrade =   results.features[i].attributes.围岩等级 ;
+            bimattributes.workFace = results.features[i].attributes.隧道名称 ;
+						ar.push(bimattributes)
 					}
 					that.registerInfo.components = ar
-					console.lo
+           uploadBIM(that.registerInfo);
+					console.log(that.registerInfo);
 				});
 			});
 		},
@@ -562,7 +594,7 @@ export default {
 			this.layerRegisterService = false
 		},
 		doRegisterService() {
-			console.log(this.registerInfo.url);
+			// console.log(this.registerInfo.url);
 			this.submitRegisterService()
 			
 			this.layerRegisterService = false
