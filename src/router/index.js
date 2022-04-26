@@ -86,10 +86,10 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/map',
+    redirect: '/czgis',
     children: [
       {
-        path: 'map',
+        path: 'czgis',
         component: () => import('@/views/maps/BIMmap'),
         name: 'BIMMap',
         meta: { title: 'BIMMap', icon: 'documentation' }

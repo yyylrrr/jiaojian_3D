@@ -148,7 +148,7 @@ export default {
     font-size: 13px;
 		color:#efefef;
     left: 25%;
-    top: 62px;
+    top: 50px;
     transform: translateX(-50%);
 	}
 	.time{
@@ -157,7 +157,7 @@ export default {
 		color:#efefef;
 		font-weight: bold;
     left: 25%;
-    top: 40px;
+    top: 30px;
     transform: translateX(-50%);
 	}
 	.week{
@@ -166,7 +166,7 @@ export default {
 		color:#efefef;
 		font-weight: bold;
     left: 28.5%;
-    top: 48px;
+    top: 38px;
     transform: translateX(-50%);
 	}
 }

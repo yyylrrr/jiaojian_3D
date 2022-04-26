@@ -214,10 +214,17 @@
             />
           </el-table>
         </div>
-        <!-- <el-card class="box-titleee">
-				<dt class="title-font">施工模拟</dt>
-			</el-card>
-			<el-card class="box-bar">
+				<el-card class="box-titleee">
+					<dt class="title-font">超前地质勘探综合分析报告</dt>
+				</el-card>
+				<el-card class="box-bar">
+				<div class="device-tree">
+					<el-scrollbar style="height:100%">
+					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
+					</el-scrollbar>
+				</div>
+				</el-card>
+			<!-- <el-card class="box-bar">
 				<div class="sliderblock">
 					<el-slider
 						v-model="levelvalue"
@@ -306,7 +313,34 @@ export default {
       },
       templist: null,
       expandedkeys: ['010101', '010102', '01010101', '01010102'],
-      featuresArray: []
+      featuresArray: [],
+			pictree: [{
+				name: '格聂山3#横洞',
+				children: [{
+					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞'
+				},{
+					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞'
+				},{
+					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞'
+				},{
+					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞'
+				},{
+					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞'
+				},{
+					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞'					
+				},{
+					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞'
+				}]
+			},{
+				name: '格聂平-1',
+				children: [{
+					name: 'K1+317.6~K1+288-001格聂平-1'
+				},{
+					name: 'K1+288.8~K1+277-002格聂平-1'
+				},{
+					name: 'K1+280.0~K1+256.0-003格聂平-1'
+				}]
+			}]
     }
   },
   computed: {},
@@ -776,7 +810,7 @@ export default {
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
-		width: 40%;
+		width: 60%;
 		background: #12374F;
 		height: 38px;
 		margin-top: 20px;
@@ -786,7 +820,7 @@ export default {
 		background: #303133;
 		border: 1px solid #409EFF;
 		margin-top: 10px;
-		height: 200px;
+		height: 220px;
 	}
 	.title-font {
     font-size: 15px;
@@ -860,7 +894,7 @@ export default {
 		width: 100%;
 		background-color:transparent;
 		border: 1px solid #FACD91C2;
-		height: 550px;
+		height: 260px;
 		font-size: 4px;
 	}
 	.el-input__inner {
@@ -874,8 +908,12 @@ export default {
 	.serachtree{
 		background-color: transparent;
 		color: #eee;
-		border: 1px solid #eee;
-		
+		border: 1px solid #eee;		
+	}
+	.pictree{
+		background-color: transparent;
+		color: #eee;
+		height: 180px;
 	}
 	.el-tree-node.is-current.is-focusable{
 		background-color: transparent;
@@ -909,6 +947,7 @@ export default {
 			background-color: transparent;
 			color: #eee;
 		}
+
 </style>
 
 <style scoped>
