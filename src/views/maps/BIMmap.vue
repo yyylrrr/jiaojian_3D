@@ -127,37 +127,37 @@
         <div class="msg">
           <el-row>
             <el-col class="info" :span="24">
-              <div class="grid-content bg-purple">模型名称</div>
+              <div class="grid-content bg-purple">模型名称：{{this.modelname}}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">名称</div>
+              <div class="grid-content bg-purple">{{ this.attributename[0] || "属性1" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ "无" }}</div>
+              <div class="grid-content bg-purple">{{ this.attributesize[0] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">名称</div>
+              <div class="grid-content bg-purple">{{ this.attributename[1] || "属性2" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ "无" }}</div>
+              <div class="grid-content bg-purple">{{ this.attributesize[1] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">名称</div>
+              <div class="grid-content bg-purple">{{ this.attributename[2] || "属性3" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ "无" }}</div>
+              <div class="grid-content bg-purple">{{ this.attributesize[2] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">名称</div>
+              <div class="grid-content bg-purple">{{ this.attributename[3] || "属性4" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ "无" }}</div>
+              <div class="grid-content bg-purple">{{ this.attributesize[3] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">名称</div>
+              <div class="grid-content bg-purple">{{ this.attributename[4] || "属性5" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ "无" }}</div>
+              <div class="grid-content bg-purple">{{ this.attributesize[4] || "无" }}</div>
             </el-col>
           </el-row>
         </div>
@@ -268,7 +268,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getjsontree, getServer, uploadBIM } from '@/api/bim.js'
+import { getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
 
 export default {
   name: '',
@@ -340,7 +340,11 @@ export default {
 				},{
 					name: 'K1+280.0~K1+256.0-003格聂平-1'
 				}]
-			}]
+			}],
+      modelinfos: [],
+			attributename:[],
+			attributesize:[],
+			modelname:''
     }
   },
   computed: {},
@@ -548,19 +552,26 @@ export default {
         sceneLayer.outFields = ['*']
 
         // retrieve the layer view of the scene layer
-        this.view.whenLayerView(sceneLayer).then((sceneLayerView) => {
-          this.view.on('click', (item) => {
-            console.log(item);
-            sceneLayerView.queryFeatures().then((result) => {
-              console.log(result.features, 'sceneLayerView')
+        this.view.on("immediate-click", (event) => {
+          this.view.hitTest(event).then(async (hitTestResult) => {
+              if (hitTestResult.results.length > 0) {
+                 const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                 const ebs = modelAttributes.ebs编码;
+                 this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                             return  res.data;
+                                          })
+                                          .catch((error) => {
+                                            console.log(error);
+                                          });
+                console.log("点击模型获取构件施工信息",this.modelinfos);
+								this.getmodelinfo()
+              } 
+              return;
             })
-          })
-
-          // const filter = new FeatureFilter({
-          //     where: "Level > 10"
-          // });
-          // sceneLayerView.filter = filter;
-        })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
       })
 
       // Add a layer list widget
@@ -580,7 +591,7 @@ export default {
 
     geturlServer() {
       getServer().then(res => {
-        console.log(res, '获取服务地址')
+        console.log(res.data, '获取服务地址')
       }).catch(error => {
         console.log(error)
       })
@@ -594,7 +605,7 @@ export default {
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
-        const nodelist = res
+        const nodelist = res.data
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
@@ -613,9 +624,9 @@ export default {
 
         this.templist = list
 
-        this.level1option = list['']
+        this.level1option = list['0101']
         // this.modelTreeData = list["0101"];
-        // console.log(this.modelTreeData);
+        //  console.log(this.level1option);
       })
     },
     // 获取二级下拉列表信息
@@ -747,8 +758,28 @@ export default {
       if (rowIndex === 0) {
         return ' background-color:rgba(129,211,248,0.23); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
       }
-    }
+    },
 
+		getmodelinfo() {
+			var that = this
+			var br = []
+			var cr = []
+			for(let i = 0; i < this.modelinfos.length; i++){
+	
+					var info = {}
+					var infobox = []
+					infobox = this.modelinfos[i]
+					info.name = infobox[6]
+					info.size = infobox[7]
+					br.push(info.name)
+					cr.push(info.size)
+			}
+			var infoboxname = this.modelinfos[0]
+			that.modelname = infoboxname[5]
+			that.attributename = br
+			that.attributesize = cr
+			console.log("获取属性",that.attributename,that.attributesize,that.modelname)
+		}
   }
 }
 </script>
@@ -831,8 +862,8 @@ export default {
 	}
 	.msg {
 		margin-top: 3%;
-		margin-left: 10%;
-		width: 80%;
+		margin-left: 1%;
+		width: 98%;
 		font-size: 14px;
 		color: #606266;
 	}

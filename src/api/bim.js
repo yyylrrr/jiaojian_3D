@@ -25,3 +25,11 @@ export function uploadBIM(bimUploadRequest) {
     data:bimUploadRequest 
   })
 }
+
+//通过服务名称和objectid获取构件施工信息
+export function getmodulinfo(ebs) {
+  return request({
+    url: `https://portal.ehjedu.cn/arcgisService/addProperty/getByEbs/${ebs}`,
+    method: 'get',
+  })
+}
