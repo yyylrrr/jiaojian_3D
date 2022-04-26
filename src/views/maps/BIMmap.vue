@@ -303,7 +303,7 @@ export default {
       },
       templist: null,
       expandedkeys: ['01010101', '01010102', '0101010101', '0101010102'],
-      featuresArray: []
+      modelinfos: []
     }
   },
   computed: {},
@@ -511,19 +511,26 @@ export default {
         sceneLayer.outFields = ['*']
 
         // retrieve the layer view of the scene layer
-        this.view.whenLayerView(sceneLayer).then((sceneLayerView) => {
-          this.view.on('click', (item) => {
-            console.log(item);
-            sceneLayerView.queryFeatures().then((result) => {
-              console.log(result.features, 'sceneLayerView')
-            })
-          })
+        this.view.on("immediate-click", (event) => {
+          this.view.hitTest(event).then(async (hitTestResult) => {
+              if (hitTestResult.results.length > 0) {
+                 const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                 const ebs = modelAttributes.ebs编码;
+                 this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                             return  res.data;
+                                          })
+                                          .catch((error) => {
+                                            console.log(error);
+                                          });
 
-          // const filter = new FeatureFilter({
-          //     where: "Level > 10"
-          // });
-          // sceneLayerView.filter = filter;
-        })
+                console.log("点击模型获取构件施工信息",this.modelinfos);
+              } 
+              return;
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
       })
 
       // Add a layer list widget
