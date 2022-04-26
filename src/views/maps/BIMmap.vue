@@ -20,7 +20,7 @@
       v-show="layerTreeVisible"
       id="dialog-1"
       class="dialog-3"
-      title="模型目录"
+      title="BIM模型目录树"
       pinned="false"
       :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
       @close="closeLayerTreePanel"
@@ -31,6 +31,7 @@
           class="select1"
           clearable
           placeholder="请选择"
+					:popper-append-to-body = "false"
           @change="getlevel2value"
         >
           <el-option
@@ -45,6 +46,7 @@
           class="select2"
           clearable
           placeholder="请选择"
+					:popper-append-to-body = "false"
           @change="getlevel2tree"
         >
           <el-option
@@ -63,6 +65,7 @@
           ref="tree"
           :data="modelTreeData"
           :props="defaultProps"
+					class="serachtree"
           node-key="id"
           :default-expanded-keys="expandedkeys"
           :filter-node-method="filterNode"
@@ -618,7 +621,7 @@ export default {
 <style src="vue-dialog-drag/dist/vue-dialog-drag.css"></style>
 <style src="vue-dialog-drag/dist/dialog-styles.css"></style>
 
-<style scoped>
+<style scoped="scoped" lang="scss">
 	#viewDiv {
 		height: calc(100vh - 85px);;
 	}
@@ -740,6 +743,9 @@ export default {
 		line-height: 30px;
 		color:  #fff;
 	}
+	.dialog-3{
+		background: #333333;
+	}
 	.select1, .select2 {
 		width: 134px;
 	}
@@ -764,4 +770,89 @@ export default {
 		margin-left: 5%;
 		width: 20%;
 	}
+	.serachtree{
+		background-color: transparent;
+		color: #eee;
+		border: 1px solid #eee;
+		
+	}
+	.el-tree-node.is-current.is-focusable{
+		background-color: transparent;
+		border: 1px solid #eee;
+	}
+</style>
+
+<style>
+	
+    /* 修改element-ui中table组件的样式 */
+
+    .select1 .el-input__inner {
+			background: transparent;
+			color: #eee;
+			border: 1px solid #eee;
+		}
+
+    .select2 .el-input__inner {
+			background: transparent;
+			color: #eee;
+			border: 1px solid #eee;
+		}
+
+    .searchinput .el-input__inner {
+			background: transparent;
+			color: #eee;
+			border: 1px solid #eee;
+		}
+
+		.dialog-3.dialog-drag .dialog-header{
+			background-color: transparent;
+			color: #eee;
+		}
+</style>
+
+<style scoped>
+.el-tree /deep/ .el-tree-node .el-tree-node__content{
+  height: 40px;
+  background: transparent;
+  color: #efefef;
+}
+.el-tree /deep/ .is-current>.el-tree-node__content{
+  color: orange !important;
+}
+
+.el-tree /deep/ .el-tree-node__children .el-tree-node__content{
+  height:30px;
+  background:transparent !important;
+}
+
+.el-select /deep/ .popper__arrow::after {
+	border-bottom-color: #333333;
+}
+
+.el-select /deep/ .el-select-dropdown {
+	border: 1px solid #409EFF !important;
+	background: #333333 !important;
+	z-index: 9999;
+}
+
+.el-select /deep/ .el-select-dropdown__item {
+	color: #efefef !important;
+	 z-index: 9999;
+}
+
+.el-select /deep/ .el-select-dropdown__item.selected span{
+	color: orange !important;
+	z-index: 9999;
+}
+
+.el-select /deep/ .el-select-dropdown__item.hover{
+	 background-color: rgba(255, 255, 255, 0.06);
+	 color: rgba(255, 255, 255, 0.80) !important;
+	 z-index: 9999;
+}
+
+.el-select /deep/ .el-scrollbar__bar.is-vertical {
+	width: 10px;
+	top: 2px;
+}
 </style>
