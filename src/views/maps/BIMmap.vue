@@ -115,16 +115,6 @@
         </el-col>
       </el-row>
     </dialog-drag>
-    <div class="sliderblock">
-      <el-slider
-        v-model="levelvalue"
-        :max="20"
-        vertical
-        height="200px"
-        :marks="marks"
-        @input="changeModel"
-      />
-    </div>
 		<div>
 			<el-card class="box-card">
 			<el-card class="box-title">
@@ -180,37 +170,70 @@
 					<el-button type="primary" size="mini" round plain class="type-button">仰拱</el-button>
 				</div>
 				<div class="type-button-groupp">
-					<el-button type="primary" size="mini" round plain class="type-button">防、排水</el-button>
 					<el-button type="primary" size="mini" round plain class="type-button">二衬</el-button>
+					<el-button type="primary" size="mini" round plain class="type-button">防、排水</el-button>
 				</div>
-			<div class="msg">
+			<div class="msgg">
 				<el-table
-					border
-					style="width: 100%">
+					:row-style="tableRowStyle"
+					:header-cell-style="tableHeaderColor"
+					class="search-result-list">
 					<el-table-column
 						type="index"
-						label="序号">
+						label="序号"
+						width="46px">
 					</el-table-column>
 					<el-table-column
-						label="构件">
+						label="构件"
+						width="46px">
 					</el-table-column>
 					<el-table-column
-						label="循环类型">
+						label="循环类型"
+						width="46px">
 					</el-table-column>
 					<el-table-column
-						label="里程段">
+						label="里程段"
+						width="58px">
 					</el-table-column>
 					<el-table-column
-						label="指标项">
+						label="指标项"
+						width="58px">
 					</el-table-column>
 					<el-table-column
-						label="预警详情">
+						label="预警详情"
+						width="46px">
 					</el-table-column>
 					<el-table-column
-						label="开始时间">
+						label="开始时间"
+						width="71px">
 					</el-table-column>
 				</el-table>
 			</div>
+			<!-- <el-card class="box-titleee">
+				<dt class="title-font">施工模拟</dt>
+			</el-card>
+			<el-card class="box-bar">
+				<div class="sliderblock">
+					<el-slider
+						v-model="levelvalue"
+						:max="20"
+						:marks="marks"
+						@input="changeModel"
+					/>
+				</div>
+				<div class="block">
+					<el-date-picker
+						size = "small"
+						v-model="value1"
+						type="monthrange"
+						range-separator="至"
+						start-placeholder="开始月份"
+						end-placeholder="结束月份">
+					</el-date-picker>
+          <el-button size="small" type="primary" class="date-button"
+            >确认</el-button>
+				</div>
+			</el-card> -->
 			</el-card>
 		</div>
   </div>
@@ -247,7 +270,7 @@ export default {
     return {
       layerTreeVisible: false,
       layerRegisterService: false,
-      levelvalue: 5,
+      levelvalue: 20,
       webscene: null,
       view:null,
       marks: {
@@ -359,7 +382,7 @@ export default {
         ],
       };
       const layer = new SceneLayer({
-        // url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
+        url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer",
         renderer: typeRenderer,
         title: "Renderer Scene Layer",
       });
@@ -543,7 +566,20 @@ export default {
 			this.submitRegisterService()
 			
 			this.layerRegisterService = false
-		}
+		},
+
+    // 修改table tr行的背景色
+    tableRowStyle({ row, rowIndex }) {
+      return 'background-color: rgba(255,255,255,0.29);		border: 1px solid #FACD91C2;'
+    },
+
+    // 修改table header的背景色
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return ' background-color:rgba(129,211,248,0.23); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
+      }
+    }
+
   }
 }
 </script>
@@ -553,7 +589,7 @@ export default {
 
 <style scoped>
 	#viewDiv {
-		height: calc(100vh - 50px);;
+		height: calc(100vh - 85px);;
 	}
 	.mainMenu {
 		left: 80px;
@@ -562,14 +598,13 @@ export default {
 		z-index: 991;
 	}
 	.sliderblock {
-		background: #9093991A;
-		border: 1px solid #bfcbd9;
-		left: 10px;
-		top: 220px;
-		height: 220px;
-		width: 60px;
-		position: absolute;
-		z-index: 991;
+		margin-top: 5%;
+		margin-left: 5%;
+		width: 90%;
+	}
+	.block {
+		margin-left: 5%;
+		margin-top: 15%;
 	}
 	.el-slider.is-vertical {
 		top: 10px;
@@ -605,6 +640,19 @@ export default {
 		margin-top: 170px;
 		border: 1px solid #03C4DBD1;
 	}
+	.box-titleee {
+		width: 40%;
+		background: #12374F;
+		height: 38px;
+		margin-top: 20px;
+		border: 1px solid #03C4DBD1;
+	}
+	.box-bar {
+		background: #303133;
+		border: 1px solid #409EFF;
+		margin-top: 10px;
+		height: 200px;
+	}
 	.title-font {
     font-size: 15px;
     font-weight: bold;
@@ -618,6 +666,11 @@ export default {
 		width: 80%;
 		font-size: 14px;
 		color: #606266;
+	}
+	.msgg {
+		margin-top: 3%;
+		margin-left: 1%;
+		width: 98%;
 	}
 	.merge-button-group {
 		margin-top: 3%;
@@ -652,20 +705,32 @@ export default {
 		height: 40px;
 	}
 	.el-col {
-		/* border-radius: 4px; */
 		text-align: center;
 		line-height: 30px;
 		color:  #fff;
 	}
-
-.select1,
-.select2 {
-  width: 134px;
-}
-.select2 {
-  margin-left: 20px;
-}
-.searchinput {
-  margin: 10px 0;
-}
+	.select1, .select2 {
+		width: 134px;
+	}
+	.select2 {
+		margin-left: 20px;
+	}
+	.searchinput {
+		margin: 10px 0;
+	}
+	.search-result-list{
+		width: 100%;
+		background-color:transparent;
+		border: 1px solid #FACD91C2;
+		height: 550px;
+		font-size: 4px;
+	}
+	.el-input__inner {
+		border: 1px solid #409EFF;
+		width: 70%;
+	}
+	.date-button{
+		margin-left: 5%;
+		width: 20%;
+	}
 </style>
