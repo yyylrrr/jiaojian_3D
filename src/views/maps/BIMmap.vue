@@ -385,13 +385,117 @@ export default {
           }
         ]
       }
+      const popupOpenspaces = {
+        "title": "构件设计信息",
+        "content": [{
+          "type": "fields",
+          "fieldInfos": [
+            {
+              "fieldName": "assetID",
+              "label": "定位信息",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "IFD编码",
+              "label": "IFD编码",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+
+            {
+              "fieldName": "起始里程",
+              "label": "起始里程",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+               "format": null,
+              // "format": {
+              //             "places": 2,
+              //             "digitSeparator": true
+              //           },
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "结束里程",
+              "label": "终止里程",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+                        {
+              "fieldName": "Type",
+              "label": "类型名称",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "oid",
+              "label": "支护范围",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "oid",
+              "label": "材料型号",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "oid",
+              "label": "小导管长度",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "oid",
+              "label": "小导管直径",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+            {
+              "fieldName": "oid",
+              "label": "其他属性",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
+          ]
+        }]
+      }
       const layer = new SceneLayer({
         //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
         url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
         renderer: typeRenderer,
-        title: 'Renderer Scene Layer'
+        title: 'Renderer Scene Layer',
+        popupTemplate: popupOpenspaces
       })
-
+    
       this.webscene.layers.add(layer)
 
       // wait until the webscene finished loading
@@ -408,7 +512,8 @@ export default {
 
         // retrieve the layer view of the scene layer
         this.view.whenLayerView(sceneLayer).then((sceneLayerView) => {
-          this.view.on('click', () => {
+          this.view.on('click', (item) => {
+            console.log(item);
             sceneLayerView.queryFeatures().then((result) => {
               console.log(result.features, 'sceneLayerView')
             })
@@ -516,14 +621,10 @@ export default {
     // 双击节点
     async handleNodeClick(data, node, self) {
       var selfthis = this
-      // let highlight = null;
       const bimKey = data.bimKey
       const url = data.url
-      //    const queryExtent = new Query({
-      //         objectIds: [objectId]
-      //       });
       const campusSceneLayer = this.webscene.layers.getItemAt(0)
-      // 第一个异步  queryExtent
+      // 第一个异步 获取objectId queryExtent
       const objectId = await this.getobjectId(campusSceneLayer, bimKey)
       console.log(objectId)
       const queryExtent = new Query({
