@@ -302,7 +302,7 @@ export default {
         components: []
       },
       templist: null,
-      expandedkeys: ['01010101', '01010102', '0101010101', '0101010102'],
+      expandedkeys: ['01010201', '01010101', '01010102', '0101010101', '0101010102','0101020101','0101020102','0101020103'],
       modelinfos: []
     }
   },
@@ -431,70 +431,14 @@ export default {
               "format": null,
               "stringFieldOption": "text-box"
             },
-                        {
-              "fieldName": "Type",
-              "label": "类型名称",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "支护范围",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "材料型号",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "小导管长度",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "小导管直径",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "其他属性",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
           ]
         }]
       }
       const layer = new SceneLayer({
-        //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
-        // url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
         url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
         // renderer: typeRenderer,
         title: 'Renderer Scene Layer',
-        popupTemplate: popupOpenspaces
+        // popupTemplate: popupOpenspaces
       })
     
       this.webscene.layers.add(layer)
@@ -510,7 +454,7 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-
+         this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
           this.view.hitTest(event).then(async (hitTestResult) => {
@@ -613,7 +557,7 @@ export default {
       if (!value) return true
       return data.name.indexOf(value) !== -1
     },
-
+    // 获取构件的objectId
     getobjectId(campusSceneLayer, bimKey) {
       return this.view.whenLayerView(campusSceneLayer).then(
         async(campusSceneLayerView) => {
@@ -622,9 +566,24 @@ export default {
           const tempfeature = result.features.find(item => {
             return item.attributes.element_id == bimKey
           })
-          console.log(tempfeature, bimKey)
+          // console.log(tempfeature, bimKey)
           const objectId = tempfeature.attributes.oid
           return objectId
+        })
+    },
+     // 点击目录树节点获取ebs
+    getebs(campusSceneLayer, bimKey) {
+      return this.view.whenLayerView(campusSceneLayer).then(
+        async(campusSceneLayerView) => {
+          const result = await campusSceneLayerView.queryFeatures()
+
+          const tempfeature = result.features.find(item => {
+            return item.attributes.element_id == bimKey
+          })
+         
+          const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
+           console.log("这是点击节点获取ebs", ebs)
+          return ebs
         })
     },
     // 双击节点
@@ -635,7 +594,15 @@ export default {
       const campusSceneLayer = this.webscene.layers.getItemAt(0)
       // 第一个异步 获取objectId queryExtent
       const objectId = await this.getobjectId(campusSceneLayer, bimKey)
-      console.log(objectId)
+      const ebs = await this.getebs(campusSceneLayer, bimKey)
+      this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                              return  res.data;
+                            })
+                            .catch((error) => {
+                              console.log(error);
+                            });
+      console.log("点击目录树节点获取构件施工信息",this.modelinfos);
+      // console.log(objectId,ebs,1212)
       const queryExtent = new Query({
         objectIds: [objectId]
       })
@@ -654,6 +621,9 @@ export default {
         }
         this.highlight = campusSceneLayerView.highlight([objectId])
       })
+
+      //点击目录树节点，获取构件施工信息，右上角card渲染
+
     },
 
     submitRegisterService() {
@@ -694,6 +664,7 @@ export default {
     handleMenuCommand(command) {
       if (command === 'showLayer') {
         this.layerTreeVisible = true
+         this.json2tree()
       } else if (command === 'registerService') {
         this.layerRegisterService = true
       }
@@ -708,6 +679,7 @@ export default {
     doRegisterService() {
       // console.log(this.registerInfo.url);
       this.submitRegisterService()
+       this.json2tree()
 
       this.layerRegisterService = false
     },
