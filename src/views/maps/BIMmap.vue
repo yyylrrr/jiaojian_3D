@@ -153,12 +153,6 @@
             <el-col class="info" :span="16">
               <div class="grid-content bg-purple">{{ this.attributesize[3] || "无" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">{{ this.attributename[4] || "属性5" }}</div>
-            </el-col>
-            <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ this.attributesize[4] || "无" }}</div>
-            </el-col>
           </el-row>
         </div>
         <el-card class="box-titlee">
@@ -179,6 +173,8 @@
         </div>
         <div class="msgg">
           <el-table
+						:data = "mergedata"
+						border
             :row-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
             class="search-result-list"
@@ -186,31 +182,27 @@
             <el-table-column
               type="index"
               label="序号"
-              width="46px"
+              width="50px"
             />
             <el-table-column
-              label="构件"
-              width="46px"
+              label="工程结构"
+							prop="instruct"
+              width="50px"
             />
             <el-table-column
-              label="循环类型"
-              width="46px"
+              label="工程部位"
+							prop="position"
+              width="95px"
             />
             <el-table-column
-              label="里程段"
-              width="58px"
+              label="报警详情"
+							prop="details"
+
             />
             <el-table-column
-              label="指标项"
-              width="58px"
-            />
-            <el-table-column
-              label="预警详情"
-              width="46px"
-            />
-            <el-table-column
-              label="开始时间"
-              width="71px"
+              label="推送人"
+							prop="people"
+              width="70px"
             />
           </el-table>
         </div>
@@ -344,7 +336,13 @@ export default {
       modelinfos: [],
 			attributename:[],
 			attributesize:[],
-			modelname:''
+			modelname:'',
+			mergedata:[{
+				instruct:'拱墙衬砌',
+				position:'H3DK2+482-H3DK2+470',
+				details:'拱墙衬砌结构等级：B级',
+				people:'魏大勇、吴海舒'
+			}]
     }
   },
   computed: {},
@@ -367,10 +365,10 @@ export default {
     init() {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
-        // portalItem: {
-        //     id: "f9011ca2bf0b42e78a507070b492472f",//92c97bd4e91447d6b3319da22bfa9147
-        //     portal: 'http://portal.ehjedu.cn/arcgis'
-        // }
+        portalItem: {
+            id: "ef4613f21ed34c649c3a728dea62edc1",//92c97bd4e91447d6b3319da22bfa9147
+            portal: 'http://portal.ehjedu.cn/arcgis'
+        }
       })
 
       this.view = new SceneView({
@@ -399,7 +397,7 @@ export default {
         field: 'Level',
         uniqueValueInfos: [
           {
-            value: 17,
+            value: 1,
             symbol: {
               type: 'mesh-3d',
               symbolLayers: [
@@ -409,10 +407,10 @@ export default {
                 }
               ]
             },
-            label: '17'
+            label: '1'
           },
           {
-            value: 18,
+            value: 64,
             symbol: {
               type: 'mesh-3d',
               symbolLayers: [
@@ -422,7 +420,7 @@ export default {
                 }
               ]
             },
-            label: '18'
+            label: '64'
           }
         ]
       }
@@ -431,24 +429,24 @@ export default {
         "content": [{
           "type": "fields",
           "fieldInfos": [
-            {
-              "fieldName": "assetID",
-              "label": "定位信息",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "IFD编码",
-              "label": "IFD编码",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
+            // {
+            //   "fieldName": "assetID",
+            //   "label": "定位信息",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "IFD编码",
+            //   "label": "IFD编码",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
 
             {
               "fieldName": "起始里程",
@@ -472,66 +470,66 @@ export default {
               "format": null,
               "stringFieldOption": "text-box"
             },
-                        {
-              "fieldName": "Type",
-              "label": "类型名称",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "支护范围",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "材料型号",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "小导管长度",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "小导管直径",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "oid",
-              "label": "其他属性",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
+            //             {
+            //   "fieldName": "Type",
+            //   "label": "类型名称",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "oid",
+            //   "label": "支护范围",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "oid",
+            //   "label": "材料型号",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "oid",
+            //   "label": "小导管长度",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "oid",
+            //   "label": "小导管直径",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
+            // {
+            //   "fieldName": "oid",
+            //   "label": "其他属性",
+            //   "isEditable": true,
+            //   "tooltip": "",
+            //   "visible": true,
+            //   "format": null,
+            //   "stringFieldOption": "text-box"
+            // },
           ]
         }]
       }
       const layer = new SceneLayer({
-        //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
-        url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
+          url: "https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer",
+        //url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
         renderer: typeRenderer,
         title: 'Renderer Scene Layer',
         popupTemplate: popupOpenspaces
@@ -709,16 +707,18 @@ export default {
           //  console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
-            var bimattributes = {}
-            bimattributes.bimKey = results.features[i].attributes.element_id
-            bimattributes.componentTypeName = '喷混模型'
-            bimattributes.cycleType = results.features[i].attributes.type
-            bimattributes.ebs = results.features[i].attributes.ebs编码
-            bimattributes.endSegment = results.features[i].attributes.结束里程
-            bimattributes.startSegment = results.features[i].attributes.起始里程
-            bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
-            bimattributes.workFace = results.features[i].attributes.隧道名称
-            ar.push(bimattributes)
+						 if(results.features[i].attributes.ebs != ''){
+							var bimattributes = {}
+							bimattributes.bimKey = results.features[i].attributes.element_id
+							bimattributes.componentTypeName = '喷混模型'
+							bimattributes.cycleType = results.features[i].attributes.type
+							bimattributes.ebs = results.features[i].attributes.ebs
+							bimattributes.endSegment = results.features[i].attributes.结束里程
+							bimattributes.startSegment = results.features[i].attributes.起始里程
+							bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
+							bimattributes.workFace = results.features[i].attributes.隧道名称
+							ar.push(bimattributes)
+						 }
           }
           that.registerInfo.components = ar
           uploadBIM(that.registerInfo)
@@ -837,7 +837,7 @@ export default {
 		width: 40%;
 		background: #12374F;
 		height: 38px;
-		margin-top: 170px;
+		margin-top: 140px;
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
@@ -850,8 +850,8 @@ export default {
 	.box-bar {
 		background: #303133;
 		border: 1px solid #409EFF;
-		margin-top: 10px;
-		height: 220px;
+		margin-top: 15px;
+		height: 352px;
 	}
 	.title-font {
     font-size: 15px;
@@ -925,7 +925,7 @@ export default {
 		width: 100%;
 		background-color:transparent;
 		border: 1px solid #FACD91C2;
-		height: 260px;
+		height: 138px;
 		font-size: 4px;
 	}
 	.el-input__inner {
@@ -944,7 +944,7 @@ export default {
 	.pictree{
 		background-color: transparent;
 		color: #eee;
-		height: 180px;
+		height: 350px;
 	}
 	.el-tree-node.is-current.is-focusable{
 		background-color: transparent;
