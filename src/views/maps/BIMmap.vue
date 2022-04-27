@@ -516,7 +516,8 @@ export default {
           this.view.hitTest(event).then(async (hitTestResult) => {
               if (hitTestResult.results.length > 0) {
                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                 const ebs = modelAttributes.ebs编码;
+                 const ebs = modelAttributes.ebs;
+                 console.log("这是ebs" , ebs)
                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                              return  res.data;
                                           })
