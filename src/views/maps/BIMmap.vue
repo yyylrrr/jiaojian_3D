@@ -326,10 +326,10 @@ export default {
     init() {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
-        // portalItem: {
-        //     id: "f9011ca2bf0b42e78a507070b492472f",//92c97bd4e91447d6b3319da22bfa9147
-        //     portal: 'http://portal.ehjedu.cn/arcgis'
-        // }
+        portalItem: {
+            id: "ef4613f21ed34c649c3a728dea62edc1",
+            portal: 'http://portal.ehjedu.cn/arcgis'
+        }
       })
 
       this.view = new SceneView({
@@ -358,7 +358,7 @@ export default {
         field: 'Level',
         uniqueValueInfos: [
           {
-            value: 17,
+            value: 1,
             symbol: {
               type: 'mesh-3d',
               symbolLayers: [
@@ -368,10 +368,10 @@ export default {
                 }
               ]
             },
-            label: '17'
+            label: '1'
           },
           {
-            value: 18,
+            value: 64,
             symbol: {
               type: 'mesh-3d',
               symbolLayers: [
@@ -381,7 +381,7 @@ export default {
                 }
               ]
             },
-            label: '18'
+            label: '64'
           }
         ]
       }
@@ -490,7 +490,8 @@ export default {
       }
       const layer = new SceneLayer({
         //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
-        url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
+        // url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
+        url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
         renderer: typeRenderer,
         title: 'Renderer Scene Layer',
         popupTemplate: popupOpenspaces
@@ -502,7 +503,7 @@ export default {
       this.webscene.when(() => {
         // 过滤模型
         const filterLayer = this.webscene.layers.getItemAt(0)
-        filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+        // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
         // retrieve the scene layer from the webscene - in this case it is the first layer
         const sceneLayer = this.webscene.layers.getItemAt(0)
         console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
@@ -665,22 +666,25 @@ export default {
         fl.queryFeatures(query).then(function(results) {
           var ar = []
 
-          //  console.log(results.features,111);  // prints all the client-side features to the console
+            console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
-            var bimattributes = {}
-            bimattributes.bimKey = results.features[i].attributes.element_id
-            bimattributes.componentTypeName = '喷混模型'
-            bimattributes.cycleType = results.features[i].attributes.type
-            bimattributes.ebs = results.features[i].attributes.ebs编码
-            bimattributes.endSegment = results.features[i].attributes.结束里程
-            bimattributes.startSegment = results.features[i].attributes.起始里程
-            bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
-            bimattributes.workFace = results.features[i].attributes.隧道名称
-            ar.push(bimattributes)
+                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){
+                        var bimattributes = {}
+                        bimattributes.bimKey = results.features[i].attributes.element_id
+                        bimattributes.componentTypeName = '喷混模型'
+                        bimattributes.cycleType = results.features[i].attributes.type
+                        bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
+                        bimattributes.endSegment = results.features[i].attributes.结束里程
+                        bimattributes.startSegment = results.features[i].attributes.起始里程
+                        bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
+                        bimattributes.workFace = results.features[i].attributes.隧道名称
+                        ar.push(bimattributes)
+                }
+
           }
           that.registerInfo.components = ar
-          uploadBIM(that.registerInfo)
+          // uploadBIM(that.registerInfo)
           console.log(that.registerInfo)
         })
       })
