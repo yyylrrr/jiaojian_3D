@@ -364,7 +364,7 @@ export default {
               symbolLayers: [
                 {
                   type: 'fill',
-                  material: { color: '#FD7F6F', colorMixMode: 'replace' }
+                  material: { color: '#FFFFFF', colorMixMode: 'replace' }
                 }
               ]
             },
@@ -492,7 +492,7 @@ export default {
         //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
         // url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
         url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
-        renderer: typeRenderer,
+        // renderer: typeRenderer,
         title: 'Renderer Scene Layer',
         popupTemplate: popupOpenspaces
       })
@@ -675,16 +675,16 @@ export default {
                         bimattributes.componentTypeName = '喷混模型'
                         bimattributes.cycleType = results.features[i].attributes.type
                         bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
-                        bimattributes.endSegment = results.features[i].attributes.结束里程
-                        bimattributes.startSegment = results.features[i].attributes.起始里程
-                        bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
-                        bimattributes.workFace = results.features[i].attributes.隧道名称
+                        bimattributes.endSegment =  "结束里程"                //results.features[i].attributes.结束里程
+                        bimattributes.startSegment =  "起始里程"              //results.features[i].attributes.起始里程
+                        bimattributes.surroundRockGrade =  "围岩等级"             //results.features[i].attributes.围岩等级
+                        bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
                         ar.push(bimattributes)
                 }
 
           }
           that.registerInfo.components = ar
-          // uploadBIM(that.registerInfo)
+          uploadBIM(that.registerInfo)
           console.log(that.registerInfo)
         })
       })
