@@ -22,10 +22,9 @@
       class="dialog-3"
       title="BIM模型目录树"
       pinned="false"
-      :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
+      :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
       @close="closeLayerTreePanel"
     >
-      <el-scrollbar :native="false" style="height: 100%">
         <el-select
           v-model="level1value"
           class="select1"
@@ -61,8 +60,9 @@
           class="searchinput"
           placeholder="输入关键字进行过滤"
         />
+				<div class="serachtreebox">
+				<el-scrollbar class="scrollserachtree">
         <el-tree
-          ref="tree"
           :data="modelTreeData"
           :props="defaultProps"
 					class="serachtree"
@@ -71,7 +71,8 @@
           :filter-node-method="filterNode"
           @node-click="handleNodeClick"
         />
-      </el-scrollbar>
+				</el-scrollbar>
+				</div>
     </dialog-drag>
 
     <dialog-drag
@@ -125,35 +126,49 @@
           <dt class="title-font">构件施工信息</dt>
         </el-card>
         <div class="msg">
+					<el-scrollbar class="scrollInfoBox">
           <el-row>
             <el-col class="info" :span="24">
-              <div class="grid-content bg-purple">模型名称：{{this.modelname}}</div>
+              <div class="grid-content">模型名称：{{this.modelname}}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">{{ this.attributename[0] || "属性1" }}</div>
+              <div class="grid-content">{{ this.attributename[0] || "属性1" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ this.attributesize[0] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[0] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">{{ this.attributename[1] || "属性2" }}</div>
+              <div class="grid-content">{{ this.attributename[1] || "属性2" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ this.attributesize[1] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[1] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">{{ this.attributename[2] || "属性3" }}</div>
+              <div class="grid-content">{{ this.attributename[2] || "属性3" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ this.attributesize[2] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[2] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content bg-purple">{{ this.attributename[3] || "属性4" }}</div>
+              <div class="grid-content">{{ this.attributename[3] || "属性4" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content bg-purple">{{ this.attributesize[3] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
+            </el-col>
+            <el-col class="info" :span="8">
+              <div class="grid-content">{{ this.attributename[3] || "属性5" }}</div>
+            </el-col>
+            <el-col class="info" :span="16">
+              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
+            </el-col>
+            <el-col class="info" :span="8">
+              <div class="grid-content">{{ this.attributename[3] || "属性6" }}</div>
+            </el-col>
+            <el-col class="info" :span="16">
+              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
             </el-col>
           </el-row>
+					</el-scrollbar>
         </div>
         <el-card class="box-titlee">
           <dt class="title-font">预警统计</dt>
@@ -211,7 +226,7 @@
 				</el-card>
 				<el-card class="box-bar">
 				<div class="device-tree">
-					<el-scrollbar style="height:100%">
+					<el-scrollbar class="scrolldevice-tree">
 					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
 					</el-scrollbar>
 				</div>
@@ -304,7 +319,8 @@ export default {
         components: []
       },
       templist: null,
-      expandedkeys: ['010101', '010102', '01010101', '01010102'],
+      expandedkeys: ['01010201', '0101020103', '0101020102', '0101020101',
+			'0101020103001', '0101020102002', '0101020102001', '0101020101001', '0101020101002'],
       featuresArray: [],
 			pictree: [{
 				name: '格聂山3#横洞',
@@ -403,7 +419,7 @@ export default {
               symbolLayers: [
                 {
                   type: 'fill',
-                  material: { color: '#FD7F6F', colorMixMode: 'replace' }
+                  material: { color: '#FFFFFF', colorMixMode: 'replace' }
                 }
               ]
             },
@@ -528,9 +544,10 @@ export default {
         }]
       }
       const layer = new SceneLayer({
-          url: "https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer",
-        //url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
-        renderer: typeRenderer,
+        //  url: "https://portal.ehjedu.cn/server/rest/services/Hosted/%E9%87%91%E6%B2%99%E6%B1%9Fdgn%E6%A8%A1%E5%9E%8B/SceneServer",
+        // url: 'https://portal.ehjedu.cn/server/rest/services/Hosted/%E8%AF%95%E9%AA%8C%E6%A8%A1%E5%9E%8B%E7%BC%96%E7%A0%81V1_BG3F2Multipatch/SceneServer',
+        url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
+        // renderer: typeRenderer,
         title: 'Renderer Scene Layer',
         popupTemplate: popupOpenspaces
       })
@@ -541,7 +558,7 @@ export default {
       this.webscene.when(() => {
         // 过滤模型
         const filterLayer = this.webscene.layers.getItemAt(0)
-        filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+        // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
         // retrieve the scene layer from the webscene - in this case it is the first layer
         const sceneLayer = this.webscene.layers.getItemAt(0)
         console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
@@ -554,7 +571,7 @@ export default {
           this.view.hitTest(event).then(async (hitTestResult) => {
               if (hitTestResult.results.length > 0) {
                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                 const ebs = modelAttributes.ebs编码;
+                 const ebs = modelAttributes.ebs;
                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                              return  res.data;
                                           })
@@ -666,6 +683,7 @@ export default {
     },
     // 双击节点
     async handleNodeClick(data, node, self) {
+			//console.log("获取结点",data.code)
       var selfthis = this
       const bimKey = data.bimKey
       const url = data.url
@@ -704,21 +722,22 @@ export default {
         fl.queryFeatures(query).then(function(results) {
           var ar = []
 
-          //  console.log(results.features,111);  // prints all the client-side features to the console
+            console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
-						 if(results.features[i].attributes.ebs != ''){
-							var bimattributes = {}
-							bimattributes.bimKey = results.features[i].attributes.element_id
-							bimattributes.componentTypeName = '喷混模型'
-							bimattributes.cycleType = results.features[i].attributes.type
-							bimattributes.ebs = results.features[i].attributes.ebs
-							bimattributes.endSegment = results.features[i].attributes.结束里程
-							bimattributes.startSegment = results.features[i].attributes.起始里程
-							bimattributes.surroundRockGrade = results.features[i].attributes.围岩等级
-							bimattributes.workFace = results.features[i].attributes.隧道名称
-							ar.push(bimattributes)
-						 }
+                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){
+                        var bimattributes = {}
+                        bimattributes.bimKey = results.features[i].attributes.element_id
+                        bimattributes.componentTypeName = '喷混模型'
+                        bimattributes.cycleType = results.features[i].attributes.type
+                        bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
+                        bimattributes.endSegment =  "结束里程"                //results.features[i].attributes.结束里程
+                        bimattributes.startSegment =  "起始里程"              //results.features[i].attributes.起始里程
+                        bimattributes.surroundRockGrade =  "围岩等级"             //results.features[i].attributes.围岩等级
+                        bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
+                        ar.push(bimattributes)
+                }
+
           }
           that.registerInfo.components = ar
           uploadBIM(that.registerInfo)
@@ -837,7 +856,7 @@ export default {
 		width: 40%;
 		background: #12374F;
 		height: 38px;
-		margin-top: 140px;
+		margin-top: 20px;
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
@@ -866,6 +885,7 @@ export default {
 		width: 98%;
 		font-size: 14px;
 		color: #606266;
+		height: 160px;
 	}
 	.msgg {
 		margin-top: 3%;
@@ -913,10 +933,10 @@ export default {
 		background: #333333;
 	}
 	.select1, .select2 {
-		width: 134px;
+		width: 48%;
 	}
 	.select2 {
-		margin-left: 20px;
+		margin-left: 4%;
 	}
 	.searchinput {
 		margin: 10px 0;
@@ -939,17 +959,38 @@ export default {
 	.serachtree{
 		background-color: transparent;
 		color: #eee;
-		border: 1px solid #eee;		
+		height: 600px;	
+	}
+	.serachtreebox{
+		border: 1px solid #eee;
+		height: 600px;
 	}
 	.pictree{
 		background-color: transparent;
 		color: #eee;
-		height: 350px;
+		height: 300px;
 	}
 	.el-tree-node.is-current.is-focusable{
 		background-color: transparent;
 		border: 1px solid #eee;
 	}
+	.grid-content{
+		font-size: 4px;
+	}
+
+/*el-scrollbar 必须指定高度*/
+.scrollInfoBox {
+    height: 160px;
+    width: 100%;
+}
+.scrolldevice-tree{
+    height: 300px;
+    width: 100%;
+}
+.scrollserachtree{
+    height: 600px;
+    width: 100%;
+}
 </style>
 
 <style>
@@ -1025,5 +1066,10 @@ export default {
 .el-select /deep/ .el-scrollbar__bar.is-vertical {
 	width: 10px;
 	top: 2px;
+}
+
+
+.el-scrollbar /deep/ .el-scrollbar__wrap {
+    overflow-x: hidden;
 }
 </style>
