@@ -60,7 +60,7 @@
           class="searchinput"
           placeholder="输入关键字进行过滤"
         />
-				<!-- <div class="serachtreebox"> -->
+				<div class="serachtreebox">
 				<el-scrollbar class="scrollserachtree">
         <el-tree
           :data="modelTreeData"
@@ -72,7 +72,7 @@
           @node-click="handleNodeClick"
         />
 				</el-scrollbar>
-				<!-- </div> -->
+				</div>
     </dialog-drag>
 
     <dialog-drag
@@ -465,8 +465,8 @@ export default {
             // },
 
             {
-              "fieldName": "起始里程",
-              "label": "起始里程",
+              "fieldName": "ebs",
+              "label": "EBS编码",
               "isEditable": true,
               "tooltip": "",
               "visible": true,
@@ -478,23 +478,23 @@ export default {
               "stringFieldOption": "text-box"
             },
             {
-              "fieldName": "结束里程",
-              "label": "终止里程",
+              "fieldName": "Model",
+              "label": "Model",
               "isEditable": true,
               "tooltip": "",
               "visible": true,
               "format": null,
               "stringFieldOption": "text-box"
             },
-            //             {
-            //   "fieldName": "Type",
-            //   "label": "类型名称",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
+                        {
+              "fieldName": "Type",
+              "label": "类型名称",
+              "isEditable": true,
+              "tooltip": "",
+              "visible": true,
+              "format": null,
+              "stringFieldOption": "text-box"
+            },
             // {
             //   "fieldName": "oid",
             //   "label": "支护范围",
@@ -544,10 +544,10 @@ export default {
         }]
       }
       const layer = new SceneLayer({
-        url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
+        url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
         // renderer: typeRenderer,
         title: 'Renderer Scene Layer',
-        // popupTemplate: popupOpenspaces
+        popupTemplate: popupOpenspaces
       })
     
       this.webscene.layers.add(layer)
@@ -563,7 +563,7 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-         this.view.popup.autoOpenEnabled = false;
+        //  this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
           this.view.hitTest(event).then(async (hitTestResult) => {
@@ -821,8 +821,13 @@ export default {
 					br.push(info.name)
 					cr.push(info.size)
 			}
-			var infoboxname = this.modelinfos[0]
-			that.modelname = infoboxname[5]
+			if(this.modelinfos.length>5){
+				var infoboxname = this.modelinfos[0]
+				that.modelname = infoboxname[5]
+			}else{
+				console.log("属性不全，无法获得相关属性")
+			}
+
 			that.attributename = br
 			that.attributesize = cr
 			console.log("获取属性",that.attributename,that.attributesize,that.modelname)
@@ -898,7 +903,7 @@ export default {
 		background: #303133;
 		border: 1px solid #409EFF;
 		margin-top: 15px;
-		height: 352px;
+		height: 300px;
 	}
 	.title-font {
     font-size: 15px;
@@ -1012,7 +1017,7 @@ export default {
     width: 100%;
 }
 .scrolldevice-tree{
-    height: 300px;
+    height: 250px;
     width: 100%;
 }
 .scrollserachtree{
