@@ -382,7 +382,7 @@ export default {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
         portalItem: {
-            id: "ef4613f21ed34c649c3a728dea62edc1",//92c97bd4e91447d6b3319da22bfa9147
+            id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
             portal: 'http://portal.ehjedu.cn/arcgis'
         }
       })
@@ -544,7 +544,9 @@ export default {
         }]
       }
       const layer = new SceneLayer({
-        url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
+//  url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E6%9C%AA%E6%96%BD%E5%B7%A51_P1/SceneServer',
+          url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
+        // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
         // renderer: typeRenderer,
         title: 'Renderer Scene Layer',
         // popupTemplate: popupOpenspaces
@@ -563,7 +565,7 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-         this.view.popup.autoOpenEnabled = false;
+        //  this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
           this.view.hitTest(event).then(async (hitTestResult) => {
