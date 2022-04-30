@@ -445,25 +445,6 @@ export default {
         "content": [{
           "type": "fields",
           "fieldInfos": [
-            // {
-            //   "fieldName": "assetID",
-            //   "label": "定位信息",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "IFD编码",
-            //   "label": "IFD编码",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-
             {
               "fieldName": "起始里程",
               "label": "起始里程",
@@ -486,60 +467,6 @@ export default {
               "format": null,
               "stringFieldOption": "text-box"
             },
-            //             {
-            //   "fieldName": "Type",
-            //   "label": "类型名称",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "oid",
-            //   "label": "支护范围",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "oid",
-            //   "label": "材料型号",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "oid",
-            //   "label": "小导管长度",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "oid",
-            //   "label": "小导管直径",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
-            // {
-            //   "fieldName": "oid",
-            //   "label": "其他属性",
-            //   "isEditable": true,
-            //   "tooltip": "",
-            //   "visible": true,
-            //   "format": null,
-            //   "stringFieldOption": "text-box"
-            // },
           ]
         }]
       }
@@ -565,22 +492,32 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-        //  this.view.popup.autoOpenEnabled = false;
+          this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
           this.view.hitTest(event).then(async (hitTestResult) => {
               if (hitTestResult.results.length > 0) {
                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                 console.log("点击模型获取属性:" ,modelAttributes);
                  const ebs = modelAttributes.ebs;
+                 const objectId = modelAttributes.oid;
+                 //点击模型构件，高亮显示
+                 this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                        this.highlightModel(filterSceneLayerView,objectId);      
+                 })
+
                  console.log("这是ebs" , ebs)
-                 this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                             return  res.data;
-                                          })
-                                          .catch((error) => {
-                                            console.log(error);
-                                          });
-                console.log("点击模型获取构件施工信息",this.modelinfos);
-								this.getmodelinfo()
+                 if(ebs){
+                      this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                              return  res.data;
+                            })
+                            .catch((error) => {
+                              console.log(error);
+                            });
+                      // console.log("点击模型获取构件施工信息",this.modelinfos);
+                      this.getmodelinfo()
+                 }
+
               } 
               return;
             })
@@ -588,6 +525,7 @@ export default {
               console.error(error);
             });
         });
+
       })
 
       // Add a layer list widget
@@ -699,46 +637,50 @@ export default {
     },
     // 双击节点
     async handleNodeClick(data, node, self) {
-			//console.log("获取结点",data.code)
       var selfthis = this
       const bimKey = data.bimKey
       const url = data.url
       const campusSceneLayer = this.webscene.layers.getItemAt(0)
       // 第一个异步 获取objectId queryExtent
-      const objectId = await this.getobjectId(campusSceneLayer, bimKey)
-      const ebs = await this.getebs(campusSceneLayer, bimKey)
-      this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                              return  res.data;
-                            })
-                            .catch((error) => {
-                              console.log(error);
-                            });
-      console.log("点击目录树节点获取构件施工信息",this.modelinfos);
-			this.getmodelinfo()
-      // console.log(objectId,ebs,1212)
-      const queryExtent = new Query({
-        objectIds: [objectId]
-      })
-      this.view.whenLayerView(campusSceneLayer).then(async(campusSceneLayerView) => {
-        const result = await campusSceneLayerView.queryExtent(queryExtent)
-        if (result.extent) {
-          selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
-            .catch((error) => {
-              if (error.name != 'AbortError') {
-                console.error(error)
-              }
+      if (bimKey){
+            const objectId = await this.getobjectId(campusSceneLayer, bimKey)
+            const ebs = await this.getebs(campusSceneLayer, bimKey)
+            this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                        return  res.data;
+                      })
+                      .catch((error) => {
+                        console.log(error);
+                      });
+            console.log("点击目录树节点获取构件施工信息",this.modelinfos);
+            this.getmodelinfo()
+           //飞行放大
+            const queryExtent = new Query({
+              objectIds: [objectId]
             })
-        }
-        if (this.highlight) {
-          this.highlight.remove()
-        }
-        this.highlight = campusSceneLayerView.highlight([objectId])
-      })
-
+            this.view.whenLayerView(campusSceneLayer).then(async(campusSceneLayerView) => {
+              const result = await campusSceneLayerView.queryExtent(queryExtent)
+              if (result.extent) {
+                selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
+                  .catch((error) => {
+                    if (error.name != 'AbortError') {
+                      console.error(error)
+                    }
+                  })
+              }
+              this.highlightModel(campusSceneLayerView,objectId);
+            })
+       }
       //点击目录树节点，获取构件施工信息，右上角card渲染
 
     },
-
+    
+    //highlight
+    highlightModel(SceneLayerView,objectId){
+        if (this.highlight) {
+          this.highlight.remove()
+        }
+        this.highlight = SceneLayerView.highlight([objectId])
+    },
     submitRegisterService() {
       var that = this
       const fl = new SceneLayer({
