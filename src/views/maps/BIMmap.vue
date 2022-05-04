@@ -144,28 +144,28 @@
               <div class="grid-content">{{ this.attributesize[1] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[2] || "属性3" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "属性3" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[2] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[3] || "属性4" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "属性4" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[3] || "属性5" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "属性5" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[3] || "属性6" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "属性6" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[3] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
             </el-col>
           </el-row>
 					</el-scrollbar>
@@ -190,7 +190,7 @@
           <el-table
 						:data = "mergedata"
 						border
-            :row-style="tableRowStyle"
+            :cell-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
             class="search-result-list"
           >
@@ -224,37 +224,41 @@
 				<el-card class="box-titleee">
 					<dt class="title-font">超前地质勘探综合分析报告</dt>
 				</el-card>
-				<el-card class="box-bar">
+				<!-- <el-card class="box-bar">
 				<div class="device-tree">
 					<el-scrollbar class="scrolldevice-tree">
 					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
 					</el-scrollbar>
 				</div>
-				</el-card>
-			<!-- <el-card class="box-bar">
+				</el-card> -->
+			<el-card class="box-bar">
 				<div class="sliderblock">
 					<el-slider
 						v-model="levelvalue"
-						:max="20"
-						:marks="marks"
+						:max="levelmax"
+						:format-tooltip="formatTooltip"
 						@input="changeModel"
 					/>
 				</div>
 				<div class="block">
 					<el-date-picker
 						size = "small"
-						v-model="value1"
+						v-model="timepiker"
 						type="monthrange"
 						range-separator="至"
 						start-placeholder="开始月份"
-						end-placeholder="结束月份">
+						end-placeholder="结束月份"
+						format="yyyy年MM月"
+						value-format="yyyy-MM">
 					</el-date-picker>
-          <el-button size="small" type="primary" class="date-button"
+          <el-button size="small" type="primary" class="date-button" @click="pickmonth"
             >确认</el-button>
 				</div>
-			</el-card> -->
+			</el-card>
       </el-card>
     </div>
+
+		<ModelInfoPage :modelSelectInfo ="modelInoForm" />
   </div>
 </template>
 
@@ -277,11 +281,14 @@ import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
 import { getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
 
+import ModelInfoPage from "./components/model-info-page.vue"
+
 export default {
   name: '',
 
   components: {
-    DialogDrag
+    DialogDrag,
+		ModelInfoPage
   },
 
   props: {},
@@ -291,16 +298,10 @@ export default {
       layerTreeVisible: false,
       layerRegisterService: false,
       levelvalue: 500,
+			timepiker:'',
       webscene: null,
       view: null,
       highlight: null,
-      marks: {
-        0: '0',
-        5: '5',
-        10: '10',
-        15: '15',
-        20: '20'
-      },
       level1value: '',
       level2value: '',
       level1option: [],
@@ -359,6 +360,11 @@ export default {
 				details:'拱墙衬砌结构等级：B级',
 				people:'魏大勇、吴海舒'
 			}],
+			modelInoForm: {
+				title: '模型信息页',
+				opened: false,
+				modelInfo: {}
+			}
     }
   },
   computed: {},
@@ -507,6 +513,7 @@ export default {
           this.view.hitTest(event).then(async (hitTestResult) => {
               if (hitTestResult.results.length > 0) {
                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+								 this.modelInoForm.modelInfo = modelAttributes
                  console.log("点击模型获取属性:" ,modelAttributes);
                  const ebs = modelAttributes.ebs;
                  const objectId = modelAttributes.oid;
@@ -514,7 +521,6 @@ export default {
                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
                         this.highlightModel(filterSceneLayerView,objectId);      
                  })
-
                  console.log("这是ebs" , ebs)
                  if(ebs){
                       this.modelinfos = await  getmodulinfo(ebs).then((res) => {
@@ -526,6 +532,8 @@ export default {
                       // console.log("点击模型获取构件施工信息",this.modelinfos);
                       this.getmodelinfo()
                  }
+								 this.modelInoForm.opened = true;
+								//  console.log("获取点击弹框属性",this.modelInoForm.modelInfo)
 
               } 
               return;
@@ -747,10 +755,41 @@ export default {
 
       this.layerRegisterService = false
     },
-
+		pickmonth(){
+			if(this.timepiker != ''){
+				let month1, month2
+				month1 = this.timepiker[0].split('-')
+				month2 = this.timepiker[1].split('-')
+				month1 = parseInt(month1[0]) * 12 + parseInt(month1[1])
+				month2 = parseInt(month2[0]) * 12 + parseInt(month2[1])
+				this.levelmax = Math.abs(month2 - month1);
+			}
+		},
+		formatTooltip(val) {
+			if(this.timepiker != ''){
+				let date = this.timepiker[1].split('-')
+				let year = parseInt(date[0])
+				let month = parseInt(date[1])
+				console.log(year,month,this.levelmax-val)
+				if(month - ((this.levelmax-val) % 12) > 0){
+					year = year - Math.floor((this.levelmax-val)/12)
+					month = month - ((this.levelmax-val) % 12)
+				}
+				else if(month - ((this.levelmax-val) % 12) < 0){
+					year = year - Math.floor((this.levelmax-val)/12) - 1
+					month = (month + 12) - ((this.levelmax-val) % 12)
+				}
+				else if(month - ((this.levelmax-val) % 12) == 0){
+					year = year - Math.floor((this.levelmax-val)/12) - 1
+					month = 12
+				}
+				console.log(val,year,month)
+				return year + '-' + month
+			}
+		},
     // 修改table tr行的背景色
     tableRowStyle({ row, rowIndex }) {
-      return 'background-color: rgba(255,255,255,0.29);		border: 1px solid #FACD91C2;'
+      return 'background-color: rgba(255,255,255,0.29); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
     },
 
     // 修改table header的背景色
@@ -803,13 +842,13 @@ export default {
 		z-index: 991;
 	}
 	.sliderblock {
-		margin-top: 5%;
+		margin-top: 10%;
 		margin-left: 5%;
 		width: 90%;
 	}
 	.block {
 		margin-left: 5%;
-		margin-top: 15%;
+		margin-top: 20%;
 	}
 	.el-slider.is-vertical {
 		top: 10px;
@@ -877,6 +916,8 @@ export default {
 		margin-top: 3%;
 		margin-left: 1%;
 		width: 98%;
+		background-color:transparent;
+		color: #000;
 	}
 	.merge-button-group {
 		margin-top: 3%;
@@ -977,6 +1018,7 @@ export default {
     height: 600px;
     width: 100%;
 }
+
 </style>
 
 <style>
@@ -1005,7 +1047,10 @@ export default {
 			background-color: transparent;
 			color: #eee;
 		}
-
+/* 使表格背景透明 */
+.el-table th, .el-table tr {
+ background-color: transparent;
+ }
 </style>
 
 <style scoped>
@@ -1057,5 +1102,26 @@ export default {
 
 .el-scrollbar /deep/ .el-scrollbar__wrap {
     overflow-x: hidden;
+}
+
+ .table-wrapper /deep/ .el-table--fit{
+        padding: 20px;
+}
+ .table-wrapper /deep/  .el-table, .el-table__expanded-cell {
+    background-color: transparent;
+}
+
+ .table-wrapper /deep/ .el-table tr {
+    background-color: transparent!important;
+}
+ .table-wrapper /deep/  .el-table--enable-row-transition .el-table__body td, .el-table .cell{
+    background-color: transparent;
+}
+
+.el-table::before {
+	 left: 0;
+	 bottom: 0;
+	 width: 100%;
+	 height: 0px;
 }
 </style>
