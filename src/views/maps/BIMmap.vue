@@ -490,13 +490,15 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-          // this.view.popup.autoOpenEnabled = false;
+          this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
             this.view.hitTest(event).then(async (hitTestResult) => {
                 if (hitTestResult.results.length > 0) {
                   const modelAttributes = await hitTestResult.results[0].graphic.attributes;
                   console.log("点击模型获取属性:" ,modelAttributes);
+									this.modelInoForm.modelInfo = modelAttributes
+									this.modelInoForm.opened = true;
                   const ebs = modelAttributes.ebs;
                   const objectId = modelAttributes.oid;
                   //点击模型构件，高亮显示
@@ -506,13 +508,13 @@ export default {
 
                   console.log("这是ebs" , ebs)
                   if(ebs){
-                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                return  res.data;
+                        this.modelinfoss = await  getmodulinfo(ebs).then((res) => {
+                                return  res;
                               })
                               .catch((error) => {
                                 console.log(error);
                               });
-                        // console.log("点击模型获取构件施工信息",this.modelinfos);
+                        console.log("点击模型获取构件施工信息",this.modelinfoss);
                         this.getmodelinfo()
                   }
 
@@ -549,7 +551,7 @@ export default {
 
     geturlServer() {
       getServer().then(res => {
-        console.log(res.data, '获取服务地址')
+        console.log(res, '获取服务地址')
       }).catch(error => {
         console.log(error)
       })
@@ -652,7 +654,7 @@ export default {
             const objectId = await this.getobjectId(campusSceneLayer, bimKey)
             const ebs = await this.getebs(campusSceneLayer, bimKey)
             this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                        return  res.data;
+                        return  res;
                       })
                       .catch((error) => {
                         console.log(error);
