@@ -409,10 +409,10 @@ export default {
     init() {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
-        portalItem: {
-            id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
-            portal: 'http://portal.ehjedu.cn/arcgis'
-        }
+        // portalItem: {
+        //     id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
+        //     portal: 'http://portal.ehjedu.cn/arcgis'
+        // }
       })
 
       this.view = new SceneView({
@@ -468,52 +468,13 @@ export default {
           }
         ]
       }
-      const popupOpenspaces = {
-        "title": "构件设计信息",
-        "content": [{
-          "type": "fields",
-          "fieldInfos": [
-            {
-              "fieldName": "ebs",
-              "label": "EBS编码",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-               "format": null,
-              // "format": {
-              //             "places": 2,
-              //             "digitSeparator": true
-              //           },
-              "stringFieldOption": "text-box"
-            },
-            {
-              "fieldName": "Model",
-              "label": "Model",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-                        {
-              "fieldName": "Type",
-              "label": "类型名称",
-              "isEditable": true,
-              "tooltip": "",
-              "visible": true,
-              "format": null,
-              "stringFieldOption": "text-box"
-            },
-          ]
-        }]
-      }
+ 
       const layer = new SceneLayer({
 //  url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E6%9C%AA%E6%96%BD%E5%B7%A51_P1/SceneServer',
           url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
         // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
         // renderer: typeRenderer,
-        title: 'Renderer Scene Layer',
-        popupTemplate: popupOpenspaces
+        title: 'Renderer Scene Layer'
       })
     
       this.webscene.layers.add(layer)
@@ -529,42 +490,46 @@ export default {
 
         // get all attributes for the query
         sceneLayer.outFields = ['*']
-          this.view.popup.autoOpenEnabled = false;
+          // this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
-          this.view.hitTest(event).then(async (hitTestResult) => {
-              if (hitTestResult.results.length > 0) {
-                 const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-								 this.modelInoForm.modelInfo = modelAttributes
-                 console.log("点击模型获取属性:" ,modelAttributes);
-                 const ebs = modelAttributes.ebs;
-                 const objectId = modelAttributes.oid;
-                 //点击模型构件，高亮显示
-                 this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
-                        this.highlightModel(filterSceneLayerView,objectId);      
-                 })
-                 console.log("这是ebs" , ebs)
-                 if(ebs){
-                      this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                              return  res.data;
-                            })
-                            .catch((error) => {
-                              console.log(error);
-                            });
-                      // console.log("点击模型获取构件施工信息",this.modelinfos);
-                      this.getmodelinfo()
-                 }
-								 this.modelInoForm.opened = true;
-								//  console.log("获取点击弹框属性",this.modelInoForm.modelInfo)
+            this.view.hitTest(event).then(async (hitTestResult) => {
+                if (hitTestResult.results.length > 0) {
+                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                  console.log("点击模型获取属性:" ,modelAttributes);
+                  const ebs = modelAttributes.ebs;
+                  const objectId = modelAttributes.oid;
+                  //点击模型构件，高亮显示
+                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                          this.highlightModel(filterSceneLayerView,objectId);      
+                  })
 
-              } 
-              return;
+                  console.log("这是ebs" , ebs)
+                  if(ebs){
+                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                return  res.data;
+                              })
+                              .catch((error) => {
+                                console.log(error);
+                              });
+                        // console.log("点击模型获取构件施工信息",this.modelinfos);
+                        this.getmodelinfo()
+                  }
+
+                } 
+                return;
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+         });
+
+        this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
+            const filterSilderLayer = new FeatureFilter({
+              where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
             })
-            .catch((error) => {
-              console.error(error);
-            });
-        });
-
+            sceneLayerView.filter = filterSilderLayer;
+        })
       })
 
       // Add a layer list widget
@@ -597,7 +562,9 @@ export default {
     // BIM目录树
     // json节点生成tree
     json2tree() {
+      debugger
       getjsontree().then((res) => {
+        debugger
         const nodelist = res
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
