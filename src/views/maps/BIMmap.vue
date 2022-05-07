@@ -12,6 +12,9 @@
           <el-dropdown-item
             command="registerService"
           >注册服务</el-dropdown-item>
+          <el-dropdown-item
+            command="card"
+          >card</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -120,6 +123,23 @@
         </el-col>
       </el-row>
     </dialog-drag>
+
+    <dialog-drag
+      v-show="layerCardService"
+      id="dialog-1"
+      class="dialog-3"
+      title="card"
+      pinned="false"
+      :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
+      @close="closeCardService"
+    >
+				<div class="device-tree">
+					<el-scrollbar class="scrolldevice-tree">
+					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
+					</el-scrollbar>
+				</div>
+    </dialog-drag>
+
     <div>
       <el-card class="box-card">
         <el-card class="box-title">
@@ -297,6 +317,7 @@ export default {
     return {
       layerTreeVisible: false,
       layerRegisterService: false,
+			layerCardService: false,
       levelvalue: 500,
 			timepiker:'',
       webscene: null,
@@ -307,6 +328,7 @@ export default {
       level1option: [],
       level2option: [],
       filterText: '',
+			levelmax: 100,
       modelTreeData: [],
       defaultProps: {
         children: 'children',
@@ -576,7 +598,7 @@ export default {
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
-        const nodelist = res.data
+        const nodelist = res
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
@@ -739,6 +761,8 @@ export default {
          this.json2tree()
       } else if (command === 'registerService') {
         this.layerRegisterService = true
+      } else if (command === 'card') {
+        this.layerCardService = true
       }
     },
     // 关闭图层面板
@@ -747,6 +771,9 @@ export default {
     },
     closeRegisterService() {
       this.layerRegisterService = false
+    },
+    closeCardService() {
+      this.layerCardService = false
     },
     doRegisterService() {
       // console.log(this.registerInfo.url);
