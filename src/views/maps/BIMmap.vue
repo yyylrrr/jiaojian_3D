@@ -514,7 +514,7 @@ export default {
                               .catch((error) => {
                                 console.log(error);
                               });
-                        console.log("点击模型获取构件施工信息",this.modelinfoss);
+                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
                         this.getmodelinfo()
                   }
 
@@ -564,9 +564,7 @@ export default {
     // BIM目录树
     // json节点生成tree
     json2tree() {
-      debugger
       getjsontree().then((res) => {
-        debugger
         const nodelist = res
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
@@ -703,7 +701,7 @@ export default {
             console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
-                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){
+                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
                         var bimattributes = {}
                         bimattributes.bimKey = results.features[i].attributes.element_id
                         bimattributes.componentTypeName = '喷混模型'
