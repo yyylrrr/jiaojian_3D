@@ -507,12 +507,12 @@ export default {
                   console.log("这是ebs" , ebs)
                   if(ebs){
                         this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                return  res.data;
+                                return  res;
                               })
                               .catch((error) => {
                                 console.log(error);
                               });
-                        // console.log("点击模型获取构件施工信息",this.modelinfos);
+                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
                         this.getmodelinfo()
                   }
 
@@ -549,7 +549,7 @@ export default {
 
     geturlServer() {
       getServer().then(res => {
-        console.log(res.data, '获取服务地址')
+        console.log(res, '获取服务地址')
       }).catch(error => {
         console.log(error)
       })
@@ -650,7 +650,7 @@ export default {
             const objectId = await this.getobjectId(campusSceneLayer, bimKey)
             const ebs = await this.getebs(campusSceneLayer, bimKey)
             this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                        return  res.data;
+                        return  res;
                       })
                       .catch((error) => {
                         console.log(error);
@@ -699,7 +699,7 @@ export default {
             console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
-                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){
+                if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
                         var bimattributes = {}
                         bimattributes.bimKey = results.features[i].attributes.element_id
                         bimattributes.componentTypeName = '喷混模型'
