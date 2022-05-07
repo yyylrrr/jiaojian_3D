@@ -535,9 +535,7 @@ export default {
     // BIM目录树
     // json节点生成tree
     json2tree() {
-      debugger
       getjsontree().then((res) => {
-        debugger
         const nodelist = res
         // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
