@@ -496,7 +496,7 @@ export default {
             this.view.hitTest(event).then(async (hitTestResult) => {
                 if (hitTestResult.results.length > 0) {
                   const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                  console.log("点击模型获取属性:" ,modelAttributes);
+                  // console.log("点击模型获取属性:" ,modelAttributes);
 									this.modelInoForm.modelInfo = modelAttributes
 									this.modelInoForm.opened = true;
                   const ebs = modelAttributes.ebs;
@@ -506,15 +506,15 @@ export default {
                           this.highlightModel(filterSceneLayerView,objectId);      
                   })
 
-                  console.log("这是ebs" , ebs)
+                  // console.log("这是ebs" , ebs)
                   if(ebs){
-                        this.modelinfoss = await  getmodulinfo(ebs).then((res) => {
+                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                 return  res;
                               })
                               .catch((error) => {
                                 console.log(error);
                               });
-                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                         console.log("点击模型获取构件施工信息",this.modelinfos);
                         this.getmodelinfo()
                   }
 
@@ -637,7 +637,7 @@ export default {
           })
          
           const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-           console.log("这是点击节点获取ebs", ebs)
+          //  console.log("这是点击节点获取ebs", ebs)
           return ebs
         })
     },
@@ -698,7 +698,7 @@ export default {
         fl.queryFeatures(query).then(function(results) {
           var ar = []
 
-            console.log(results.features,111);  // prints all the client-side features to the console
+            // console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
                 if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
@@ -717,7 +717,7 @@ export default {
           }
           that.registerInfo.components = ar
           uploadBIM(that.registerInfo)
-          console.log(that.registerInfo)
+          // console.log(that.registerInfo)
         })
       })
     },
@@ -764,7 +764,7 @@ export default {
 				let date = this.timepiker[1].split('-')
 				let year = parseInt(date[0])
 				let month = parseInt(date[1])
-				console.log(year,month,this.levelmax-val)
+				// console.log(year,month,this.levelmax-val)
 				if(month - ((this.levelmax-val) % 12) > 0){
 					year = year - Math.floor((this.levelmax-val)/12)
 					month = month - ((this.levelmax-val) % 12)
@@ -777,7 +777,7 @@ export default {
 					year = year - Math.floor((this.levelmax-val)/12) - 1
 					month = 12
 				}
-				console.log(val,year,month)
+				// console.log(val,year,month)
 				return year + '-' + month
 			}
 		},
