@@ -14,7 +14,7 @@
           >注册服务</el-dropdown-item>
           <el-dropdown-item
             command="card"
-          >card</el-dropdown-item>
+          >分析报告</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -128,7 +128,7 @@
       v-show="layerCardService"
       id="dialog-1"
       class="dialog-3"
-      title="card"
+      title="超前地质勘探综合分析报告"
       pinned="false"
       :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
       @close="closeCardService"
@@ -242,7 +242,7 @@
           </el-table>
         </div>
 				<el-card class="box-titleee">
-					<dt class="title-font">超前地质勘探综合分析报告</dt>
+					<dt class="title-font">施工模拟</dt>
 				</el-card>
 				<!-- <el-card class="box-bar">
 				<div class="device-tree">
@@ -315,11 +315,13 @@ export default {
 
   data() {
     return {
+      serverUrls:[],
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
       levelvalue: 500,
 			timepiker:'',
+      layerMap:null,
       webscene: null,
       view: null,
       highlight: null,
@@ -398,7 +400,6 @@ export default {
 
   created() {
     this.json2tree()
-    this.geturlServer()
   },
 
   mounted() {
@@ -406,13 +407,13 @@ export default {
   },
 
   methods: {
-    init() {
+   async init() {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
-        // portalItem: {
-        //     id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
-        //     portal: 'http://portal.ehjedu.cn/arcgis'
-        // }
+        portalItem: {
+            id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
+            portal: 'http://portal.ehjedu.cn/arcgis'
+        }
       })
 
       this.view = new SceneView({
@@ -468,72 +469,95 @@ export default {
           }
         ]
       }
- 
-      const layer = new SceneLayer({
-//  url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E6%9C%AA%E6%96%BD%E5%B7%A51_P1/SceneServer',
-          url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
-        // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
-        // renderer: typeRenderer,
-        title: 'Renderer Scene Layer'
-      })
+      let urlmap = new Map();
+      await this.geturlServer();
+      console.log(this.serverUrls);
+      for(let i = 0;i < this.serverUrls.length;i++){
+          const layerurl = this.serverUrls[i].url;
+          urlmap.set(layerurl,new SceneLayer({url:layerurl}));
+          let sceneLayer = urlmap.get(layerurl)
+          this.webscene.layers.add(sceneLayer);
+
+       }
+       console.log("urlmap",urlmap)
+       this.layerMap = urlmap; 
+      // const layer = new SceneLayer({
+      //     url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
+      //   // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
+      //   // renderer: typeRenderer,
+      //   title: 'Renderer Scene Layer'
+      // })
     
-      this.webscene.layers.add(layer)
+      // this.webscene.layers.add(layer)
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
         // 过滤模型
-        const filterLayer = this.webscene.layers.getItemAt(0)
+        // const filterLayer = this.webscene.layers.getItemAt(0)
         // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
-        // retrieve the scene layer from the webscene - in this case it is the first layer
-        const sceneLayer = this.webscene.layers.getItemAt(0)
-        console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
+
+          const layerlength = this.webscene.layers.length;
+           console.log("layerlength",layerlength)
+          // for(let j = 0;j< layerlength;i++){
+          //   const sceneLayer = this.webscene.layers.getItemAt(j)
+          // }
+     
+          // console.log(sceneLayer)
+        // console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
 
         // get all attributes for the query
-        sceneLayer.outFields = ['*']
+       
           this.view.popup.autoOpenEnabled = false;
         // retrieve the layer view of the scene layer
         this.view.on("immediate-click", (event) => {
-            this.view.hitTest(event).then(async (hitTestResult) => {
-                if (hitTestResult.results.length > 0) {
-                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                  // console.log("点击模型获取属性:" ,modelAttributes);
-									this.modelInoForm.modelInfo = modelAttributes
-									this.modelInoForm.opened = true;
-                  const ebs = modelAttributes.ebs;
-                  const objectId = modelAttributes.oid;
-                  //点击模型构件，高亮显示
-                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
-                          this.highlightModel(filterSceneLayerView,objectId);      
+              // this.attributename = [];
+              // this.attributesize = [];
+              this.webscene.layers.forEach(async sceneLayer =>{
+                  console.log(sceneLayer)
+                  sceneLayer.outFields = ['*']
+                          
+                 await this.view.hitTest(event).then(async (hitTestResult) => {
+                        if (hitTestResult.results.length > 0) {
+                          const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                          const filterLayer = await hitTestResult.results[0].graphic.layer;
+                          console.log("点击模型获取属性:" ,modelAttributes);
+                          this.modelInoForm.modelInfo = modelAttributes
+                          this.modelInoForm.opened = true;
+                          const ebs = modelAttributes.ebs;
+                          const objectId = modelAttributes.oid;
+                          //点击模型构件，高亮显示
+                          this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                  this.highlightModel(filterSceneLayerView,objectId);      
+                          })
+
+                          console.log("这是ebs" , ebs)
+                          if(ebs){
+                                this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                        return  res;
+                                      })
+                                      .catch((error) => {
+                                        console.log(error);
+                                      });
+                                //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                                this.getmodelinfo()
+                          }
+
+                        } 
+                        return;
+                        }).catch((error) => {
+                            console.error(error);
+                            });
+                 
                   })
-
-                  // console.log("这是ebs" , ebs)
-                  if(ebs){
-                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                return  res;
-                              })
-                              .catch((error) => {
-                                console.log(error);
-                              });
-                         console.log("点击模型获取构件施工信息",this.modelinfos);
-                        this.getmodelinfo()
-                  }
-
-                } 
-                return;
-              })
-              .catch((error) => {
-                console.error(error);
-              });
          });
-
-        this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
-            const filterSilderLayer = new FeatureFilter({
-              where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
-            })
-            sceneLayerView.filter = filterSilderLayer;
-        })
+        // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
+        //     const filterSilderLayer = new FeatureFilter({
+        //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
+        //     })
+        //     sceneLayerView.filter = filterSilderLayer;
+        // })
       })
-
+     
       // Add a layer list widget
       const layerList = new LayerList({
         view: this.view
@@ -549,24 +573,30 @@ export default {
       // this.view.ui.add(legend, "top-right");
     },
 
-    geturlServer() {
-      getServer().then(res => {
-        console.log(res, '获取服务地址')
+    async geturlServer() {
+       this.serverUrls = await getServer().then(res => {
+          return res;
       }).catch(error => {
         console.log(error)
       })
     },
     // 滑块控制
     changeModel() {
-      const filterLayer = this.webscene.layers.getItemAt(0)
-      filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+      // const sceneLayer = this.webscene.layers.getItemAt(0)
+      // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+        // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
+        //     const filterSilderLayer = new FeatureFilter({
+        //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
+        //     })
+        //     sceneLayerView.filter = filterSilderLayer;
+        // })
     },
     // BIM目录树
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
         const nodelist = res
-        // console.log(nodelist);
+        //  console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
             ? prev[item.pCode].push(item)
@@ -583,7 +613,6 @@ export default {
         }
 
         this.templist = list
-
         this.level1option = list['0101']
         // this.modelTreeData = list["0101"];
         //  console.log(this.level1option);
@@ -619,7 +648,7 @@ export default {
           const result = await campusSceneLayerView.queryFeatures()
 
           const tempfeature = result.features.find(item => {
-            return item.attributes.element_id == bimKey
+            return item.attributes.oid == bimKey
           })
           // console.log(tempfeature, bimKey)
           const objectId = tempfeature.attributes.oid
@@ -633,7 +662,7 @@ export default {
           const result = await campusSceneLayerView.queryFeatures()
 
           const tempfeature = result.features.find(item => {
-            return item.attributes.element_id == bimKey
+            return item.attributes.oid == bimKey
           })
          
           const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
@@ -643,10 +672,12 @@ export default {
     },
     // 双击节点
     async handleNodeClick(data, node, self) {
+      console.log( this.layerMap);
       var selfthis = this
       const bimKey = data.bimKey
       const url = data.url
-      const campusSceneLayer = this.webscene.layers.getItemAt(0)
+      let campusSceneLayer = this.layerMap.get(url);     //this.webscene.layers.getItemAt(0);
+      campusSceneLayer.outFields = ['*']
       // 第一个异步 获取objectId queryExtent
       if (bimKey){
             const objectId = await this.getobjectId(campusSceneLayer, bimKey)
@@ -697,15 +728,14 @@ export default {
         query.outFields = ['*']
         fl.queryFeatures(query).then(function(results) {
           var ar = []
-
-            // console.log(results.features,111);  // prints all the client-side features to the console
+            console.log(results.features,111);  // prints all the client-side features to the console
 
 					 for (let i = 0; i < results.features.length; i++) {
                 if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
                         var bimattributes = {}
-                        bimattributes.bimKey = results.features[i].attributes.element_id
+                        bimattributes.bimKey = results.features[i].attributes.oid
                         bimattributes.componentTypeName = '喷混模型'
-                        bimattributes.cycleType = results.features[i].attributes.type
+                        bimattributes.cycleType = "类型"
                         bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
                         bimattributes.endSegment =  "结束里程"                //results.features[i].attributes.结束里程
                         bimattributes.startSegment =  "起始里程"              //results.features[i].attributes.起始里程
@@ -879,7 +909,7 @@ export default {
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
-		width: 60%;
+		width: 40%;
 		background: #12374F;
 		height: 38px;
 		margin-top: 20px;
