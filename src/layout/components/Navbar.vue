@@ -4,8 +4,8 @@
 			<img :src="logoSrc" width="20%" height="20%" alt="" />
 			<div class="logo-title">中国交通建设集团</div>
 		</div>
-		<div class="text-button"><el-button type="text">隧道掘进</el-button></div>
-		<div class="text-buttonn"><el-button type="text">后台管理</el-button></div>
+		<div class="text-button"><el-link>隧道掘进</el-link></div>
+		<div class="text-buttonn"><el-link href="https://portal.ehjedu.cn/czbusiness">后台管理</el-link></div>
 		<div class="date">{{dateFormat(date)}}</div>
 		<div class="time">{{timeFormat(date)}}</div>
 		<div class="week">{{weekFormat(date)}}</div>
@@ -126,9 +126,9 @@ export default {
 	.text-buttonn{
 		position: absolute;
 		left: 94%;
-		top: 27px;
+		top: 28px;
 	}
-	.el-button--text {
+	.el-link.el-link--default {
 		color: #efefef;
 		font-size: 15px;
 		font-weight: bold;

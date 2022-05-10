@@ -14,7 +14,7 @@
           >注册服务</el-dropdown-item>
           <el-dropdown-item
             command="card"
-          >card</el-dropdown-item>
+          >分析报告</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -128,7 +128,7 @@
       v-show="layerCardService"
       id="dialog-1"
       class="dialog-3"
-      title="card"
+      title="超前地质勘探综合分析报告"
       pinned="false"
       :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
       @close="closeCardService"
@@ -242,7 +242,7 @@
           </el-table>
         </div>
 				<el-card class="box-titleee">
-					<dt class="title-font">超前地质勘探综合分析报告</dt>
+					<dt class="title-font">施工模拟</dt>
 				</el-card>
 				<!-- <el-card class="box-bar">
 				<div class="device-tree">
@@ -681,7 +681,7 @@ export default {
           })
          
           const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-           console.log("这是点击节点获取ebs", ebs)
+          //  console.log("这是点击节点获取ebs", ebs)
           return ebs
         })
     },
@@ -762,7 +762,7 @@ export default {
           }
           that.registerInfo.components = ar
           uploadBIM(that.registerInfo)
-          console.log(that.registerInfo)
+          // console.log(that.registerInfo)
         })
       })
     },
@@ -809,7 +809,7 @@ export default {
 				let date = this.timepiker[1].split('-')
 				let year = parseInt(date[0])
 				let month = parseInt(date[1])
-				console.log(year,month,this.levelmax-val)
+				// console.log(year,month,this.levelmax-val)
 				if(month - ((this.levelmax-val) % 12) > 0){
 					year = year - Math.floor((this.levelmax-val)/12)
 					month = month - ((this.levelmax-val) % 12)
@@ -822,7 +822,7 @@ export default {
 					year = year - Math.floor((this.levelmax-val)/12) - 1
 					month = 12
 				}
-				console.log(val,year,month)
+				// console.log(val,year,month)
 				return year + '-' + month
 			}
 		},
@@ -924,7 +924,7 @@ export default {
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
-		width: 60%;
+		width: 40%;
 		background: #12374F;
 		height: 38px;
 		margin-top: 20px;
