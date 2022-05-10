@@ -287,6 +287,8 @@ import axios from 'axios'
 import { loadModules } from 'esri-loader'
 import WebScene from '@arcgis/core/WebScene'
 import SceneView from '@arcgis/core/views/SceneView'
+import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
+import BasemapToggle from "@arcgis/core/widgets/BasemapToggle";
 import BuildingSceneLayer from '@arcgis/core/layers/BuildingSceneLayer'
 import Slice from '@arcgis/core/widgets/Slice'
 import SlicePlane from '@arcgis/core/analysis/SlicePlane'
@@ -562,6 +564,19 @@ export default {
       const layerList = new LayerList({
         view: this.view
       })
+
+       var basemapGallery  = new BasemapGallery({
+              view: this.view,
+              // nextBasemap: "topo"
+              source: {
+                portal: {
+                  url: "https://www.arcgis.com",
+                  useVectorBasemaps: true // Load vector tile basemaps
+                }
+              },
+              visible:false
+            });
+       this.view.ui.add(basemapGallery,"bottom-left");
       // this.view.ui.empty("top-left");
       // this.view.ui.add(layerList, "top-right");
       //   setSliceWidget();
@@ -1046,6 +1061,12 @@ export default {
 </style>
 
 <style>
+.esri-ui-top-left{
+   display: none;
+}
+.esri-ui .esri-attribution {
+  display: none;
+}
 	
     /* 修改element-ui中table组件的样式 */
 
