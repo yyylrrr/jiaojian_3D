@@ -1,7 +1,16 @@
 <template>
   <div>
     <div id="viewDiv" />
+    <el-slider class="opcityslider"
+      v-model="opcityvalue"
+      vertical
+      :max ="100"
+      height="80px"
+      :format-tooltip="formatopcity"
+			@input="changeopcityvalue">
+    </el-slider>
     <div class="mainMenu">
+
       <el-button @click="OpenbasemapGallery">
         底图
       </el-button>
@@ -291,7 +300,6 @@ import { loadModules } from 'esri-loader'
 import WebScene from '@arcgis/core/WebScene'
 import SceneView from '@arcgis/core/views/SceneView'
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
-import BasemapToggle from "@arcgis/core/widgets/BasemapToggle";
 import BuildingSceneLayer from '@arcgis/core/layers/BuildingSceneLayer'
 import Slice from '@arcgis/core/widgets/Slice'
 import SlicePlane from '@arcgis/core/analysis/SlicePlane'
@@ -320,6 +328,7 @@ export default {
 
   data() {
     return {
+      opcityvalue:80,
       serverUrls:[],
       basemapGallery:null,
       layerTreeVisible: false,
@@ -498,71 +507,71 @@ export default {
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
-        // 过滤模型
-        // const filterLayer = this.webscene.layers.getItemAt(0)
-        // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+            // 过滤模型
+            // const filterLayer = this.webscene.layers.getItemAt(0)
+            // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
 
-          const layerlength = this.webscene.layers.length;
-           console.log("layerlength",layerlength)
-          // for(let j = 0;j< layerlength;i++){
-          //   const sceneLayer = this.webscene.layers.getItemAt(j)
-          // }
-     
-          // console.log(sceneLayer)
-        // console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
+              const layerlength = this.webscene.layers.length;
+              console.log("layerlength",layerlength)
+              // for(let j = 0;j< layerlength;i++){
+              //   const sceneLayer = this.webscene.layers.getItemAt(j)
+              // }
+        
+              // console.log(sceneLayer)
+            // console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
 
-        // get all attributes for the query
-       
-          this.view.popup.autoOpenEnabled = false;
-        // retrieve the layer view of the scene layer
-        this.view.on("immediate-click", (event) => {
-              // this.attributename = [];
-              // this.attributesize = [];
-              this.webscene.layers.forEach(async sceneLayer =>{
-                  console.log(sceneLayer)
-                  sceneLayer.outFields = ['*']
-                          
-                 await this.view.hitTest(event).then(async (hitTestResult) => {
-                        if (hitTestResult.results.length > 0) {
-                          const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                          const filterLayer = await hitTestResult.results[0].graphic.layer;
-                          console.log("点击模型获取属性:" ,modelAttributes);
-                          this.modelInoForm.modelInfo = modelAttributes
-                          this.modelInoForm.opened = true;
-                          const ebs = modelAttributes.ebs;
-                          const objectId = modelAttributes.oid;
-                          //点击模型构件，高亮显示
-                          this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
-                                  this.highlightModel(filterSceneLayerView,objectId);      
-                          })
+            // get all attributes for the query
+          
+              this.view.popup.autoOpenEnabled = false;
+              // retrieve the layer view of the scene layer
+              this.view.on("immediate-click", (event) => {
+                    // this.attributename = [];
+                    // this.attributesize = [];
+                    this.webscene.layers.forEach(async sceneLayer =>{
+                        console.log(sceneLayer)
+                        sceneLayer.outFields = ['*']
+                                
+                        await this.view.hitTest(event).then(async (hitTestResult) => {
+                                if (hitTestResult.results.length > 0) {
+                                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                                  const filterLayer = await hitTestResult.results[0].graphic.layer;
+                                  console.log("点击模型获取属性:" ,modelAttributes);
+                                  this.modelInoForm.modelInfo = modelAttributes
+                                  this.modelInoForm.opened = true;
+                                  const ebs = modelAttributes.ebs;
+                                  const objectId = modelAttributes.oid;
+                                  //点击模型构件，高亮显示
+                                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                          this.highlightModel(filterSceneLayerView,objectId);      
+                                  })
 
-                          console.log("这是ebs" , ebs)
-                          if(ebs){
-                                this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                        return  res;
-                                      })
-                                      .catch((error) => {
-                                        console.log(error);
-                                      });
-                                //  console.log("点击模型获取构件施工信息",this.modelinfos);
-                                this.getmodelinfo()
-                          }
+                                  console.log("这是ebs" , ebs)
+                                  if(ebs){
+                                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                                return  res;
+                                              })
+                                              .catch((error) => {
+                                                console.log(error);
+                                              });
+                                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                                        this.getmodelinfo()
+                                  }
 
-                        } 
-                        return;
-                        }).catch((error) => {
-                            console.error(error);
-                            });
-                 
-                  })
-         });
-        // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
-        //     const filterSilderLayer = new FeatureFilter({
-        //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
-        //     })
-        //     sceneLayerView.filter = filterSilderLayer;
-        // })
-      })
+                                } 
+                                return;
+                                }).catch((error) => {
+                                    console.error(error);
+                                    });
+                      
+                    })
+              });
+            // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
+            //     const filterSilderLayer = new FeatureFilter({
+            //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
+            //     })
+            //     sceneLayerView.filter = filterSilderLayer;
+            // })
+       })
      
       // Add a layer list widget
       const layerList = new LayerList({
@@ -571,7 +580,6 @@ export default {
 
        this.basemapGallery  = new BasemapGallery({
               view: this.view,
-              // nextBasemap: "topo"
               source: {
                 portal: {
                   url: "https://www.arcgis.com",
@@ -598,6 +606,14 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    //透明度
+    changeopcityvalue(){
+      const opcityv = this.opcityvalue / 100;
+      const basemap = this.webscene.basemap.baseLayers.getItemAt(0);
+      basemap.opacity = opcityv;
+      console.log(opcityv,basemap)
+        
     },
     // 滑块控制
     changeModel() {
@@ -811,6 +827,9 @@ export default {
 				this.levelmax = Math.abs(month2 - month1);
 			}
 		},
+    formatopcity(val){
+        return val / 100;
+    },
 		formatTooltip(val) {
 			if(this.timepiker != ''){
 				let date = this.timepiker[1].split('-')
@@ -887,6 +906,12 @@ export default {
 		position: absolute;
 		z-index: 991;
 	}
+  .opcityslider{
+    	left: 20px;
+		top: 10px;
+     	position: absolute;
+		z-index: 991;
+  }
 	.sliderblock {
 		margin-top: 10%;
 		margin-left: 5%;
