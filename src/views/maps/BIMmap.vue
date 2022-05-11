@@ -2,6 +2,9 @@
   <div>
     <div id="viewDiv" />
     <div class="mainMenu">
+      <el-button @click="OpenbasemapGallery">
+        底图
+      </el-button>
       <el-dropdown @command="handleMenuCommand">
         <el-button type="primary">
           基础功能
@@ -318,6 +321,7 @@ export default {
   data() {
     return {
       serverUrls:[],
+      basemapGallery:null,
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
@@ -565,7 +569,7 @@ export default {
         view: this.view
       })
 
-       var basemapGallery  = new BasemapGallery({
+       this.basemapGallery  = new BasemapGallery({
               view: this.view,
               // nextBasemap: "topo"
               source: {
@@ -574,9 +578,9 @@ export default {
                   useVectorBasemaps: true // Load vector tile basemaps
                 }
               },
-              visible:false
+              visible: false
             });
-       this.view.ui.add(basemapGallery,"bottom-left");
+       this.view.ui.add(this.basemapGallery,"bottom-left");
       // this.view.ui.empty("top-left");
       // this.view.ui.add(layerList, "top-right");
       //   setSliceWidget();
@@ -776,6 +780,9 @@ export default {
       } else if (command === 'card') {
         this.layerCardService = true
       }
+    },
+    OpenbasemapGallery(){
+      this.basemapGallery.visible = ! this.basemapGallery.visible;
     },
     // 关闭图层面板
     closeLayerTreePanel() {
