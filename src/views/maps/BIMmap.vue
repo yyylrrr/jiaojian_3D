@@ -329,6 +329,7 @@ export default {
   data() {
     return {
       opcityvalue:80,
+      sliderdate:null,
       serverUrls:[],
       basemapGallery:null,
       layerTreeVisible: false,
@@ -620,6 +621,8 @@ export default {
     },
     // 滑块控制
     changeModel() {
+      this.formatTooltip(this.levelvalue)
+      console.log(this.sliderdate,'123')
       // const sceneLayer = this.webscene.layers.getItemAt(0)
       // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
         // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
@@ -835,6 +838,7 @@ export default {
     },
 		formatTooltip(val) {
 			if(this.timepiker != ''){
+        debugger
 				let date = this.timepiker[1].split('-')
 				let year = parseInt(date[0])
 				let month = parseInt(date[1])
@@ -851,8 +855,14 @@ export default {
 					year = year - Math.floor((this.levelmax-val)/12) - 1
 					month = 12
 				}
-				// console.log(val,year,month)
-				return year + '-' + month
+				console.log(val,year,month)
+        
+        if(month < 10){
+           this.sliderdate = year + '-0' + month;
+        }else{
+           this.sliderdate = year + '-' + month;
+        }
+				return year + '-0' + month
 			}
 		},
     // 修改table tr行的背景色
