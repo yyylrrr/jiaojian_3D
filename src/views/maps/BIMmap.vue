@@ -610,9 +610,12 @@ export default {
     //透明度
     changeopcityvalue(){
       const opcityv = this.opcityvalue / 100;
-      const basemap = this.webscene.basemap.baseLayers.getItemAt(0);
-      basemap.opacity = opcityv;
-      console.log(opcityv,basemap)
+      if(this.webscene.basemap){
+            const basemap = this.webscene.basemap.baseLayers.getItemAt(0);
+            basemap.opacity = opcityv;
+            console.log(opcityv,basemap)
+      }
+      return
         
     },
     // 滑块控制
