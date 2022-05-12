@@ -705,10 +705,11 @@ export default {
           const tempfeature = result.features.find(item => {
             return item.attributes.oid == bimKey
           })
-         
+         if(tempfeature.attributes.ebs){
           const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
           //  console.log("这是点击节点获取ebs", ebs)
           return ebs
+          }
         })
     },
     // 双击节点
@@ -721,7 +722,7 @@ export default {
       campusSceneLayer.outFields = ['*']
       // 第一个异步 获取objectId queryExtent
       if (bimKey){
-            const objectId = await this.getobjectId(campusSceneLayer, bimKey)
+            const objectId = bimKey;
             const ebs = await this.getebs(campusSceneLayer, bimKey)
             this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                         return  res;
@@ -838,7 +839,6 @@ export default {
     },
 		formatTooltip(val) {
 			if(this.timepiker != ''){
-        debugger
 				let date = this.timepiker[1].split('-')
 				let year = parseInt(date[0])
 				let month = parseInt(date[1])
