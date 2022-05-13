@@ -785,9 +785,12 @@ export default {
                         bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
                         ar.push(bimattributes)
                 }
-
           }
-          that.registerInfo.components = ar
+          var hash = {};
+          that.registerInfo.components = ar.reduce(function(pre,item){
+             hash[item.ebs] ? '' : hash[item.ebs] = true && pre.push(item);
+             return pre;
+          },[])
           uploadBIM(that.registerInfo)
           // console.log(that.registerInfo)
         })
