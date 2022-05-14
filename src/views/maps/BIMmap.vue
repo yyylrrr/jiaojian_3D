@@ -579,7 +579,7 @@ export default {
                                   console.log("这是ebs" , ebs)
                                   if(ebs){
                                         this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                                return  res;
+                                                return  res.data;
                                               })
                                               .catch((error) => {
                                                 console.log(error);
@@ -633,7 +633,7 @@ export default {
 
     async geturlServer() {
        this.serverUrls = await getServer().then(res => {
-          return res;
+          return res.data;
       }).catch(error => {
         console.log(error)
       })
@@ -666,7 +666,7 @@ export default {
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
-        const nodelist = res
+        const nodelist = res.data
         //  console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
@@ -755,7 +755,7 @@ export default {
             const objectId = bimKey;
             const ebs = await this.getebs(campusSceneLayer, bimKey)
             this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                        return  res;
+                        return  res.data;
                       })
                       .catch((error) => {
                         console.log(error);
@@ -815,9 +815,12 @@ export default {
                         bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
                         ar.push(bimattributes)
                 }
-
           }
-          that.registerInfo.components = ar
+          var hash = {};
+          that.registerInfo.components = ar.reduce(function(pre,item){
+             hash[item.ebs] ? '' : hash[item.ebs] = true && pre.push(item);
+             return pre;
+          },[])
           uploadBIM(that.registerInfo)
           // console.log(that.registerInfo)
         })
