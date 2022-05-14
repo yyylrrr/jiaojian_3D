@@ -165,37 +165,37 @@
               <div class="grid-content">{{ this.attributename[0] || "小导管规格" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[0] || "BH1108" }}</div>
+              <div class="grid-content">{{ this.attributesize[0]+this.attributeunit[0] || "BH1108" }}</div>
             </el-col>
             <el-col class="info" :span="8">
               <div class="grid-content">{{ this.attributename[1] || "小导管数量" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[1] || "142" }}</div>
+              <div class="grid-content">{{ this.attributesize[1]+this.attributeunit[1] || "142" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "小导管间距" }}</div>
+              <div class="grid-content">{{ this.attributename[2] || "小导管间距" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "0.6m" }}</div>
+              <div class="grid-content">{{ this.attributesize[2]+this.attributeunit[2] || "0.6m" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "外插角" }}</div>
+              <div class="grid-content">{{ this.attributename[3] || "外插角" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "45°" }}</div>
+              <div class="grid-content">{{ this.attributesize[3]+this.attributeunit[3] || "45°" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "注浆量" }}</div>
+              <div class="grid-content">{{ this.attributename[4] || "注浆量" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "1.47L" }}</div>
+              <div class="grid-content">{{ this.attributesize[4]+this.attributeunit[4] || "1.47L" }}</div>
             </el-col>
             <el-col class="info" :span="8">
               <div class="grid-content">{{ this.attributename[5] || "注浆压力" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "0.56pa" }}</div>
+              <div class="grid-content">{{ this.attributesize[5]+this.attributeunit[5] || "0.56pa" }}</div>
             </el-col>
           </el-row>
 					</el-scrollbar>
@@ -392,6 +392,7 @@ export default {
       modelinfos: [],
 			attributename:[],
 			attributesize:[],
+			attributeunit:[],
 			modelname:'',
 			mergedata:[{
 				instruct:'拱墙衬砌',
@@ -542,7 +543,7 @@ export default {
                                   const filterLayer = await hitTestResult.results[0].graphic.layer;
                                   console.log("点击模型获取属性:" ,modelAttributes);
                                   this.modelInoForm.modelInfo = modelAttributes
-                                  this.modelInoForm.opened = true;
+                                  this.modelInoForm.opened = false;
                                   const ebs = modelAttributes.ebs;
                                   const objectId = modelAttributes.oid;
                                   //点击模型构件，高亮显示
@@ -904,26 +905,25 @@ export default {
 			var that = this
 			var br = []
 			var cr = []
+			var dr = []
+				console.log(this.modelinfos,'1234566')
 			for(let i = 0; i < this.modelinfos.length; i++){
-	
 					var info = {}
 					var infobox = []
 					infobox = this.modelinfos[i]
 					info.name = infobox[6]
-					info.size = infobox[7]
+					info.size = infobox[8]
+					info.unit = infobox[13]
 					br.push(info.name)
 					cr.push(info.size)
+					dr.push(info.unit)
 			}
-			if(this.modelinfos.length>5){
-				var infoboxname = this.modelinfos[0]
-				that.modelname = infoboxname[5]
-			}else{
-				console.log("属性不全，无法获得相关属性")
-			}
-
+			var infoboxname = this.modelinfos[0]
+			that.modelname = infoboxname[5]
 			that.attributename = br
 			that.attributesize = cr
-			console.log("获取属性",that.attributename,that.attributesize,that.modelname)
+			that.attributeunit = dr
+			// console.log("获取属性",that.attributename,that.attributesize,that.attributeunit,that.modelname)
 		}
   }
 }
