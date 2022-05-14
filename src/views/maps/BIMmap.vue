@@ -534,30 +534,32 @@ export default {
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
-                                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                                  const filterLayer = await hitTestResult.results[0].graphic.layer;
-                                  console.log("点击模型获取属性:" ,modelAttributes);
-                                  this.modelInoForm.modelInfo = modelAttributes
-                                  this.modelInoForm.opened = true;
-                                  const ebs = modelAttributes.ebs;
-                                  const objectId = modelAttributes.oid;
-                                  //点击模型构件，高亮显示
-                                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
-                                          this.highlightModel(filterSceneLayerView,objectId);      
-                                  })
+                                      if(hitTestResult.results[0].graphic.attributes.ebs){
+                                        debugger
+                                            const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                                            const filterLayer = await hitTestResult.results[0].graphic.layer;
+                                            console.log("点击模型获取属性:" ,modelAttributes);
+                                            this.modelInoForm.modelInfo = modelAttributes
+                                            this.modelInoForm.opened = false;
+                                            const ebs = modelAttributes.ebs;
+                                            const objectId = modelAttributes.oid;
+                                            //点击模型构件，高亮显示
+                                            this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                                    this.highlightModel(filterSceneLayerView,objectId);      
+                                            })
 
-                                  console.log("这是ebs" , ebs)
-                                  if(ebs){
-                                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                                return  res.data;
-                                              })
-                                              .catch((error) => {
-                                                console.log(error);
-                                              });
-                                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
-                                        this.getmodelinfo()
-                                  }
-
+                                            console.log("这是ebs" , ebs)
+                                            if(ebs){
+                                                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                                          return  res.data;
+                                                        })
+                                                        .catch((error) => {
+                                                          console.log(error);
+                                                        });
+                                                  //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                                                  this.getmodelinfo()
+                                            }
+                                       }
                                 } 
                                 return;
                                 }).catch((error) => {
