@@ -161,40 +161,40 @@
             <el-col class="info" :span="24">
               <div class="grid-content">模型名称：{{this.modelname || "小导管"}}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[0] || "小导管规格" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[0]+this.attributeunit[0] || "BH1108" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[1] || "小导管数量" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[1]+this.attributeunit[1] || "142" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[2] || "小导管间距" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[2]+this.attributeunit[2] || "0.6m" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[3] || "外插角" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[3]+this.attributeunit[3] || "45°" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[4] || "注浆量" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[4]+this.attributeunit[4] || "1.47L" }}</div>
             </el-col>
-            <el-col class="info" :span="8">
+            <el-col class="info" :span="14">
               <div class="grid-content">{{ this.attributename[5] || "注浆压力" }}</div>
             </el-col>
-            <el-col class="info" :span="16">
+            <el-col class="info" :span="10">
               <div class="grid-content">{{ this.attributesize[5]+this.attributeunit[5] || "0.56pa" }}</div>
             </el-col>
           </el-row>
@@ -217,6 +217,7 @@
           <el-button type="primary" size="mini" round plain class="type-button">防、排水</el-button>
         </div>
         <div class="msgg">
+					<el-scrollbar style="height:220px;width:100%;">
           <el-table
 						:data = "mergedata"
 						border
@@ -227,49 +228,49 @@
             <el-table-column
               type="index"
               label="序号"
-              width="50px"
+              width="40px"
+							align="center"
             />
             <el-table-column
               label="工程结构"
 							prop="instruct"
               width="50px"
+							align="center"
             />
             <el-table-column
               label="工程部位"
 							prop="position"
-              width="95px"
+							align="center"
             />
             <el-table-column
               label="报警详情"
 							prop="details"
-
+							align="center"
             />
             <el-table-column
               label="推送人"
 							prop="people"
-              width="70px"
+							align="center"
             />
           </el-table>
+					</el-scrollbar>
         </div>
 				<el-card class="box-titleee">
 					<dt class="title-font">施工模拟</dt>
 				</el-card>
-				<!-- <el-card class="box-bar">
-				<div class="device-tree">
-					<el-scrollbar class="scrolldevice-tree">
-					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
-					</el-scrollbar>
-				</div>
-				</el-card> -->
 			<el-card class="box-bar">
+				<div class="datetitle">日期滑块</div>
 				<div class="sliderblock">
 					<el-slider
 						v-model="levelvalue"
 						:max="levelmax"
 						:format-tooltip="formatTooltip"
-						@input="changeModel"
-					/>
+						@input="changeModel">
+					</el-slider>
 				</div>
+				<div class="datefont">{{ this.startmonth }}</div>
+				<div class="datefontt">{{ this.endmonth }}</div>
+				<div class="datetitlee">日期选择</div>
 				<div class="block">
 					<el-date-picker
 						size = "small"
@@ -279,7 +280,8 @@
 						start-placeholder="开始月份"
 						end-placeholder="结束月份"
 						format="yyyy年MM月"
-						value-format="yyyy-MM">
+						value-format="yyyy-MM"
+						:clearable = false>
 					</el-date-picker>
           <el-button size="small" type="primary" class="date-button" @click="pickmonth"
             >确认</el-button>
@@ -335,7 +337,9 @@ export default {
 			layerCardService: false,
 			opcitysliderService: false,
       levelvalue: 500,
-			timepiker:'',
+			timepiker:['2020-01', '2022-05'],
+			startmonth:'',
+			endmonth:'',
       layerMap:null,
       webscene: null,
       view: null,
@@ -395,15 +399,20 @@ export default {
 			attributeunit:[],
 			modelname:'',
 			mergedata:[{
-				instruct:'拱墙衬砌',
-				position:'H3DK2+482-H3DK2+470',
-				details:'拱墙衬砌结构等级：B级',
-				people:'魏大勇、吴海舒'
+				instruct:'喷射混凝土',
+				position:'H3DK2+218-H3DK2+214',
+				details:'实际喷射量超方160%',
+				people:'总工：舒大勇、分管领导：吴海宇'
 			},{
-				instruct:'拱墙衬砌',
-				position:'H3DK2+482-H3DK2+470',
-				details:'拱墙衬砌结构等级：B级',
-				people:'魏大勇、吴海舒'
+				instruct:'喷射混凝土',
+				position:'H3DK2+202-H3DK2+201',
+				details:'实际喷射量超方160%',
+				people:'总工：舒大勇、分管领导：吴海宇'
+			},{
+				instruct:'喷射混凝土',
+				position:'H3DK2+199-H3DK2+197',
+				details:'实际喷射量超方170%',
+				people:'总工：舒大勇、分管领导：吴海宇'
 			}],
 			modelInoForm: {
 				title: '模型信息页',
@@ -421,6 +430,7 @@ export default {
 
   created() {
     this.json2tree()
+		this.pickmonth()
   },
 
   mounted() {
@@ -539,30 +549,31 @@ export default {
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
-                                  const modelAttributes = await hitTestResult.results[0].graphic.attributes;
-                                  const filterLayer = await hitTestResult.results[0].graphic.layer;
-                                  console.log("点击模型获取属性:" ,modelAttributes);
-                                  this.modelInoForm.modelInfo = modelAttributes
-                                  this.modelInoForm.opened = false;
-                                  const ebs = modelAttributes.ebs;
-                                  const objectId = modelAttributes.oid;
-                                  //点击模型构件，高亮显示
-                                  this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
-                                          this.highlightModel(filterSceneLayerView,objectId);      
-                                  })
+                                      if(hitTestResult.results[0].graphic.attributes.ebs){
+                                            const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                                            const filterLayer = await hitTestResult.results[0].graphic.layer;
+                                            console.log("点击模型获取属性:" ,modelAttributes);
+                                            this.modelInoForm.modelInfo = modelAttributes
+                                            this.modelInoForm.opened = false;
+                                            const ebs = modelAttributes.ebs;
+                                            const objectId = modelAttributes.oid;
+                                            //点击模型构件，高亮显示
+                                            this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                                    this.highlightModel(filterSceneLayerView,objectId);      
+                                            })
 
-                                  console.log("这是ebs" , ebs)
-                                  if(ebs){
-                                        this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                                                return  res.data;
-                                              })
-                                              .catch((error) => {
-                                                console.log(error);
-                                              });
-                                        //  console.log("点击模型获取构件施工信息",this.modelinfos);
-                                        this.getmodelinfo()
-                                  }
-
+                                            console.log("这是ebs" , ebs)
+                                            if(ebs){
+                                                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                                          return  res.data;
+                                                        })
+                                                        .catch((error) => {
+                                                          console.log(error);
+                                                        });
+                                                  //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                                                  this.getmodelinfo()
+                                            }
+                                       }
                                 } 
                                 return;
                                 }).catch((error) => {
@@ -781,11 +792,11 @@ export default {
                 if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
                         var bimattributes = {}
                         bimattributes.bimKey = results.features[i].attributes.oid
-                        bimattributes.componentTypeName = '喷混模型'
+                        bimattributes.componentTypeName = "componentTypeName"
                         bimattributes.cycleType = "类型"
                         bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
-                        bimattributes.endSegment =  "结束里程"                //results.features[i].attributes.结束里程
-                        bimattributes.startSegment =  "起始里程"              //results.features[i].attributes.起始里程
+                        bimattributes.endSegment =  results.features[i].attributes.终止里程 ? results.features[i].attributes.终止里程.replace(/[\r\n]/g,"") : "空" ;
+                        bimattributes.startSegment =   results.features[i].attributes.起始里程 ? results.features[i].attributes.起始里程.replace(/[\r\n]/g,"") : "空" ;
                         bimattributes.surroundRockGrade =  "围岩等级"             //results.features[i].attributes.围岩等级
                         bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
                         ar.push(bimattributes)
@@ -796,7 +807,7 @@ export default {
              hash[item.ebs] ? '' : hash[item.ebs] = true && pre.push(item);
              return pre;
           },[])
-          uploadBIM(that.registerInfo)
+           uploadBIM(that.registerInfo)
           // console.log(that.registerInfo)
         })
       })
@@ -850,12 +861,15 @@ export default {
     },
 		pickmonth(){
 			if(this.timepiker != ''){
+				console.log(this.timepiker)
 				let month1, month2
 				month1 = this.timepiker[0].split('-')
 				month2 = this.timepiker[1].split('-')
 				month1 = parseInt(month1[0]) * 12 + parseInt(month1[1])
 				month2 = parseInt(month2[0]) * 12 + parseInt(month2[1])
 				this.levelmax = Math.abs(month2 - month1);
+				this.startmonth = this.timepiker[0]
+				this.endmonth = this.timepiker[1]
 			}
 		},
     formatopcity(val){
@@ -914,6 +928,17 @@ export default {
 					info.name = infobox[6]
 					info.size = infobox[8]
 					info.unit = infobox[13]
+					br.push(info.name)
+					cr.push(info.size)
+					dr.push(info.unit)
+			}
+			for(let i = this.modelinfos.length; i < 6; i++){
+					var info = {}
+					var infobox = []
+					infobox = this.modelinfos[i]
+					info.name = '-'
+					info.size = '-'
+					info.unit = '-'
 					br.push(info.name)
 					cr.push(info.size)
 					dr.push(info.unit)
@@ -990,13 +1015,39 @@ export default {
 		border: 1px solid #333333;
 	}
 	.sliderblock {
-		margin-top: 10%;
 		margin-left: 5%;
 		width: 90%;
 	}
 	.block {
 		margin-left: 5%;
-		margin-top: 10%;
+		margin-top: 5%;
+	}
+	.datefont {
+		font-size: 2px;
+		z-index: 9999;
+		color: #F2F2F2;
+		width: 20%;
+	}
+	.datefontt {
+		font-size: 2px;
+		z-index: 9999;
+		color: #F2F2F2;
+		margin-left: 90%;
+		margin-top: -14px;
+		width: 20%;
+	}
+	.datetitle {
+		font-size: 13px;
+		z-index: 9999;
+		color: #F2F2F2;
+		font-weight: bold;
+	}
+	.datetitlee {
+		font-size: 13px;
+		margin-top: 5%;
+		z-index: 9999;
+		color: #F2F2F2;
+		font-weight: bold;
 	}
 	.el-slider.is-vertical {
 		top: 10px;
@@ -1022,33 +1073,33 @@ export default {
 	.box-title {
 		width: 40%;
 		background: #12374F;
-		height: 38px;
+		height: 30px;
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titlee {
 		width: 40%;
 		background: #12374F;
-		height: 38px;
-		margin-top: 20px;
+		height: 30px;
+		margin-top: 15px;
 		border: 1px solid #03C4DBD1;
 	}
 	.box-titleee {
 		width: 40%;
 		background: #12374F;
-		height: 38px;
-		margin-top: 20px;
+		height: 30px;
+		margin-top: 25px;
 		border: 1px solid #03C4DBD1;
 	}
 	.box-bar {
 		background: #303133;
 		border: 1px solid #409EFF;
 		margin-top: 15px;
-		height: 220px;
+		height: 200px;
 	}
 	.title-font {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: bold;
-		margin-top: -10px;
+		margin-top: -12px;
 		color: aliceblue;
 		text-align:center;
 	}
@@ -1066,6 +1117,7 @@ export default {
 		width: 98%;
 		background-color:transparent;
 		color: #000;
+		height: 220px;
 	}
 	.merge-button-group {
 		margin-top: 3%;
@@ -1120,8 +1172,7 @@ export default {
 		width: 100%;
 		background-color:transparent;
 		border: 1px solid #FACD91C2;
-		height: 206px;
-		font-size: 4px;
+		font-size: 2px;
 	}
 	.el-input__inner {
 		border: 1px solid #409EFF;
