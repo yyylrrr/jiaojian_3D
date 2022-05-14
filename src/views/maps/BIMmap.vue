@@ -535,7 +535,6 @@ export default {
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
                                       if(hitTestResult.results[0].graphic.attributes.ebs){
-                                        debugger
                                             const modelAttributes = await hitTestResult.results[0].graphic.attributes;
                                             const filterLayer = await hitTestResult.results[0].graphic.layer;
                                             console.log("点击模型获取属性:" ,modelAttributes);
@@ -778,7 +777,7 @@ export default {
                 if( results.features[i].attributes.ebs &&  results.features[i].attributes.ebs.length > 10){ 
                         var bimattributes = {}
                         bimattributes.bimKey = results.features[i].attributes.oid
-                        bimattributes.componentTypeName = '喷混模型'
+                        bimattributes.componentTypeName = results.features[i].attributes.类型名称_施工_
                         bimattributes.cycleType = "类型"
                         bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
                         bimattributes.endSegment =  results.features[i].attributes.终止里程.replace(/[\r\n]/g,"")
