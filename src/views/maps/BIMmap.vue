@@ -1,14 +1,6 @@
 <template>
   <div>
     <div id="viewDiv" />
-    <!-- <el-slider class="opcityslider"
-      v-model="opcityvalue"
-      vertical
-      :max ="100"
-      height="80px"
-      :format-tooltip="formatopcity"
-			@input="changeopcityvalue">
-    </el-slider> -->
       <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
       <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
@@ -19,24 +11,6 @@
       </el-button>
       <el-button type="primary" icon="el-icon-s-operation" class="mapselecttttt" @click="Openopcityslider">
       </el-button>
-    <!-- <div class="mainMenu">
-      <el-dropdown @command="handleMenuCommand">
-        <el-button type="primary">
-          基础功能
-          <i class="el-icon-arrow-down el-icon--right" />
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="showLayer">模型管理</el-dropdown-item>
-          <el-dropdown-item
-            command="registerService"
-          >注册服务</el-dropdown-item>
-          <el-dropdown-item
-            command="card"
-          >分析报告</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div> -->
-
     <dialog-drag
       v-show="layerTreeVisible"
       id="dialog-1"
