@@ -1,19 +1,25 @@
 <template>
   <div>
     <div id="viewDiv" />
-    <el-slider class="opcityslider"
+    <!-- <el-slider class="opcityslider"
       v-model="opcityvalue"
       vertical
       :max ="100"
       height="80px"
       :format-tooltip="formatopcity"
 			@input="changeopcityvalue">
-    </el-slider>
-    <div class="mainMenu">
-
-      <el-button @click="OpenbasemapGallery">
-        底图
+    </el-slider> -->
+      <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
+      <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
+      </el-button>
+      <el-button type="primary" icon="el-icon-thumb" class="mapselecttt" @click="OpenshowLayer">
+      </el-button>
+      <el-button type="primary" icon="el-icon-news" class="mapselectttt" @click="Opencard">
+      </el-button>
+      <el-button type="primary" icon="el-icon-s-operation" class="mapselecttttt" @click="Openopcityslider">
+      </el-button>
+    <!-- <div class="mainMenu">
       <el-dropdown @command="handleMenuCommand">
         <el-button type="primary">
           基础功能
@@ -29,7 +35,7 @@
           >分析报告</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-    </div>
+    </div> -->
 
     <dialog-drag
       v-show="layerTreeVisible"
@@ -37,7 +43,7 @@
       class="dialog-3"
       title="BIM模型目录树"
       pinned="false"
-      :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
+      :options="{ top: 60, left: 90, width: 360, buttonPin: false }"
       @close="closeLayerTreePanel"
     >
         <el-select
@@ -96,7 +102,7 @@
       class="dialog-2"
       title="注册服务"
       pinned="false"
-      :options="{ top: 60, left: 80, width: 320, buttonPin: false }"
+      :options="{ top: 90, left: 90, width: 320, buttonPin: false }"
       @close="closeRegisterService"
     >
       <el-input
@@ -142,7 +148,7 @@
       class="dialog-3"
       title="超前地质勘探综合分析报告"
       pinned="false"
-      :options="{ top: 60, left: 80, width: 360, buttonPin: false }"
+      :options="{ top: 120, left: 90, width: 360, buttonPin: false }"
       @close="closeCardService"
     >
 				<div class="device-tree">
@@ -151,6 +157,24 @@
 					</el-scrollbar>
 				</div>
     </dialog-drag>
+
+	  <dialog-drag
+      v-show="opcitysliderService"
+      id="dialog-1"
+      class="dialog-3"
+      title="地图底图透明度滑块"
+      pinned="false"
+      :options="{ top: 330, left: 90, width: 360, buttonPin: false }"
+      @close="closeopcitysliderService"
+    >
+    <el-slider class="opcityslider"
+      v-model="opcityvalue"
+      :max ="100"
+      :format-tooltip="formatopcity"
+			@input="changeopcityvalue">
+    </el-slider>
+    </dialog-drag>
+
 
     <div>
       <el-card class="box-card">
@@ -161,43 +185,43 @@
 					<el-scrollbar class="scrollInfoBox">
           <el-row>
             <el-col class="info" :span="24">
-              <div class="grid-content">模型名称：{{this.modelname}}</div>
+              <div class="grid-content">模型名称：{{this.modelname || "小导管"}}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[0] || "属性1" }}</div>
+              <div class="grid-content">{{ this.attributename[0] || "小导管规格" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[0] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[0] || "BH1108" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[1] || "属性2" }}</div>
+              <div class="grid-content">{{ this.attributename[1] || "小导管数量" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[1] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[1] || "142" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "属性3" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "小导管间距" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "0.6m" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "属性4" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "外插角" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "45°" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "属性5" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "注浆量" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "1.47L" }}</div>
             </el-col>
             <el-col class="info" :span="8">
-              <div class="grid-content">{{ this.attributename[5] || "属性6" }}</div>
+              <div class="grid-content">{{ this.attributename[5] || "注浆压力" }}</div>
             </el-col>
             <el-col class="info" :span="16">
-              <div class="grid-content">{{ this.attributesize[5] || "无" }}</div>
+              <div class="grid-content">{{ this.attributesize[5] || "0.56pa" }}</div>
             </el-col>
           </el-row>
 					</el-scrollbar>
@@ -335,6 +359,7 @@ export default {
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
+			opcitysliderService: false,
       levelvalue: 500,
 			timepiker:'',
       layerMap:null,
@@ -395,6 +420,11 @@ export default {
 			attributesize:[],
 			modelname:'',
 			mergedata:[{
+				instruct:'拱墙衬砌',
+				position:'H3DK2+482-H3DK2+470',
+				details:'拱墙衬砌结构等级：B级',
+				people:'魏大勇、吴海舒'
+			},{
 				instruct:'拱墙衬砌',
 				position:'H3DK2+482-H3DK2+470',
 				details:'拱墙衬砌结构等级：B级',
@@ -807,6 +837,19 @@ export default {
     OpenbasemapGallery(){
       this.basemapGallery.visible = ! this.basemapGallery.visible;
     },
+		OpenregisterService(){
+			this.layerRegisterService = !this.layerRegisterService
+		},
+		OpenshowLayer(){
+        this.layerTreeVisible = !this.layerTreeVisible
+         this.json2tree()
+		},
+		Opencard(){
+			this.layerCardService = !this.layerCardService
+		},
+		Openopcityslider(){
+			this.opcitysliderService = !this.opcitysliderService
+		},
     // 关闭图层面板
     closeLayerTreePanel() {
       this.layerTreeVisible = false
@@ -817,6 +860,9 @@ export default {
     closeCardService() {
       this.layerCardService = false
     },
+		closeopcitysliderService() {
+			this.opcitysliderService = false
+		},
     doRegisterService() {
       // console.log(this.registerInfo.url);
       this.submitRegisterService()
@@ -920,11 +966,52 @@ export default {
 		z-index: 991;
 	}
   .opcityslider{
-    	left: 20px;
-		top: 10px;
+    	left: 5%;
+		top: 20px;
+		width: 90%;
      	position: absolute;
 		z-index: 991;
   }
+	.mapselect {
+		background: #333333;
+		top: 14%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	.mapselectt {
+		background: #333333;
+		top: 19%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	.mapselecttt {
+		background: #333333;
+		top: 24%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	.mapselectttt {
+		background: #333333;
+		top: 29%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	.mapselecttttt {
+		background: #333333;
+		top: 34%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
 	.sliderblock {
 		margin-top: 10%;
 		margin-left: 5%;
@@ -932,7 +1019,7 @@ export default {
 	}
 	.block {
 		margin-left: 5%;
-		margin-top: 20%;
+		margin-top: 10%;
 	}
 	.el-slider.is-vertical {
 		top: 10px;
@@ -979,7 +1066,7 @@ export default {
 		background: #303133;
 		border: 1px solid #409EFF;
 		margin-top: 15px;
-		height: 300px;
+		height: 220px;
 	}
 	.title-font {
     font-size: 15px;
@@ -1056,7 +1143,7 @@ export default {
 		width: 100%;
 		background-color:transparent;
 		border: 1px solid #FACD91C2;
-		height: 138px;
+		height: 206px;
 		font-size: 4px;
 	}
 	.el-input__inner {
