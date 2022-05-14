@@ -779,8 +779,8 @@ export default {
                         bimattributes.componentTypeName = '喷混模型'
                         bimattributes.cycleType = "类型"
                         bimattributes.ebs = results.features[i].attributes.ebs.replace(/[\r\n]/g,"")
-                        bimattributes.endSegment =  "结束里程"                //results.features[i].attributes.结束里程
-                        bimattributes.startSegment =  "起始里程"              //results.features[i].attributes.起始里程
+                        bimattributes.endSegment =  results.features[i].attributes.终止里程.replace(/[\r\n]/g,"")
+                        bimattributes.startSegment =  results.features[i].attributes.起始里程.replace(/[\r\n]/g,"")
                         bimattributes.surroundRockGrade =  "围岩等级"             //results.features[i].attributes.围岩等级
                         bimattributes.workFace = "隧道名称workFace"                              //results.features[i].attributes.隧道名称
                         ar.push(bimattributes)
@@ -791,7 +791,7 @@ export default {
              hash[item.ebs] ? '' : hash[item.ebs] = true && pre.push(item);
              return pre;
           },[])
-          uploadBIM(that.registerInfo)
+          // uploadBIM(that.registerInfo)
           // console.log(that.registerInfo)
         })
       })
