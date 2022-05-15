@@ -312,7 +312,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -328,6 +328,7 @@ export default {
 
   data() {
     return {
+      urlres:[],
       opcityvalue:80,
       sliderdate:null,
       serverUrls:[],
@@ -336,8 +337,8 @@ export default {
       layerRegisterService: false,
 			layerCardService: false,
 			opcitysliderService: false,
-      levelvalue: 500,
-			timepiker:['2020-01', '2022-05'],
+      levelvalue: 0,
+			timepiker:['2021-12', '2022-05'],
 			startmonth:'',
 			endmonth:'',
       layerMap:null,
@@ -528,7 +529,7 @@ export default {
             // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
 
               const layerlength = this.webscene.layers.length;
-              console.log("layerlength",layerlength)
+              // console.log("layerlength",layerlength)
               // for(let j = 0;j< layerlength;i++){
               //   const sceneLayer = this.webscene.layers.getItemAt(j)
               // }
@@ -549,7 +550,7 @@ export default {
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
-                                      if(hitTestResult.results[0].graphic.attributes.ebs){
+                                      // if(hitTestResult.results[0].graphic.attributes.ebs){
                                             const modelAttributes = await hitTestResult.results[0].graphic.attributes;
                                             const filterLayer = await hitTestResult.results[0].graphic.layer;
                                             console.log("点击模型获取属性:" ,modelAttributes);
@@ -573,7 +574,7 @@ export default {
                                                   //  console.log("点击模型获取构件施工信息",this.modelinfos);
                                                   this.getmodelinfo()
                                             }
-                                       }
+                                      //  }
                                 } 
                                 return;
                                 }).catch((error) => {
@@ -636,31 +637,70 @@ export default {
         
     },
     // 滑块控制
-    changeModel() {
+     async changeModel() {
+
       this.formatTooltip(this.levelvalue)
       console.log(this.sliderdate,'123')
-      // const sceneLayer = this.webscene.layers.getItemAt(0)
-      // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
-        // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
-        //     const filterSilderLayer = new FeatureFilter({
-        //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
-        //     })
-        //     sceneLayerView.filter = filterSilderLayer;
-        // })
+      let modeloid = await getoidByDate(this.sliderdate).then(res =>{
+                        return res.data;
+                      });           
+       let newOidarray = this.array2combine(modeloid);
+      
+
+      newOidarray.forEach(item =>{
+           let campusSceneLayer = this.layerMap.get(item.url); 
+           let filteroid = item.oid.toString();
+           filteroid = "(" + filteroid + ")"
+           campusSceneLayer.definitionExpression = "oid in" + filteroid //"oid in (193,186)"
+          //  this.view.whenLayerView(campusSceneLayer).then((sceneLayerView)=>{
+          //       const filterSilderLayer = new FeatureFilter({
+          //         where: "oid in" + filteroid
+          //         //  where: "oid in (193,186)"
+          //       })
+          //       sceneLayerView.filter = filterSilderLayer;
+          //   })
+      })
+      if(newOidarray.length < 1){
+
+         console.log(this.urlres);
+         this.urlres.forEach(item =>{
+              let campusSceneLayer = this.layerMap.get(item); 
+              campusSceneLayer.definitionExpression = "oid <10000" 
+         }) 
+      }
+
+    },
+    //合并数组对象中相同的属性值
+    array2combine(arr){
+        var res =[];
+        var narr=[];
+            for(var i =0;i<arr.length;i++){
+                var n = res.indexOf(arr[i][0]);
+                if(n == -1){
+                  // debugger
+                    res.push(arr[i][0]);
+                    this.urlres.indexOf(arr[i][0])  == -1 ? this.urlres.push(arr[i][0]) : '';
+                    narr.push({"url":arr[i][0],oid:[arr[i][1]]})
+                }else{
+                    narr[n].oid.push(arr[i][1])
+                }
+            }
+        return narr;
     },
     // BIM目录树
     // json节点生成tree
     json2tree() {
       getjsontree().then((res) => {
         const nodelist = res.data
-        //  console.log(nodelist);
+          // console.log(nodelist);
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
             ? prev[item.pCode].push(item)
             : (prev[item.pCode] = [item])
           return prev
         }, {})
-        // console.log(list);
+        //  console.log(list);
+         //把子节点赋值给children
         for (const key in list) {
           list[key].forEach(function(item) {
             // item.id = item.code + "_" + item.bimKey;
@@ -893,14 +933,14 @@ export default {
 					year = year - Math.floor((this.levelmax-val)/12) - 1
 					month = 12
 				}
-				console.log(val,year,month)
+				// console.log(val,year,month)
         
         if(month < 10){
-           this.sliderdate = year + '-0' + month;
+           this.sliderdate = year + '-0' + month + '-25';
         }else{
-           this.sliderdate = year + '-' + month;
+           this.sliderdate = year + '-' + month + '-25';
         }
-				return year + '-0' + month
+				return year + '-' + month
 			}
 		},
     // 修改table tr行的背景色

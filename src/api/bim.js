@@ -33,3 +33,12 @@ export function getmodulinfo(ebs) {
     method: 'get',
   })
 }
+
+
+//通过当前滑块时间返回当前显示的模型/progress/getModel/{nowDate}
+export function getoidByDate(nowDate) {
+  return request({
+    url: `https://portal.ehjedu.cn/arcgisService/progress/getModel/${nowDate}`,
+    method: 'get',
+  })
+}
