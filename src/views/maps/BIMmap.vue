@@ -127,7 +127,7 @@
     >
 				<div class="device-tree">
 					<el-scrollbar class="scrolldevice-tree">
-					<el-tree :data="pictree" class="pictree" :props="defaultProps"></el-tree>
+					<el-tree :data="pictree" class="pictree" :props="defaultProps" @node-click="gotourl"></el-tree>
 					</el-scrollbar>
 				</div>
     </dialog-drag>
@@ -367,29 +367,41 @@ export default {
 			'0101020103001', '0101020102002', '0101020102001', '0101020101001', '0101020101002'],
       featuresArray: [],
 			pictree: [{
+				id: '1',
 				name: '格聂山3#横洞',
 				children: [{
+					id: '11',
 					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞'
 				},{
+					id: '12',
 					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞'
 				},{
+					id: '13',
 					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞'
 				},{
+					id: '14',
 					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞'
 				},{
+					id: '15',
 					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞'
 				},{
+					id: '16',
 					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞'					
 				},{
+					id: '17',
 					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞'
 				}]
 			},{
 				name: '格聂平-1',
+				id: '2',
 				children: [{
+					id: '21',
 					name: 'K1+317.6~K1+288-001格聂平-1'
 				},{
+					id: '22',
 					name: 'K1+288.8~K1+277-002格聂平-1'
 				},{
+					id: '23',
 					name: 'K1+280.0~K1+256.0-003格聂平-1'
 				}]
 			}],
@@ -949,6 +961,12 @@ export default {
 			that.attributesize = cr
 			that.attributeunit = dr
 			// console.log("获取属性",that.attributename,that.attributesize,that.attributeunit,that.modelname)
+		},
+		gotourl(data){
+			if(data.id > 10){
+				console.log(data);
+				window.open('https://www.baidu.com/', '_blank')
+			}
 		}
   }
 }
