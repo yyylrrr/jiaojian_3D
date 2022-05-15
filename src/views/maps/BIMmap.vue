@@ -583,12 +583,7 @@ export default {
                       
                     })
               });
-            // this.view.whenLayerView(sceneLayer).then((sceneLayerView)=>{
-            //     const filterSilderLayer = new FeatureFilter({
-            //       where: "oid in (1,2,3,4,5,6,7,8,9,11,12,13,14,15,46,45,47,67,56,34,55,66,77,88)"
-            //     })
-            //     sceneLayerView.filter = filterSilderLayer;
-            // })
+
        })
      
       // Add a layer list widget
@@ -677,7 +672,6 @@ export default {
             for(var i =0;i<arr.length;i++){
                 var n = res.indexOf(arr[i][0]);
                 if(n == -1){
-                  // debugger
                     res.push(arr[i][0]);
                     this.urlres.indexOf(arr[i][0])  == -1 ? this.urlres.push(arr[i][0]) : '';
                     narr.push({"url":arr[i][0],oid:[arr[i][1]]})
@@ -756,15 +750,17 @@ export default {
     getebs(campusSceneLayer, bimKey) {
       return this.view.whenLayerView(campusSceneLayer).then(
         async(campusSceneLayerView) => {
-          const result = await campusSceneLayerView.queryFeatures()
-
-          const tempfeature = result.features.find(item => {
-            return item.attributes.oid == bimKey
-          })
-         if(tempfeature.attributes.ebs){
-          const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-          //  console.log("这是点击节点获取ebs", ebs)
-          return ebs
+          campusSceneLayer.outFields = ['*']
+            const result = await campusSceneLayerView.queryFeatures()
+          if(result.features.length > 0){
+                const tempfeature = result.features.find(item => {
+                   return item.attributes.oid == bimKey
+                })
+                if(tempfeature && tempfeature.attributes.ebs){
+                    const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
+                    //  console.log("这是点击节点获取ebs", ebs)
+                    return ebs
+                }
           }
         })
     },
@@ -774,37 +770,41 @@ export default {
       var selfthis = this
       const bimKey = data.bimKey
       const url = data.url
-      let campusSceneLayer = this.layerMap.get(url);     //this.webscene.layers.getItemAt(0);
-      campusSceneLayer.outFields = ['*']
+      if(url){
+          let campusSceneLayer = this.layerMap.get(url);     //this.webscene.layers.getItemAt(0);
+          campusSceneLayer.outFields = ['*']
       // 第一个异步 获取objectId queryExtent
-      if (bimKey){
-            const objectId = bimKey;
-            const ebs = await this.getebs(campusSceneLayer, bimKey)
-            this.modelinfos = await  getmodulinfo(ebs).then((res) => {
-                        return  res.data;
-                      })
+          if (bimKey){
+                const objectId = bimKey;
+                const ebs = await this.getebs(campusSceneLayer, bimKey)
+                if(ebs){
+                    this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                return  res.data;
+                              })
+                              .catch((error) => {
+                                console.log(error);
+                              });
+                    console.log("点击目录树节点获取构件施工信息",this.modelinfos);
+                    this.getmodelinfo()
+                }
+              //飞行放大
+                const queryExtent = new Query({
+                  objectIds: [objectId]
+                })
+                this.view.whenLayerView(campusSceneLayer).then(async (campusSceneLayerView) => {
+                  const result = await campusSceneLayerView.queryExtent(queryExtent)
+                  if (result.extent) {
+                    selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
                       .catch((error) => {
-                        console.log(error);
-                      });
-            console.log("点击目录树节点获取构件施工信息",this.modelinfos);
-            this.getmodelinfo()
-           //飞行放大
-            const queryExtent = new Query({
-              objectIds: [objectId]
-            })
-            this.view.whenLayerView(campusSceneLayer).then(async(campusSceneLayerView) => {
-              const result = await campusSceneLayerView.queryExtent(queryExtent)
-              if (result.extent) {
-                selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
-                  .catch((error) => {
-                    if (error.name != 'AbortError') {
-                      console.error(error)
-                    }
-                  })
-              }
-              this.highlightModel(campusSceneLayerView,objectId);
-            })
-       }
+                        if (error.name != 'AbortError') {
+                          console.error(error)
+                        }
+                      })
+                  }
+                  this.highlightModel(campusSceneLayerView,objectId);
+                })
+          }
+      }
       //点击目录树节点，获取构件施工信息，右上角card渲染
 
     },
