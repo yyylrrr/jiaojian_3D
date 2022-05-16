@@ -369,41 +369,110 @@ export default {
       featuresArray: [],
 			pictree: [{
 				id: '1',
-				name: '格聂山3#横洞',
+				name: '格聂山3#横洞超前地质预报综合分析成果',
 				children: [{
 					id: '11',
-					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞'
+					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞',
+					url: 'https://note.youdao.com/s/4liIjfBd'
 				},{
 					id: '12',
-					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞'
+					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞',
+					url: 'https://note.youdao.com/s/7mqUQq4h'
 				},{
 					id: '13',
-					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞'
+					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞',
+					url: 'https://note.youdao.com/s/WnDJIIxK'
 				},{
 					id: '14',
-					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞'
+					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞',
+					url: 'https://note.youdao.com/s/JBtEh2Fu'
 				},{
 					id: '15',
-					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞'
+					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞',
+					url: 'https://note.youdao.com/s/R02O3oXC'
 				},{
 					id: '16',
-					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞'					
+					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞',
+					url: 'https://note.youdao.com/s/UvXaZ5oO'
 				},{
 					id: '17',
-					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞'
+					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞',
+					url: 'https://note.youdao.com/s/OsWLUVnE'
 				}]
 			},{
-				name: '格聂平-1',
 				id: '2',
+				name: '格聂山3#横洞超前地质核查单',
 				children: [{
 					id: '21',
-					name: 'K1+317.6~K1+288-001格聂平-1'
+					name: 'H3DK2+410.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/DCAKdgqI'
 				},{
 					id: '22',
-					name: 'K1+288.8~K1+277-002格聂平-1'
+					name: 'H3DK2+406.4格聂山3#横洞',
+					url: 'https://note.youdao.com/s/FcC4f0XW'
 				},{
 					id: '23',
-					name: 'K1+280.0~K1+256.0-003格聂平-1'
+					name: 'H3DK2+402.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/DbiQUZTF'
+				},{
+					id: '24',
+					name: 'H3DK2+383.6-379.8格聂山3#横洞',
+					url: 'https://note.youdao.com/s/JBtEh2Fu'
+				},{
+					id: '25',
+					name: 'H3DK2+358格聂山3#横洞',
+					url: 'https://note.youdao.com/s/R02O3oXC'
+				},{
+					id: '26',
+					name: 'H3DK2+350.4格聂山3#横洞',
+					url: 'https://note.youdao.com/s/UvXaZ5oO'
+				},{
+					id: '27',
+					name: 'H3DK2+346.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/OsWLUVnE'
+				},{
+					id: '21',
+					name: 'H3DK2+410.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/DCAKdgqI'
+				},{
+					id: '22',
+					name: 'H3DK2+406.4格聂山3#横洞',
+					url: 'https://note.youdao.com/s/7mqUQq4h'
+				},{
+					id: '23',
+					name: 'H3DK2+402.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/WnDJIIxK'
+				},{
+					id: '24',
+					name: 'H3DK2+383.6-379.8格聂山3#横洞',
+					url: 'https://note.youdao.com/s/JBtEh2Fu'
+				},{
+					id: '25',
+					name: 'H3DK2+358格聂山3#横洞',
+					url: 'https://note.youdao.com/s/R02O3oXC'
+				},{
+					id: '26',
+					name: 'H3DK2+350.4格聂山3#横洞',
+					url: 'https://note.youdao.com/s/UvXaZ5oO'
+				},{
+					id: '27',
+					name: 'H3DK2+346.6格聂山3#横洞',
+					url: 'https://note.youdao.com/s/OsWLUVnE'
+				}]
+			},{
+
+			},{
+				name: '格聂平-1',
+				id: '0',
+				children: [{
+					id: '01',
+					name: 'K1+317.6~K1+288-001格聂平-1',
+				},{
+					id: '02',
+					name: 'K1+288.8~K1+277-002格聂平-1',
+				},{
+					id: '03',
+					name: 'K1+280.0~K1+256.0-003格聂平-1',
 				}]
 			}],
       modelinfos: [],
@@ -574,7 +643,7 @@ export default {
                                             this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
                                                     this.highlightModel(filterSceneLayerView,objectId);      
                                             })
-
+																						debugger
                                             console.log("这是ebs" , ebs)
                                             if(ebs){
                                                   this.modelinfos = await  getmodulinfo(ebs).then((res) => {
@@ -1004,8 +1073,8 @@ export default {
 		},
 		gotourl(data){
 			if(data.id > 10){
-				console.log(data);
-				window.open('https://www.baidu.com/', '_blank')
+				// console.log(data);
+				window.open(data.url, '_blank')
 			}
 		}
   }
