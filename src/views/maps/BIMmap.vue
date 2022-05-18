@@ -506,8 +506,11 @@ export default {
       console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
           const layerurl = this.serverUrls[i].url;
-          urlmap.set(layerurl,new SceneLayer({url:layerurl}));
-          let sceneLayer = urlmap.get(layerurl)
+          urlmap.set(layerurl,new SceneLayer({
+             url:layerurl,
+             outFields: ["*"]
+             }));
+          let sceneLayer = urlmap.get(layerurl);
           this.webscene.layers.add(sceneLayer);
 
        }
@@ -546,7 +549,6 @@ export default {
                     // this.attributesize = [];
                     this.webscene.layers.forEach(async sceneLayer =>{
                         console.log(sceneLayer)
-                        sceneLayer.outFields = ['*']
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
