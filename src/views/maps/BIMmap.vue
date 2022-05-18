@@ -527,32 +527,19 @@ export default {
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
-            // 过滤模型
-            // const filterLayer = this.webscene.layers.getItemAt(0)
-            // filterLayer.definitionExpression = 'Level < ' + this.levelvalue
+
 
               const layerlength = this.webscene.layers.length;
-              // console.log("layerlength",layerlength)
-              // for(let j = 0;j< layerlength;i++){
-              //   const sceneLayer = this.webscene.layers.getItemAt(j)
-              // }
-        
-              // console.log(sceneLayer)
-            // console.log(sceneLayer.declaredClass + ', ' + sceneLayer.title)
-
-            // get all attributes for the query
-          
+  
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
               this.view.on("immediate-click", (event) => {
-                    // this.attributename = [];
-                    // this.attributesize = [];
+           
                     this.webscene.layers.forEach(async sceneLayer =>{
                         console.log(sceneLayer)
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
                                 if (hitTestResult.results.length > 0) {
-                                      // if(hitTestResult.results[0].graphic.attributes.ebs){
                                             const modelAttributes = await hitTestResult.results[0].graphic.attributes;
                                             const filterLayer = await hitTestResult.results[0].graphic.layer;
                                             console.log("点击模型获取属性:" ,modelAttributes);
@@ -576,7 +563,6 @@ export default {
                                                   //  console.log("点击模型获取构件施工信息",this.modelinfos);
                                                   this.getmodelinfo()
                                             }
-                                      //  }
                                 } 
                                 return;
                                 }).catch((error) => {
