@@ -794,7 +794,7 @@ export default {
                 this.view.whenLayerView(campusSceneLayer).then(async (campusSceneLayerView) => {
                   const result = await campusSceneLayerView.queryExtent(queryExtent)
                   if (result.extent) {
-                    selfthis.view.goTo(result.extent.expand(4), { speedFactor: 0.5 })
+                    selfthis.view.goTo(result.extent.expand(4), { speedFactor: 1.3 })
                       .catch((error) => {
                         if (error.name != 'AbortError') {
                           console.error(error)
