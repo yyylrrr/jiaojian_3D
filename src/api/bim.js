@@ -42,3 +42,32 @@ export function getoidByDate(nowDate) {
     method: 'get',
   })
 }
+
+//分页查询构建属性
+export function getpageQuery(department, ebsStr, page, size, sortByStartMileage) {
+	return request({
+		url: 'https://portal.ehjedu.cn/arcgisService/addProperty/pageQuery',
+		method: 'get',
+		params: {
+			department: department,
+			ebsStr: ebsStr,
+			page: page,
+			size: size,
+			sortByStartMileage: sortByStartMileage
+		}
+	})
+}
+
+//分页查询预警信息
+export function getwarninfoQuery(ebsStr, orderByCreateDate, page, size) {
+	return request({
+		url: 'https://portal.ehjedu.cn/arcgisService/warningInfo/pageQuery',
+		method: 'get',
+		params: {
+			ebsStr: ebsStr,
+			orderByCreateDate : orderByCreateDate,
+			page: page,
+			size: size
+		}
+	})
+}

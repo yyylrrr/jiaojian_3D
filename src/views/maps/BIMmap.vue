@@ -157,47 +157,23 @@
         </el-card>
         <div class="msg">
 					<el-scrollbar class="scrollInfoBox">
-          <el-row>
-            <el-col class="info" :span="24">
-              <div class="grid-content">模型名称：{{this.modelname || "小导管"}}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[0] || "小导管规格" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[0]+this.attributeunit[0] || "BH1108" }}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[1] || "小导管数量" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[1]+this.attributeunit[1] || "142" }}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[2] || "小导管间距" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[2]+this.attributeunit[2] || "0.6m" }}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[3] || "外插角" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[3]+this.attributeunit[3] || "45°" }}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[4] || "注浆量" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[4]+this.attributeunit[4] || "1.47L" }}</div>
-            </el-col>
-            <el-col class="info" :span="14">
-              <div class="grid-content">{{ this.attributename[5] || "注浆压力" }}</div>
-            </el-col>
-            <el-col class="info" :span="10">
-              <div class="grid-content">{{ this.attributesize[5]+this.attributeunit[5] || "0.56pa" }}</div>
-            </el-col>
-          </el-row>
+					<el-table
+						:data = "modelinforef"
+						:show-header="false"
+						:cell-style="tableRowStyles"
+						class="search-result-list"
+          >
+            <el-table-column
+              label="工程结构"
+							prop="name"
+							align="center"
+            />
+            <el-table-column
+              label="工程结构"
+							prop="size"
+							align="center"
+            />
+					</el-table>
 					</el-scrollbar>
         </div>
         <el-card class="box-titlee">
@@ -233,7 +209,7 @@
             />
             <el-table-column
               label="工程结构"
-							prop="instruct"
+							prop="componentTypeName"
               width="50px"
 							align="center"
             />
@@ -244,7 +220,7 @@
             />
             <el-table-column
               label="报警详情"
-							prop="details"
+							prop="warningInfo"
 							align="center"
             />
             <el-table-column
@@ -312,7 +288,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getoidByDate, getjsontree, getServer, uploadBIM ,getmodulinfo} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -537,23 +513,15 @@ export default {
 			attributename:[],
 			attributesize:[],
 			attributeunit:[],
+			attrirefname:[],
+			attrirefsize:[],
+			attrirefunit:[],
+			atbarr: [],
+			modelinforef:[{"name":"模型名称","size":"小导管"},{"name":"小导管规格","size":"BH1108"},
+			{"name":"小导管数量","size":"142"},{"name":"小导管间距","size":"0.6m"},
+			{"name":"外插角","size":"45°"},{"name":"注浆量","size":"1.47L"},{"name":"注浆压力","size":"0.56pa"}],
 			modelname:'',
-			mergedata:[{
-				instruct:'喷射混凝土',
-				position:'H3DK2+218-H3DK2+214',
-				details:'实际喷射量超方160%',
-				people:'总工：舒大勇、分管领导：吴海宇'
-			},{
-				instruct:'喷射混凝土',
-				position:'H3DK2+202-H3DK2+201',
-				details:'实际喷射量超方160%',
-				people:'总工：舒大勇、分管领导：吴海宇'
-			},{
-				instruct:'喷射混凝土',
-				position:'H3DK2+199-H3DK2+197',
-				details:'实际喷射量超方170%',
-				people:'总工：舒大勇、分管领导：吴海宇'
-			}],
+			mergedata:[],
 			modelInoForm: {
 				title: '模型信息页',
 				opened: false,
@@ -571,6 +539,7 @@ export default {
   created() {
     this.json2tree()
 		this.pickmonth()
+		this.getwarninfo()
   },
 
   mounted() {
@@ -690,7 +659,6 @@ export default {
                                             this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
                                                     this.highlightModel(filterSceneLayerView,objectId);      
                                             })
-																						debugger
                                             console.log("这是ebs" , ebs)
                                             if(ebs){
                                                   this.modelinfos = await  getmodulinfo(ebs).then((res) => {
@@ -700,7 +668,8 @@ export default {
                                                           console.log(error);
                                                         });
                                                   //  console.log("点击模型获取构件施工信息",this.modelinfos);
-                                                  this.getmodelinfo()
+                                                  // this.getmodelinfo()
+																									this.getmodelrefinfo(ebs.replace(/[\r\n]/g,""))
                                             }
                                 } 
                                 return;
@@ -912,7 +881,7 @@ export default {
                                 console.log(error);
                               });
                     console.log("点击目录树节点获取构件施工信息",this.modelinfos);
-                    this.getmodelinfo()
+                    // this.getmodelinfo()
                 }
               //飞行放大
                 const queryExtent = new Query({
@@ -991,19 +960,39 @@ export default {
       }
     },
     OpenbasemapGallery(){
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
       this.basemapGallery.visible = ! this.basemapGallery.visible;
     },
 		OpenregisterService(){
+			this.basemapGallery.visible = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
 			this.layerRegisterService = !this.layerRegisterService
 		},
 		OpenshowLayer(){
-        this.layerTreeVisible = !this.layerTreeVisible
-         this.json2tree()
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
+			this.layerTreeVisible = !this.layerTreeVisible
+			this.json2tree()
 		},
 		Opencard(){
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.opcitysliderService = false
 			this.layerCardService = !this.layerCardService
 		},
 		Openopcityslider(){
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
 			this.opcitysliderService = !this.opcitysliderService
 		},
     // 关闭图层面板
@@ -1028,7 +1017,7 @@ export default {
     },
 		pickmonth(){
 			if(this.timepiker != ''){
-				console.log(this.timepiker)
+				// console.log(this.timepiker)
 				let month1, month2
 				month1 = this.timepiker[0].split('-')
 				month2 = this.timepiker[1].split('-')
@@ -1075,6 +1064,11 @@ export default {
       return 'background-color: rgba(255,255,255,0.29); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
     },
 
+    // 修改table tr行的背景色
+    tableRowStyles({ row, rowIndex }) {
+      return 'background-color: rgba(255,255,255,0); color: #fff;font-weight: 500;border: 1px solid #FACD91C2;'
+    },
+
     // 修改table header的背景色
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
@@ -1117,12 +1111,50 @@ export default {
 			that.attributeunit = dr
 			// console.log("获取属性",that.attributename,that.attributesize,that.attributeunit,that.modelname)
 		},
+
+		async	getmodelrefinfo(ebsstr) {
+			this.atbarr = []
+			this.modelinforef = []
+			let partname = ['测量队', '实验室', '工程部', '质检部']
+			for(let i = 0; i < partname.length; i++){
+				await	getpageQuery(partname[i], ebsstr, 1, 10).then(res=> {
+					for (let j = 0; j < res.data.length; j++) {
+						this.atbarr.push(res.data[j])
+					}
+				})
+			}
+			console.log(this.atbarr)
+			let modelname = {"name":"模型名称","size":this.atbarr[0].modelType}
+			let startSegment = {"name":"起始里程","size":this.atbarr[0].startSegment}
+			let endSegment = {"name":"终止里程","size":this.atbarr[0].endSegment}
+			this.modelinforef.push(modelname, startSegment, endSegment)
+			for(let k = 0; k < this.atbarr.length; k++) {
+				let modelinfoatr = {"name":this.atbarr[k].name,"size":this.atbarr[k].valueRefer+this.atbarr[k].unit}
+				this.modelinforef.push(modelinfoatr)
+			}
+			console.log(this.modelinforef)
+		},
 		gotourl(data){
 			if(data.id > 10){
 				// console.log(data);
 				window.open(data.url, '_blank')
 			}
-		}
+		},
+
+		getwarninfo() {
+			getwarninfoQuery('', true, 1, 100).then(res => {
+				this.mergedata = res.data.map(item =>{
+					item.people = '总工：舒大勇、分管领导：吴海宇'
+					item.position = item.startSegment + '-' + item.endSegment
+					var date = new Date(item.createDate).toJSON();
+					item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
+					return item;
+				})
+				// console.log(this.mergedata)
+			}).catch(err =>{
+				console.log(err);
+			})
+		},
   }
 }
 </script>
