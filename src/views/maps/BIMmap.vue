@@ -143,6 +143,7 @@
     >
     <el-slider class="opcityslider"
       v-model="opcityvalue"
+      :min ='1'
       :max ="100"
       :format-tooltip="formatopcity"
 			@input="changeopcityvalue">
@@ -729,36 +730,37 @@ export default {
     },
     // 滑块控制
      async changeModel() {
-
       this.formatTooltip(this.levelvalue)
       console.log(this.sliderdate,'123')
       let modeloid = await getoidByDate(this.sliderdate).then(res =>{
                         return res.data;
-                      });           
-       let newOidarray = this.array2combine(modeloid);
-      
+                      });  
+      if(modeloid) {                  
+          let newOidarray = this.array2combine(modeloid);
+        
+          newOidarray.forEach(item =>{
+              let campusSceneLayer = this.layerMap.get(item.url); 
+              let filteroid = item.oid.toString();
+              filteroid = "(" + filteroid + ")"
+              campusSceneLayer.definitionExpression = "oid in" + filteroid //"oid in (193,186)"
+              //  this.view.whenLayerView(campusSceneLayer).then((sceneLayerView)=>{
+              //       const filterSilderLayer = new FeatureFilter({
+              //         where: "oid in" + filteroid
+              //         //  where: "oid in (193,186)"
+              //       })
+              //       sceneLayerView.filter = filterSilderLayer;
+              //   })
+          })
+          console.log(newOidarray);
+          if(newOidarray.length < 1){
 
-      newOidarray.forEach(item =>{
-           let campusSceneLayer = this.layerMap.get(item.url); 
-           let filteroid = item.oid.toString();
-           filteroid = "(" + filteroid + ")"
-           campusSceneLayer.definitionExpression = "oid in" + filteroid //"oid in (193,186)"
-          //  this.view.whenLayerView(campusSceneLayer).then((sceneLayerView)=>{
-          //       const filterSilderLayer = new FeatureFilter({
-          //         where: "oid in" + filteroid
-          //         //  where: "oid in (193,186)"
-          //       })
-          //       sceneLayerView.filter = filterSilderLayer;
-          //   })
-      })
-      if(newOidarray.length < 1){
-
-         console.log(this.urlres);
-         this.urlres.forEach(item =>{
-              let campusSceneLayer = this.layerMap.get(item); 
-              campusSceneLayer.definitionExpression = "oid <10000" 
-         }) 
-      }
+            console.log(this.urlres);
+            this.urlres.forEach(item =>{
+                  let campusSceneLayer = this.layerMap.get(item); 
+                  campusSceneLayer.definitionExpression = "oid <10000" 
+            }) 
+          }
+      } 
 
     },
     //合并数组对象中相同的属性值
@@ -829,37 +831,37 @@ export default {
       return data.name.indexOf(value) !== -1
     },
     // 获取构件的objectId
-    getobjectId(campusSceneLayer, bimKey) {
-      return this.view.whenLayerView(campusSceneLayer).then(
-        async(campusSceneLayerView) => {
-          const result = await campusSceneLayerView.queryFeatures()
+    // getobjectId(campusSceneLayer, bimKey) {
+    //   return this.view.whenLayerView(campusSceneLayer).then(
+    //     async(campusSceneLayerView) => {
+    //       const result = await campusSceneLayerView.queryFeatures()
 
-          const tempfeature = result.features.find(item => {
-            return item.attributes.oid == bimKey
-          })
-          // console.log(tempfeature, bimKey)
-          const objectId = tempfeature.attributes.oid
-          return objectId
-        })
-    },
+    //       const tempfeature = result.features.find(item => {
+    //         return item.attributes.oid == bimKey
+    //       })
+    //       // console.log(tempfeature, bimKey)
+    //       const objectId = tempfeature.attributes.oid
+    //       return objectId
+    //     })
+    // },
      // 点击目录树节点获取ebs
-    getebs(campusSceneLayer, bimKey) {
-      return this.view.whenLayerView(campusSceneLayer).then(
-        async(campusSceneLayerView) => {
-          campusSceneLayer.outFields = ['*']
-            const result = await campusSceneLayerView.queryFeatures()
-          if(result.features.length > 0){
-                const tempfeature = result.features.find(item => {
-                   return item.attributes.oid == bimKey
-                })
-                if(tempfeature && tempfeature.attributes.ebs){
-                    const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-                    //  console.log("这是点击节点获取ebs", ebs)
-                    return ebs
-                }
-          }
-        })
-    },
+    // getebs(campusSceneLayer, bimKey) {
+    //   return this.view.whenLayerView(campusSceneLayer).then(
+    //     async(campusSceneLayerView) => {
+    //       campusSceneLayer.outFields = ['*']
+    //         const result = await campusSceneLayerView.queryFeatures()
+    //       if(result.features.length > 0){
+    //             const tempfeature = result.features.find(item => {
+    //                return item.attributes.oid == bimKey
+    //             })
+    //             if(tempfeature && tempfeature.attributes.ebs){
+    //                 const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
+    //                 //  console.log("这是点击节点获取ebs", ebs)
+    //                 return ebs
+    //             }
+    //       }
+    //     })
+    // },
     // 双击节点
     async handleNodeClick(data, node, self) {
       console.log( this.layerMap);
@@ -868,11 +870,11 @@ export default {
       const url = data.url
       if(url){
           let campusSceneLayer = this.layerMap.get(url);     //this.webscene.layers.getItemAt(0);
-          campusSceneLayer.outFields = ['*']
+          // campusSceneLayer.outFields = ['*']
       // 第一个异步 获取objectId queryExtent
           if (bimKey){
                 const objectId = bimKey;
-                const ebs = await this.getebs(campusSceneLayer, bimKey)
+                const ebs =  data.ebs;          //await this.getebs(campusSceneLayer, bimKey)
                 if(ebs){
                     this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                 return  res.data;
@@ -888,7 +890,9 @@ export default {
                   objectIds: [objectId]
                 })
                 this.view.whenLayerView(campusSceneLayer).then(async (campusSceneLayerView) => {
-                  const result = await campusSceneLayerView.queryExtent(queryExtent)
+                   const result = await campusSceneLayerView.queryExtent(queryExtent)
+                  const result1 = await campusSceneLayer.queryFeatures()
+                    console.log(result1)
                   if (result.extent) {
                     selfthis.view.goTo(result.extent.expand(4), { speedFactor: 1.3 })
                       .catch((error) => {
