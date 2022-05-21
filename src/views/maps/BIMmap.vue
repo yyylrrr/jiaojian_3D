@@ -676,7 +676,13 @@ export default {
     json2tree() {
       getjsontree().then((res) => {
         const nodelist = res.data
-          // console.log(nodelist);
+        nodelist.sort((a,b) =>{
+          var val1 = a.level == 9 ? a.name.slice(6,11) : "";
+          var val2 = b.level == 9 ? b.name.slice(6,11) : "";
+          return val1 -val2;
+
+        })
+     
         const list = nodelist.reduce(function(prev, item) {
           prev[item.pCode]
             ? prev[item.pCode].push(item)
@@ -756,7 +762,7 @@ export default {
     // },
     // 双击节点
     async handleNodeClick(data, node, self) {
-      console.log( this.layerMap);
+      // console.log( this.layerMap);
       var selfthis = this
       const bimKey = data.bimKey
       const url = data.url
@@ -774,7 +780,7 @@ export default {
                               .catch((error) => {
                                 console.log(error);
                               });
-                    console.log("点击目录树节点获取构件施工信息",this.modelinfos);
+                    // console.log("点击目录树节点获取构件施工信息",this.modelinfos);
                     this.getmodelinfo()
                 }
               //飞行放大
@@ -783,8 +789,6 @@ export default {
                 })
                 this.view.whenLayerView(campusSceneLayer).then(async (campusSceneLayerView) => {
                    const result = await campusSceneLayerView.queryExtent(queryExtent)
-                  const result1 = await campusSceneLayer.queryFeatures()
-                    console.log(result1)
                   if (result.extent) {
                     selfthis.view.goTo(result.extent.expand(4), { speedFactor: 1.3 })
                       .catch((error) => {
