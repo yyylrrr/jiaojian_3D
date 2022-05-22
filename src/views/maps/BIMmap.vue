@@ -1146,7 +1146,7 @@ export default {
 		},
 
 		getwarninfo() {
-			getwarninfoQuery('', true, 1, 100).then(res => {
+			getwarninfoQuery('', true, 1, 999999).then(res => {
 				this.mergedata = res.data.map(item =>{
 					item.people = '总工：舒大勇、分管领导：吴海宇'
 					item.position = item.startSegment + '-' + item.endSegment
