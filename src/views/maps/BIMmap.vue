@@ -181,22 +181,22 @@
           <dt class="title-font">预警统计</dt>
         </el-card>
         <div class="merge-button-group">
-          <el-button type="primary" size="small" round plain class="merge-button">今日</el-button>
-          <el-button type="primary" size="small" round plain class="merge-button">昨日</el-button>
-          <el-button type="primary" size="small" round plain class="merge-button">近七日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" @click="todaymerge">今日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" @click="yesterdaymerge">昨日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" @click="lastweekmerge">近七日</el-button>
         </div>
         <div class="type-button-group">
-          <el-button type="primary" size="mini" round plain class="type-button">初支开挖</el-button>
-          <el-button type="primary" size="mini" round plain class="type-button">仰拱</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" @click="chuzhi">初支开挖</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" @click="yanggong">仰拱</el-button>
         </div>
         <div class="type-button-groupp">
-          <el-button type="primary" size="mini" round plain class="type-button">二衬</el-button>
-          <el-button type="primary" size="mini" round plain class="type-button">防、排水</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" @click="erchen">二衬</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" @click="fangpai">防、排水</el-button>
         </div>
         <div class="msgg">
 					<el-scrollbar style="height:220px;width:100%;">
           <el-table
-						:data = "mergedata"
+						:data = "mergeselectdata"
 						border
             :cell-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
@@ -523,6 +523,7 @@ export default {
 			{"name":"外插角","size":"45°"},{"name":"注浆量","size":"1.47L"},{"name":"注浆压力","size":"0.56pa"}],
 			modelname:'',
 			mergedata:[],
+			mergeselectdata:[],
 			modelInoForm: {
 				title: '模型信息页',
 				opened: false,
@@ -1137,8 +1138,13 @@ export default {
 			let endSegment = {"name":"终止里程","size":this.atbarr[0].endSegment}
 			this.modelinforef.push(modelname, startSegment, endSegment)
 			for(let k = 0; k < this.atbarr.length; k++) {
-				let modelinfoatr = {"name":this.atbarr[k].name,"size":this.atbarr[k].valueRefer+this.atbarr[k].unit}
-				this.modelinforef.push(modelinfoatr)
+				if(this.atbarr[k].value == null){
+					let modelinfoatr = {"name":this.atbarr[k].name,"size":"未填写"}
+					this.modelinforef.push(modelinfoatr)
+				} else {
+					let modelinfoatr = {"name":this.atbarr[k].name,"size":this.atbarr[k].value+this.atbarr[k].unit}
+					this.modelinforef.push(modelinfoatr)
+				}
 			}
 			console.log(this.modelinforef)
 		},
@@ -1149,8 +1155,8 @@ export default {
 			}
 		},
 
-		getwarninfo() {
-			getwarninfoQuery('', true, 1, 999999).then(res => {
+		async getwarninfo() {
+			await getwarninfoQuery('', true, 1, 9999999).then(res => {
 				this.mergedata = res.data.map(item =>{
 					item.people = '总工：舒大勇、分管领导：吴海宇'
 					item.position = item.startSegment + '-' + item.endSegment
@@ -1158,11 +1164,104 @@ export default {
 					item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
 					return item;
 				})
-				// console.log(this.mergedata)
+				this.mergeselectdata = this.mergedata.slice(0,9)
+				console.log(this.mergeselectdata)
 			}).catch(err =>{
 				console.log(err);
 			})
 		},
+
+      todaymerge(){
+        function num(i){
+          return i <10?'0'+i:i;
+        }
+        this.mergeselectdata = []
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = now.getMonth() + 1;
+        let date = now.getDate();        
+        let nowtime = "";
+        nowtime = year + "-" + num(month) + "-" + num(date);
+        // console.log(nowtime);
+        this.mergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == nowtime).slice(0,9)
+      },
+
+      yesterdaymerge(){
+				this.mergeselectdata = []
+        let time = (new Date).getTime() - 24 * 60 * 60 * 1000;
+        let yesdaytime = new Date(time); 
+        yesdaytime = yesdaytime.getFullYear() + "-" + (yesdaytime.getMonth()> 9 ? (yesdaytime.getMonth() + 1) : "0" + (yesdaytime.getMonth() + 1)) + "-" +
+        (yesdaytime.getDate()> 9 ? (yesdaytime.getDate()) : "0" + (yesdaytime.getDate()));
+        // console.log(yesdaytime);
+        this.mergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == yesdaytime).slice(0,9)
+      },
+
+      lastweekmerge(){
+        function num(i){
+          return i <10?'0'+i:i;
+        }	
+				this.mergeselectdata = []
+        let lastweekdays = [];
+        let lastweek = new Date();
+        for(let i=0; i<=24*6;i+=24){	
+          let dateItem=new Date(lastweek.getTime() - i * 60 * 60 * 1000);
+          let year = dateItem.getFullYear();	
+          let month = dateItem.getMonth() + 1;	
+          let date= dateItem.getDate();	
+          let weektime = "";
+          weektime = year + "-" + num(month) + "-" + num(date);
+          lastweekdays.push(weektime);	
+        }
+        console.log('最近七天日期：',lastweekdays);
+        for(let i = 0; i < lastweekdays.length; i++){
+					for(let j = 0; j < this.mergedata.length; j++){
+						if(this.mergedata[j].modifyDate.substring(0,10) == lastweekdays[i]){
+							this.mergeselectdata.push(this.mergedata[j])
+						}
+					}
+				}
+				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+      },
+
+			chuzhi(){
+				this.mergeselectdata = []
+				for(let i = 0; i < this.mergedata.length; i++){
+					if(this.mergedata[i].ebs.substring(19,21) == '01'){
+						this.mergeselectdata.push(this.mergedata[i])
+					}
+				}
+				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+			},
+
+			yanggong(){
+				this.mergeselectdata = []
+				for(let i = 0; i < this.mergedata.length; i++){
+					if(this.mergedata[i].ebs.substring(19,21) == '02'){
+						this.mergeselectdata.push(this.mergedata[i])
+					}
+				}
+				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+			},
+
+			erchen(){
+				this.mergeselectdata = []
+				for(let i = 0; i < this.mergedata.length; i++){
+					if(this.mergedata[i].ebs.substring(19,21) == '03'){
+						this.mergeselectdata.push(this.mergedata[i])
+					}
+				}
+				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+			},
+
+			fangpai(){
+				this.mergeselectdata = []
+				for(let i = 0; i < this.mergedata.length; i++){
+					if(this.mergedata[i].ebs.substring(19,21) == '04'){
+						this.mergeselectdata.push(this.mergedata[i])
+					}
+				}
+				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+			},
   }
 }
 </script>
