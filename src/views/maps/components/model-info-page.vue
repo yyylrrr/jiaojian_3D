@@ -1,8 +1,9 @@
 <template>
   <div v-show="modelSelectInfo.opened">
     <dialog-drag
-      id="dialog-1"
+      id="dialog-page"
       class="dialog-3"
+      :title="modelSelectInfo.title"
       pinned="false"
       :options="option"
       @close="close"
@@ -101,5 +102,13 @@ export default {
 		color:  #fff;
 		border: 1px solid #facd9152;
 	}
+  .dialog-3.dialog-drag .dialog-header{
+   text-align: center;
+    top: 13px;
+  }
+  /* #dialog-page{
+    left: calc(attr(client-x));
+    top: calc(attr(client-y));
+  } */
 </style>
 
