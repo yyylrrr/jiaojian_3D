@@ -73,30 +73,30 @@
     <dialog-drag
       v-show="layerRegisterService"
       id="dialog-1"
-      class="dialog-2"
+      class="dialog-3"
       title="注册服务"
       pinned="false"
-      :options="{ top: 90, left: 90, width: 320, buttonPin: false }"
+      :options="{ top: 120, left: 90, width: 320, buttonPin: false }"
       @close="closeRegisterService"
     >
       <el-input
         v-model="registerInfo.name"
         size="medium"
-        class="inputbox"
+        class="searchinput"
         autosize
         placeholder="name"
       />
       <el-input
         v-model="registerInfo.url"
         size="medium"
-        class="inputbox"
+        class="searchinput"
         autosize
         placeholder="url"
       />
       <el-input
         v-model="registerInfo.version"
         size="medium"
-        class="inputbox"
+        class="searchinput"
         autosize
         placeholder="version"
       />
@@ -104,12 +104,12 @@
         <el-col class="button-group">
           <el-button
             size="medium"
-            type="primary"
+						style="background:transparent;color:#fff"
             @click="doRegisterService"
           >确认</el-button>
           <el-button
             size="medium"
-            type="danger"
+            style="background:transparent;color:#fff"
             @click="closeRegisterService"
           >取消</el-button>
         </el-col>
@@ -181,17 +181,17 @@
           <dt class="title-font">预警统计</dt>
         </el-card>
         <div class="merge-button-group">
-          <el-button type="primary" size="small" round plain class="merge-button" @click="todaymerge">今日</el-button>
-          <el-button type="primary" size="small" round plain class="merge-button" @click="yesterdaymerge">昨日</el-button>
-          <el-button type="primary" size="small" round plain class="merge-button" @click="lastweekmerge">近七日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" :style="button1" @click="clicktoday">今日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" :style="button2" @click="clickyesterday">昨日</el-button>
+          <el-button type="primary" size="small" round plain class="merge-button" :style="button3" @click="clicklastweek">近七日</el-button>
         </div>
         <div class="type-button-group">
-          <el-button type="primary" size="mini" round plain class="type-button" @click="chuzhi">初支开挖</el-button>
-          <el-button type="primary" size="mini" round plain class="type-button" @click="yanggong">仰拱</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" :style="button4" @click="click01">初支开挖</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" :style="button5" @click="click02">仰拱</el-button>
         </div>
         <div class="type-button-groupp">
-          <el-button type="primary" size="mini" round plain class="type-button" @click="erchen">二衬</el-button>
-          <el-button type="primary" size="mini" round plain class="type-button" @click="fangpai">防、排水</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" :style="button6" @click="click03">二衬</el-button>
+          <el-button type="primary" size="mini" round plain class="type-button" :style="button7" @click="click04">防、排水</el-button>
         </div>
         <div class="msgg">
 					<el-scrollbar style="height:220px;width:100%;">
@@ -266,7 +266,6 @@
 			</el-card>
       </el-card>
     </div>
-
 		<ModelInfoPage :modelSelectInfo ="modelInoForm" />
   </div>
 </template>
@@ -305,6 +304,13 @@ export default {
 
   data() {
     return {
+			button1: '',
+			button2: '',
+			button3: '',
+			button4: '',
+			button5: '',
+			button6: '',
+			button7: '',
       urlres:[],
       opcityvalue:80,
       sliderdate:null,
@@ -524,18 +530,30 @@ export default {
 			modelname:'',
 			mergedata:[],
 			mergeselectdata:[],
+			daymergeselectdata:[],
+			regionmergeselectdata:[],
 			modelInoForm: {
 				title: '模型信息页',
 				opened: false,
-				modelInfo: {}
-			}
+				modelInfo: {},
+				posx : '',
+				posy : '',
+			},
+			mergeday: '',
+			mergeregion: '',
     }
   },
   computed: {},
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val)
-    }
+    },
+    mergeday() {
+			this.getmergedata()
+    },
+		mergeregion() {
+			this.getmergedata()
+		},
   },
 
   created() {
@@ -557,7 +575,12 @@ export default {
             portal: 'http://portal.ehjedu.cn/arcgis'
         }
       })
-
+			var _this = this
+				document.addEventListener('click',function(e){
+          _this.modelInoForm.posx = e.pageX
+          _this.modelInoForm.posy = e.pageY
+					console.log(e)
+        })
       this.view = new SceneView({
         container: 'viewDiv',
         map: this.webscene,
@@ -644,24 +667,25 @@ export default {
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
               this.view.on("immediate-click", (event) => {
-           
+           	          this.modelInoForm.opened = false;
                     this.webscene.layers.forEach(async sceneLayer =>{
                         console.log(sceneLayer)
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
+												
                                 if (hitTestResult.results.length > 0) {
                                             const modelAttributes = await hitTestResult.results[0].graphic.attributes;
                                             const filterLayer = await hitTestResult.results[0].graphic.layer;
                                             console.log("点击模型获取属性:" ,modelAttributes);
                                             this.modelInoForm.modelInfo = modelAttributes
-                                            this.modelInoForm.opened = false;
                                             const ebs = modelAttributes.ebs;
+																					  this.modelInoForm.opened = false;
                                             const objectId = modelAttributes.oid;
                                             //点击模型构件，高亮显示
                                             this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
                                                     this.highlightModel(filterSceneLayerView,objectId);      
                                             })
-                                            console.log("这是ebs" , ebs)
+                                            // console.log("这是ebs" , ebs)
                                             if(ebs){
                                                   this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                                           return  res.data;
@@ -890,7 +914,8 @@ export default {
                                 console.log(error);
                               });
                     // console.log("点击目录树节点获取构件施工信息",this.modelinfos);
-                    this.getmodelinfo()
+                    // this.getmodelinfo()
+										this.getmodelrefinfo(ebs.replace(/[\r\n]/g,""))
                 }
               //飞行放大
                 const queryExtent = new Query({
@@ -1132,7 +1157,7 @@ export default {
 					}
 				})
 			}
-			console.log(this.atbarr)
+			// console.log(this.atbarr)
 			let modelname = {"name":"模型名称","size":this.atbarr[0].modelType}
 			let startSegment = {"name":"起始里程","size":this.atbarr[0].startSegment}
 			let endSegment = {"name":"终止里程","size":this.atbarr[0].endSegment}
@@ -1146,7 +1171,7 @@ export default {
 					this.modelinforef.push(modelinfoatr)
 				}
 			}
-			console.log(this.modelinforef)
+			// console.log(this.modelinforef)
 		},
 		gotourl(data){
 			if(data.id > 10){
@@ -1164,18 +1189,18 @@ export default {
 					item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
 					return item;
 				})
-				this.mergeselectdata = this.mergedata.slice(0,9)
-				console.log(this.mergeselectdata)
+				this.mergeselectdata = this.mergedata
+				// console.log(this.mergeselectdata)
 			}).catch(err =>{
 				console.log(err);
 			})
 		},
 
       todaymerge(){
+				this.daymergeselectdata = this.mergedata
         function num(i){
           return i <10?'0'+i:i;
         }
-        this.mergeselectdata = []
         let now = new Date();
         let year = now.getFullYear();
         let month = now.getMonth() + 1;
@@ -1183,24 +1208,24 @@ export default {
         let nowtime = "";
         nowtime = year + "-" + num(month) + "-" + num(date);
         // console.log(nowtime);
-        this.mergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == nowtime).slice(0,9)
+        this.daymergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == nowtime)
       },
 
       yesterdaymerge(){
-				this.mergeselectdata = []
+				this.daymergeselectdata = this.mergedata
         let time = (new Date).getTime() - 24 * 60 * 60 * 1000;
         let yesdaytime = new Date(time); 
         yesdaytime = yesdaytime.getFullYear() + "-" + (yesdaytime.getMonth()> 9 ? (yesdaytime.getMonth() + 1) : "0" + (yesdaytime.getMonth() + 1)) + "-" +
         (yesdaytime.getDate()> 9 ? (yesdaytime.getDate()) : "0" + (yesdaytime.getDate()));
         // console.log(yesdaytime);
-        this.mergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == yesdaytime).slice(0,9)
+        this.daymergeselectdata = this.mergedata.filter(item => item.modifyDate.substring(0,10) == yesdaytime)
       },
 
       lastweekmerge(){
+				this.daymergeselectdata = []
         function num(i){
           return i <10?'0'+i:i;
-        }	
-				this.mergeselectdata = []
+        }
         let lastweekdays = [];
         let lastweek = new Date();
         for(let i=0; i<=24*6;i+=24){	
@@ -1212,56 +1237,159 @@ export default {
           weektime = year + "-" + num(month) + "-" + num(date);
           lastweekdays.push(weektime);	
         }
-        console.log('最近七天日期：',lastweekdays);
+        // console.log('最近七天日期：',lastweekdays);
         for(let i = 0; i < lastweekdays.length; i++){
 					for(let j = 0; j < this.mergedata.length; j++){
 						if(this.mergedata[j].modifyDate.substring(0,10) == lastweekdays[i]){
-							this.mergeselectdata.push(this.mergedata[j])
+							this.daymergeselectdata.push(this.mergedata[j])
 						}
 					}
 				}
-				this.mergeselectdata = this.mergeselectdata.slice(0,9)
       },
 
-			chuzhi(){
-				this.mergeselectdata = []
-				for(let i = 0; i < this.mergedata.length; i++){
-					if(this.mergedata[i].ebs.substring(19,21) == '01'){
-						this.mergeselectdata.push(this.mergedata[i])
-					}
+			daymerge(day){
+				if(day == ''){
+					this.daymergeselectdata = this.mergedata
 				}
-				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+				else if(day == 'today'){
+					this.todaymerge()
+				}
+				else if(day == 'yesterday'){
+					this.yesterdaymerge()
+				}
+				else if(day == 'lastweek'){
+					this.lastweekmerge()
+				}
 			},
 
-			yanggong(){
-				this.mergeselectdata = []
-				for(let i = 0; i < this.mergedata.length; i++){
-					if(this.mergedata[i].ebs.substring(19,21) == '02'){
-						this.mergeselectdata.push(this.mergedata[i])
+			regionmerge(code) {
+				this.regionmergeselectdata = []
+				// console.log(code)
+				if(code == ''){
+					this.regionmergeselectdata = this.mergedata
+				}else{
+					for(let i = 0; i < this.mergedata.length; i++){
+						if(this.mergedata[i].ebs.substring(19,21) == code){
+							this.regionmergeselectdata.push(this.mergedata[i])
+						}
 					}
 				}
-				this.mergeselectdata = this.mergeselectdata.slice(0,9)
 			},
 
-			erchen(){
-				this.mergeselectdata = []
-				for(let i = 0; i < this.mergedata.length; i++){
-					if(this.mergedata[i].ebs.substring(19,21) == '03'){
-						this.mergeselectdata.push(this.mergedata[i])
-					}
+			getmergedata(){
+				this.mergeselectdata = this.mergedata
+				this.daymerge(this.mergeday)
+				this.regionmerge(this.mergeregion)
+				// console.log(this.regionmergeselectdata)
+				this.mergeselectdata = this.daymergeselectdata.filter(item=>this.regionmergeselectdata.includes(item))
+				if(this.mergeday == 'today'){
+					this.button1 = 'background:#409EFF';
+					this.button2 = '';
+					this.button3 = '';
+				}else if(this.mergeday == "yesterday"){
+					this.button1 = '';
+					this.button2 = 'background:#409EFF';
+					this.button3 = '';
+				}else if(this.mergeday == "lastweek"){
+					this.button1 = '';
+					this.button2 = '';
+					this.button3 = 'background:#409EFF';
 				}
-				this.mergeselectdata = this.mergeselectdata.slice(0,9)
+				if(this.mergeregion == "01"){
+					this.button4 = 'background:#409EFF';
+					this.button5 = '';
+					this.button6 = '';
+					this.button7 = '';
+				}else if(this.mergeregion == "02"){
+					this.button4 = '';
+					this.button5 = 'background:#409EFF';
+					this.button6 = '';
+					this.button7 = '';
+				}else if(this.mergeregion == "03"){
+					this.button4 = '';
+					this.button5 = '';
+					this.button6 = 'background:#409EFF';
+					this.button7 = '';
+				}else if(this.mergeregion == "04"){
+					this.button4 = '';
+					this.button5 = '';
+					this.button6 = '';
+					this.button7 = 'background:#409EFF';	
+				}
+
+			},
+			buttontoblur(evt){
+				let target = evt.target;
+				if(target.nodeName == "SPAN"){
+					target = evt.target.parentNode;
+				}
+				// console.log(target.nodeName)
+				target.blur();
+			},
+			clicktoday(evt){
+				this.buttontoblur(evt)
+				if(this.mergeday == "today"){
+					this.mergeday = "";
+					this.button1 = ''
+				}else{
+					this.mergeday = "today";
+				}
+			},
+			clickyesterday(evt){
+				this.buttontoblur(evt)
+				if(this.mergeday == "yesterday"){
+					this.mergeday = "";
+					this.button2 = ''
+				}else{
+					this.mergeday = "yesterday";
+				}
+			},
+			clicklastweek(evt){
+				this.buttontoblur(evt)
+				if(this.mergeday == "lastweek"){
+					this.mergeday = "";
+					this.button3 = ''
+				}else{
+					this.mergeday = "lastweek";
+				}
+			},
+			click01(evt){
+				this.buttontoblur(evt)
+				if(this.mergeregion == "01"){
+					this.mergeregion = "";
+					this.button4 = ''
+				}else{
+					this.mergeregion = "01";
+				}
 			},
 
-			fangpai(){
-				this.mergeselectdata = []
-				for(let i = 0; i < this.mergedata.length; i++){
-					if(this.mergedata[i].ebs.substring(19,21) == '04'){
-						this.mergeselectdata.push(this.mergedata[i])
-					}
+			click02(evt){
+				this.buttontoblur(evt)
+				if(this.mergeregion == "02"){
+					this.mergeregion = "";
+					this.button5 = ''
+				}else{
+					this.mergeregion = "02";
 				}
-				this.mergeselectdata = this.mergeselectdata.slice(0,9)
 			},
+			click03(evt){
+				this.buttontoblur(evt)
+				if(this.mergeregion == "03"){
+					this.mergeregion = "";
+					this.button6 = ''
+				}else{
+					this.mergeregion = "03";
+				}
+			},
+			click04(evt){
+				this.buttontoblur(evt)
+				if(this.mergeregion == "04"){
+					this.mergeregion = "";
+					this.button7 = ''
+				}else{
+					this.mergeregion = "04";
+				}
+			}
   }
 }
 </script>
@@ -1447,7 +1575,7 @@ export default {
 	}
 	.merge-button {
 		background-color:transparent;
-		color: #2193FF;
+		color: #ffffff;
 		font-weight: bold;
 		border: 1px solid #2193FF;
 		width: 30%;
@@ -1533,6 +1661,9 @@ export default {
 </style>
 
 <style>
+.esri-basemap-gallery__item-container{
+	background: #333333;
+}
 .esri-ui-top-left{
    display: none;
 }

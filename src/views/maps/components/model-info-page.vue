@@ -3,6 +3,7 @@
     <dialog-drag
       id="dialog-1"
       class="dialog-3"
+			:style="styleObject"
       pinned="false"
       :options="option"
       @close="close"
@@ -48,7 +49,8 @@ export default {
   },
   data() {
     return {
-      option: { top: 250, left: 600, height: 350, width: 300, buttonPin: false },
+      option: {height: 350, width: 300, buttonPin: false },
+			styleObject: {top: '0',left: '0'},
     }
   },
 
@@ -56,7 +58,26 @@ export default {
 
   },
   watch: {
-
+		'modelSelectInfo.posy':{
+			deep:true,
+			handler:function(newV,oldV){
+				// console.log('watch中：',newV,oldV)
+				this.styleObject.top = (newV-460) + 'px'
+      }			
+		},
+		'modelSelectInfo.posx':{
+			deep:true,
+			handler:function(newV,oldV){
+				// console.log('watch中：',newV)
+				this.styleObject.left = (newV+40) + 'px'
+      }
+		},
+		'modelSelectInfo':{
+			deep:true,
+			handler:function(newV,oldV){
+				console.log('watch中：',newV,oldV)
+      }	
+		}
 	},
   created() {
 
@@ -68,7 +89,6 @@ export default {
 
     close() {
       this.modelSelectInfo.opened = false;
-			console.log(this.modelSelectInfo.modelInfo)
 		},
   }
 }
