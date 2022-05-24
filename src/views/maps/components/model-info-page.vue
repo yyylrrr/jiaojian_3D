@@ -1,9 +1,10 @@
 <template>
   <div v-show="modelSelectInfo.opened">
     <dialog-drag
-      id="dialog-1"
+      id="dialog-page"
       class="dialog-3"
 			:style="styleObject"
+      :title="modelSelectInfo.title"
       pinned="false"
       :options="option"
       @close="close"
@@ -72,12 +73,6 @@ export default {
 				this.styleObject.left = (newV+40) + 'px'
       }
 		},
-		'modelSelectInfo':{
-			deep:true,
-			handler:function(newV,oldV){
-				console.log('watch中：',newV,oldV)
-      }	
-		}
 	},
   created() {
 
@@ -121,5 +116,13 @@ export default {
 		color:  #fff;
 		border: 1px solid #facd9152;
 	}
+  .dialog-3.dialog-drag .dialog-header{
+   text-align: center;
+    top: 13px;
+  }
+  /* #dialog-page{
+    left: calc(attr(client-x));
+    top: calc(attr(client-y));
+  } */
 </style>
 

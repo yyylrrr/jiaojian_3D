@@ -760,12 +760,12 @@ export default {
       let modeloid = await getoidByDate(this.sliderdate).then(res =>{
                         return res.data;
                       });  
-      if(modeloid) {                  
-          let newOidarray = this.array2combine(modeloid);
+      if(modeloid.length >0) {                  
+         this.array2combine(modeloid);
         
-          newOidarray.forEach(item =>{
+          modeloid.forEach(item =>{
               let campusSceneLayer = this.layerMap.get(item.url); 
-              let filteroid = item.oid.toString();
+              let filteroid = item.bimKeys.toString();
               filteroid = "(" + filteroid + ")"
               campusSceneLayer.definitionExpression = "oid in" + filteroid //"oid in (193,186)"
               //  this.view.whenLayerView(campusSceneLayer).then((sceneLayerView)=>{
@@ -776,33 +776,21 @@ export default {
               //       sceneLayerView.filter = filterSilderLayer;
               //   })
           })
-          console.log(newOidarray);
-          if(newOidarray.length < 1){
-
+          console.log(modeloid);
+      }else{            
             console.log(this.urlres);
             this.urlres.forEach(item =>{
                   let campusSceneLayer = this.layerMap.get(item); 
-                  campusSceneLayer.definitionExpression = "oid <10000" 
+                  campusSceneLayer.definitionExpression = "oid <100000" 
             }) 
-          }
-      } 
+      }
 
     },
     //合并数组对象中相同的属性值
     array2combine(arr){
-        var res =[];
-        var narr=[];
             for(var i =0;i<arr.length;i++){
-                var n = res.indexOf(arr[i][0]);
-                if(n == -1){
-                    res.push(arr[i][0]);
-                    this.urlres.indexOf(arr[i][0])  == -1 ? this.urlres.push(arr[i][0]) : '';
-                    narr.push({"url":arr[i][0],oid:[arr[i][1]]})
-                }else{
-                    narr[n].oid.push(arr[i][1])
-                }
+                this.urlres.indexOf(arr[i].url)  == -1 ? this.urlres.push(arr[i].url) : '';
             }
-        return narr;
     },
     // BIM目录树
     // json节点生成tree
