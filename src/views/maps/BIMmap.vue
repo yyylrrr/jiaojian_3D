@@ -1139,7 +1139,7 @@ export default {
 			this.modelinforef = []
 			let partname = ['测量队', '实验室', '工程部', '质检部']
 			for(let i = 0; i < partname.length; i++){
-				await	getpageQuery(partname[i], ebsstr, 1, 10).then(res=> {
+				await	getpageQuery(partname[i], true, ebsstr,'modifyDate', 1, 10).then(res=> {
 					for (let j = 0; j < res.data.length; j++) {
 						this.atbarr.push(res.data[j])
 					}
@@ -1169,7 +1169,7 @@ export default {
 		},
 
 		async getwarninfo() {
-			await getwarninfoQuery('', true, 1, 9999999).then(res => {
+			await getwarninfoQuery(false,'', "modifyDate", 1, 9999999).then(res => {
 				this.mergedata = res.data.map(item =>{
 					item.people = '总工：舒大勇、分管领导：吴海宇'
 					item.position = item.startSegment + '-' + item.endSegment
