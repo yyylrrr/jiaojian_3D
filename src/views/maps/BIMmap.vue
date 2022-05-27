@@ -127,7 +127,7 @@
     >
 				<div class="device-tree">
 					<el-scrollbar class="scrolldevice-tree">
-					<el-tree :data="pictree" class="pictree" :props="defaultProps" @node-click="gotourl"></el-tree>
+					<el-tree :data="urltree" class="pictree" :props="defaultProps" @node-click="gotourl"></el-tree>
 					</el-scrollbar>
 				</div>
     </dialog-drag>
@@ -226,7 +226,7 @@
             />
             <el-table-column
               label="推送人"
-							prop="people"
+							prop="manageMember"
 							align="center"
             />
           </el-table>
@@ -288,7 +288,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getoidByDate, getjsontree, getServer, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -350,172 +350,8 @@ export default {
       expandedkeys: ['01010201', '0101020103', '0101020102', '0101020101',
 			'0101020103001', '0101020102002', '0101020102001', '0101020101001', '0101020101002'],
       featuresArray: [],
-			pictree: [{
-				id: '1',
-				name: '格聂山3#横洞超前地质预报综合分析成果',
-				children: [{
-					id: '11',
-					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞',
-					url: 'https://note.youdao.com/s/4liIjfBd'
-				},{
-					id: '12',
-					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞',
-					url: 'https://note.youdao.com/s/7mqUQq4h'
-				},{
-					id: '13',
-					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞',
-					url: 'https://note.youdao.com/s/WnDJIIxK'
-				},{
-					id: '14',
-					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞',
-					url: 'https://note.youdao.com/s/JBtEh2Fu'
-				},{
-					id: '15',
-					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞',
-					url: 'https://note.youdao.com/s/R02O3oXC'
-				},{
-					id: '16',
-					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞',
-					url: 'https://note.youdao.com/s/UvXaZ5oO'
-				},{
-					id: '17',
-					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞',
-					url: 'https://note.youdao.com/s/OsWLUVnE'
-				}]
-			},{
-				id: '2',
-				name: '格聂山3#横洞超前地质核查单',
-				children: [{
-					id: '21',
-					name: 'H3DK2+410.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/DCAKdgqI'
-				},{
-					id: '22',
-					name: 'H3DK2+406.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/FcC4f0XW'
-				},{
-					id: '23',
-					name: 'H3DK2+402.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/DbiQUZTF'
-				},{
-					id: '24',
-					name: 'H3DK2+383.6-379.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/drbVKXRU'
-				},{
-					id: '25',
-					name: 'H3DK2+358格聂山3#横洞',
-					url: 'https://note.youdao.com/s/YZ9olBxH'
-				},{
-					id: '26',
-					name: 'H3DK2+350.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/R1Iqm2PU'
-				},{
-					id: '27',
-					name: 'H3DK2+346.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/BMpnzEYj'
-				},{
-					id: '28',
-					name: 'H3DK2+343.3格聂山3#横洞',
-					url: 'https://note.youdao.com/s/WH2uR6OB'
-				},{
-					id: '29',
-					name: 'H3DK2+340格聂山3#横洞',
-					url: 'https://note.youdao.com/s/14tlZ3Ss'
-				},{
-					id: '210',
-					name: 'H3DK2+325格聂山3#横洞',
-					url: 'https://note.youdao.com/s/IrrsTlE8'
-				},{
-					id: '211',
-					name: 'H3DK2+322格聂山3#横洞',
-					url: 'https://note.youdao.com/s/Ddcze4bM'
-				},{
-					id: '212',
-					name: 'H3DK2+319格聂山3#横洞',
-					url: 'https://note.youdao.com/s/CAdZQaOO'
-				},{
-					id: '213',
-					name: 'H3DK2+313格聂山3#横洞',
-					url: 'https://note.youdao.com/s/SKLoEd73'
-				},{
-					id: '214',
-					name: 'H3DK2+309.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/VeoWGcgp'
-				},{
-					id: '215',
-					name: 'H3DK2+305.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/dvXmceIt'
-				},{
-					id: '216',
-					name: 'H3DK2+301.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/JQosGWhH'
-				},{
-					id: '217',
-					name: 'H3DK2+297.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/MH88hllF'
-				},{
-					id: '218',
-					name: 'H3DK2+294格聂山3#横洞',
-					url: 'https://note.youdao.com/s/ExDxSKor'
-				},{
-					id: '219',
-					name: 'H3DK2+290.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/49YecfZx'
-				},{
-					id: '220',
-					name: 'H3DK2+286.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/NztJSgfF'
-				},{
-					id: '221',
-					name: 'H3DK2+282.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/3MHIXDNP'
-				},{
-					id: '222',
-					name: 'H3DK2+278.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/8m6RPMTf'
-				},{
-					id: '223',
-					name: 'H3DK2+275格聂山3#横洞',
-					url: 'https://note.youdao.com/s/3TQJxcbr'
-				},{
-					id: '224',
-					name: 'H3DK2+271.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/IrrsTlE8'
-				},{
-					id: '225',
-					name: 'H3DK2+216格聂山3#横洞',
-					url: 'https://note.youdao.com/s/9cQE53C3'
-				}]
-			},{
-				name: '格聂山隧道3号横洞围岩等级爆破设计',
-				id: '3',
-				children: [{
-					id: '31',
-					name: 'Ⅲ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/bEbf23N4'
-				},{
-					id: '32',
-					name: 'Ⅳ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/bfqcK8yq'
-				},{
-					id: '33',
-					name: 'Ⅴ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/BCymcFA7'
-				}]
-			},{
-				name: '格聂平-1',
-				id: '0',
-				children: [{
-					id: '01',
-					name: 'K1+317.6~K1+288-001格聂平-1',
-				},{
-					id: '02',
-					name: 'K1+288.8~K1+277-002格聂平-1',
-				},{
-					id: '03',
-					name: 'K1+280.0~K1+256.0-003格聂平-1',
-				}]
-			}],
+			reportarr:[],
+			urltree:[],
       modelinfos: [],
 			attributename:[],
 			attributesize:[],
@@ -560,6 +396,7 @@ export default {
     this.json2tree()
 		this.pickmonth()
 		this.getwarninfo()
+		this.geturltree()
   },
 
   mounted() {
@@ -1162,7 +999,7 @@ export default {
 			// console.log(this.modelinforef)
 		},
 		gotourl(data){
-			if(data.id > 10){
+			if(data.id == '02'){
 				// console.log(data);
 				window.open(data.url, '_blank')
 			}
@@ -1377,6 +1214,28 @@ export default {
 				}else{
 					this.mergeregion = "04";
 				}
+			},
+			async geturltree(){
+				await getreportQuery(1,9999,true,'modifyDate').then(res => {
+					this.reportarr = res.data
+					console.log(this.reportarr)
+				}).catch(err =>{
+					console.log(err);
+				})
+				let datainfo = {}
+				this.reportarr.forEach((item, index) => {
+					let {reportType} =item;
+					if(!datainfo[reportType]) {
+						datainfo[reportType] = {
+							'name':reportType,
+							'id':'01',
+							children: []
+						}
+					}
+					datainfo[reportType].children.push({'name':item.reportName,'url':item.link,'id':'02'})
+				})
+				this.urltree = Object.values(datainfo);
+				console.log(this.urltree)
 			}
   }
 }

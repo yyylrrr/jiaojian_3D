@@ -73,3 +73,17 @@ export function getwarninfoQuery(direction,ebsStr, orderBy, page, size) {
 		}
 	})
 }
+
+//返回超前地质勘探报告分页
+export function getreportQuery(page,size,sortType,sortableFields) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/reportInfo/pageQuery',
+    method: 'get',
+		params: {
+			page: page,
+			size: size,
+			sortType: sortType,
+			sortableFields: sortableFields
+		}
+  })
+}
