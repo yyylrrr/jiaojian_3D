@@ -1,6 +1,27 @@
 <template>
   <div>
-    <div id="viewDiv" />
+	<div id="viewDiv" />
+	<div id="menu" class="esri-widget" v-show="isShow">
+		<div id="sliceContainer"></div>
+		<div id="sliceOptions">
+			<button
+				class="esri-button esri-button--secondary"
+				id="resetPlaneBtn"
+				type="button"
+				title="Reset slice plane"
+			>
+				重置切片
+			</button>
+			<button
+				class="esri-button esri-button--secondary"
+				id="clearPlaneBtn"
+				type="button"
+				title="Clear slice plane"
+			>
+				清除切片
+			</button>
+		</div>
+	</div>
       <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
       <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
@@ -9,7 +30,11 @@
       </el-button>
       <el-button type="primary" icon="el-icon-news" class="mapselectttt" @click="Opencard">
       </el-button>
-      <el-button type="primary" icon="el-icon-s-operation" class="mapselecttttt" @click="Openopcityslider">
+      <el-button type="primary" icon="el-icon-view" class="mapselecttttt" @click="Openopcityslider">
+      </el-button>
+	  <el-button type="primary" icon="el-icon-s-operation" class="mapselectttttt" @click="Openslice">
+      </el-button>
+	  <el-button type="primary" icon="el-icon-sunny" class="mapselecttttttt" @click="Opendaylight">
       </el-button>
     <dialog-drag
       v-show="layerTreeVisible"
@@ -277,6 +302,7 @@ import WebScene from '@arcgis/core/WebScene'
 import SceneView from '@arcgis/core/views/SceneView'
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
 import BuildingSceneLayer from '@arcgis/core/layers/BuildingSceneLayer'
+import Daylight from "@arcgis/core/widgets/Daylight";
 import Slice from '@arcgis/core/widgets/Slice'
 import SlicePlane from '@arcgis/core/analysis/SlicePlane'
 import LayerList from '@arcgis/core/widgets/LayerList'
@@ -316,6 +342,8 @@ export default {
       sliderdate:null,
       serverUrls:[],
       basemapGallery:null,
+	  daylightWidget:null,
+	  isShow:false,
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
@@ -350,172 +378,172 @@ export default {
       expandedkeys: ['01010201', '0101020103', '0101020102', '0101020101',
 			'0101020103001', '0101020102002', '0101020102001', '0101020101001', '0101020101002'],
       featuresArray: [],
-			pictree: [{
-				id: '1',
-				name: '格聂山3#横洞超前地质预报综合分析成果',
-				children: [{
-					id: '11',
-					name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞',
-					url: 'https://note.youdao.com/s/4liIjfBd'
-				},{
-					id: '12',
-					name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞',
-					url: 'https://note.youdao.com/s/7mqUQq4h'
-				},{
-					id: '13',
-					name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞',
-					url: 'https://note.youdao.com/s/WnDJIIxK'
-				},{
-					id: '14',
-					name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞',
-					url: 'https://note.youdao.com/s/JBtEh2Fu'
-				},{
-					id: '15',
-					name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞',
-					url: 'https://note.youdao.com/s/R02O3oXC'
-				},{
-					id: '16',
-					name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞',
-					url: 'https://note.youdao.com/s/UvXaZ5oO'
-				},{
-					id: '17',
-					name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞',
-					url: 'https://note.youdao.com/s/OsWLUVnE'
-				}]
+		pictree: [{
+			id: '1',
+			name: '格聂山3#横洞超前地质预报综合分析成果',
+			children: [{
+				id: '11',
+				name: 'H3DK2+490~H3DK2+460-001格聂山3#横洞',
+				url: 'https://note.youdao.com/s/4liIjfBd'
 			},{
-				id: '2',
-				name: '格聂山3#横洞超前地质核查单',
-				children: [{
-					id: '21',
-					name: 'H3DK2+410.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/DCAKdgqI'
-				},{
-					id: '22',
-					name: 'H3DK2+406.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/FcC4f0XW'
-				},{
-					id: '23',
-					name: 'H3DK2+402.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/DbiQUZTF'
-				},{
-					id: '24',
-					name: 'H3DK2+383.6-379.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/drbVKXRU'
-				},{
-					id: '25',
-					name: 'H3DK2+358格聂山3#横洞',
-					url: 'https://note.youdao.com/s/YZ9olBxH'
-				},{
-					id: '26',
-					name: 'H3DK2+350.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/R1Iqm2PU'
-				},{
-					id: '27',
-					name: 'H3DK2+346.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/BMpnzEYj'
-				},{
-					id: '28',
-					name: 'H3DK2+343.3格聂山3#横洞',
-					url: 'https://note.youdao.com/s/WH2uR6OB'
-				},{
-					id: '29',
-					name: 'H3DK2+340格聂山3#横洞',
-					url: 'https://note.youdao.com/s/14tlZ3Ss'
-				},{
-					id: '210',
-					name: 'H3DK2+325格聂山3#横洞',
-					url: 'https://note.youdao.com/s/IrrsTlE8'
-				},{
-					id: '211',
-					name: 'H3DK2+322格聂山3#横洞',
-					url: 'https://note.youdao.com/s/Ddcze4bM'
-				},{
-					id: '212',
-					name: 'H3DK2+319格聂山3#横洞',
-					url: 'https://note.youdao.com/s/CAdZQaOO'
-				},{
-					id: '213',
-					name: 'H3DK2+313格聂山3#横洞',
-					url: 'https://note.youdao.com/s/SKLoEd73'
-				},{
-					id: '214',
-					name: 'H3DK2+309.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/VeoWGcgp'
-				},{
-					id: '215',
-					name: 'H3DK2+305.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/dvXmceIt'
-				},{
-					id: '216',
-					name: 'H3DK2+301.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/JQosGWhH'
-				},{
-					id: '217',
-					name: 'H3DK2+297.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/MH88hllF'
-				},{
-					id: '218',
-					name: 'H3DK2+294格聂山3#横洞',
-					url: 'https://note.youdao.com/s/ExDxSKor'
-				},{
-					id: '219',
-					name: 'H3DK2+290.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/49YecfZx'
-				},{
-					id: '220',
-					name: 'H3DK2+286.4格聂山3#横洞',
-					url: 'https://note.youdao.com/s/NztJSgfF'
-				},{
-					id: '221',
-					name: 'H3DK2+282.6格聂山3#横洞',
-					url: 'https://note.youdao.com/s/3MHIXDNP'
-				},{
-					id: '222',
-					name: 'H3DK2+278.8格聂山3#横洞',
-					url: 'https://note.youdao.com/s/8m6RPMTf'
-				},{
-					id: '223',
-					name: 'H3DK2+275格聂山3#横洞',
-					url: 'https://note.youdao.com/s/3TQJxcbr'
-				},{
-					id: '224',
-					name: 'H3DK2+271.2格聂山3#横洞',
-					url: 'https://note.youdao.com/s/IrrsTlE8'
-				},{
-					id: '225',
-					name: 'H3DK2+216格聂山3#横洞',
-					url: 'https://note.youdao.com/s/9cQE53C3'
-				}]
+				id: '12',
+				name: 'H3DK2+460~H3DK2+438.4-002格聂山3#横洞',
+				url: 'https://note.youdao.com/s/7mqUQq4h'
 			},{
-				name: '格聂山隧道3号横洞围岩等级爆破设计',
-				id: '3',
-				children: [{
-					id: '31',
-					name: 'Ⅲ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/bEbf23N4'
-				},{
-					id: '32',
-					name: 'Ⅳ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/bfqcK8yq'
-				},{
-					id: '33',
-					name: 'Ⅴ级围岩爆破优化设计',
-					url: 'https://note.youdao.com/s/BCymcFA7'
-				}]
+				id: '13',
+				name: 'H3DK2+441.6~H3DK2+400-003格聂山3#横洞',
+				url: 'https://note.youdao.com/s/WnDJIIxK'
 			},{
-				name: '格聂平-1',
-				id: '0',
-				children: [{
-					id: '01',
-					name: 'K1+317.6~K1+288-001格聂平-1',
-				},{
-					id: '02',
-					name: 'K1+288.8~K1+277-002格聂平-1',
-				},{
-					id: '03',
-					name: 'K1+280.0~K1+256.0-003格聂平-1',
-				}]
-			}],
+				id: '14',
+				name: 'H3DK2+402.6~H3DK2+347-004格聂山3#横洞',
+				url: 'https://note.youdao.com/s/JBtEh2Fu'
+			},{
+				id: '15',
+				name: 'H3DK2+350.4~H3DK2+318-005格聂山3#横洞',
+				url: 'https://note.youdao.com/s/R02O3oXC'
+			},{
+				id: '16',
+				name: 'H3DK2+319~H3DK2+277-006格聂山3#横洞',
+				url: 'https://note.youdao.com/s/UvXaZ5oO'
+			},{
+				id: '17',
+				name: 'H3DK2+278.8~H3DK2+242.0-007格聂山3#横洞',
+				url: 'https://note.youdao.com/s/OsWLUVnE'
+			}]
+		},{
+			id: '2',
+			name: '格聂山3#横洞超前地质核查单',
+			children: [{
+				id: '21',
+				name: 'H3DK2+410.6格聂山3#横洞',
+				url: 'https://note.youdao.com/s/DCAKdgqI'
+			},{
+				id: '22',
+				name: 'H3DK2+406.4格聂山3#横洞',
+				url: 'https://note.youdao.com/s/FcC4f0XW'
+			},{
+				id: '23',
+				name: 'H3DK2+402.6格聂山3#横洞',
+				url: 'https://note.youdao.com/s/DbiQUZTF'
+			},{
+				id: '24',
+				name: 'H3DK2+383.6-379.8格聂山3#横洞',
+				url: 'https://note.youdao.com/s/drbVKXRU'
+			},{
+				id: '25',
+				name: 'H3DK2+358格聂山3#横洞',
+				url: 'https://note.youdao.com/s/YZ9olBxH'
+			},{
+				id: '26',
+				name: 'H3DK2+350.4格聂山3#横洞',
+				url: 'https://note.youdao.com/s/R1Iqm2PU'
+			},{
+				id: '27',
+				name: 'H3DK2+346.6格聂山3#横洞',
+				url: 'https://note.youdao.com/s/BMpnzEYj'
+			},{
+				id: '28',
+				name: 'H3DK2+343.3格聂山3#横洞',
+				url: 'https://note.youdao.com/s/WH2uR6OB'
+			},{
+				id: '29',
+				name: 'H3DK2+340格聂山3#横洞',
+				url: 'https://note.youdao.com/s/14tlZ3Ss'
+			},{
+				id: '210',
+				name: 'H3DK2+325格聂山3#横洞',
+				url: 'https://note.youdao.com/s/IrrsTlE8'
+			},{
+				id: '211',
+				name: 'H3DK2+322格聂山3#横洞',
+				url: 'https://note.youdao.com/s/Ddcze4bM'
+			},{
+				id: '212',
+				name: 'H3DK2+319格聂山3#横洞',
+				url: 'https://note.youdao.com/s/CAdZQaOO'
+			},{
+				id: '213',
+				name: 'H3DK2+313格聂山3#横洞',
+				url: 'https://note.youdao.com/s/SKLoEd73'
+			},{
+				id: '214',
+				name: 'H3DK2+309.2格聂山3#横洞',
+				url: 'https://note.youdao.com/s/VeoWGcgp'
+			},{
+				id: '215',
+				name: 'H3DK2+305.4格聂山3#横洞',
+				url: 'https://note.youdao.com/s/dvXmceIt'
+			},{
+				id: '216',
+				name: 'H3DK2+301.6格聂山3#横洞',
+				url: 'https://note.youdao.com/s/JQosGWhH'
+			},{
+				id: '217',
+				name: 'H3DK2+297.8格聂山3#横洞',
+				url: 'https://note.youdao.com/s/MH88hllF'
+			},{
+				id: '218',
+				name: 'H3DK2+294格聂山3#横洞',
+				url: 'https://note.youdao.com/s/ExDxSKor'
+			},{
+				id: '219',
+				name: 'H3DK2+290.2格聂山3#横洞',
+				url: 'https://note.youdao.com/s/49YecfZx'
+			},{
+				id: '220',
+				name: 'H3DK2+286.4格聂山3#横洞',
+				url: 'https://note.youdao.com/s/NztJSgfF'
+			},{
+				id: '221',
+				name: 'H3DK2+282.6格聂山3#横洞',
+				url: 'https://note.youdao.com/s/3MHIXDNP'
+			},{
+				id: '222',
+				name: 'H3DK2+278.8格聂山3#横洞',
+				url: 'https://note.youdao.com/s/8m6RPMTf'
+			},{
+				id: '223',
+				name: 'H3DK2+275格聂山3#横洞',
+				url: 'https://note.youdao.com/s/3TQJxcbr'
+			},{
+				id: '224',
+				name: 'H3DK2+271.2格聂山3#横洞',
+				url: 'https://note.youdao.com/s/IrrsTlE8'
+			},{
+				id: '225',
+				name: 'H3DK2+216格聂山3#横洞',
+				url: 'https://note.youdao.com/s/9cQE53C3'
+			}]
+		},{
+			name: '格聂山隧道3号横洞围岩等级爆破设计',
+			id: '3',
+			children: [{
+				id: '31',
+				name: 'Ⅲ级围岩爆破优化设计',
+				url: 'https://note.youdao.com/s/bEbf23N4'
+			},{
+				id: '32',
+				name: 'Ⅳ级围岩爆破优化设计',
+				url: 'https://note.youdao.com/s/bfqcK8yq'
+			},{
+				id: '33',
+				name: 'Ⅴ级围岩爆破优化设计',
+				url: 'https://note.youdao.com/s/BCymcFA7'
+			}]
+		},{
+			name: '格聂平-1',
+			id: '0',
+			children: [{
+				id: '01',
+				name: 'K1+317.6~K1+288-001格聂平-1',
+			},{
+				id: '02',
+				name: 'K1+288.8~K1+277-002格聂平-1',
+			},{
+				id: '03',
+				name: 'K1+280.0~K1+256.0-003格聂平-1',
+			}]
+		}],
       modelinfos: [],
 			attributename:[],
 			attributesize:[],
@@ -541,6 +569,8 @@ export default {
 			},
 			mergeday: '',
 			mergeregion: '',
+			typeRenderer:{},
+			scolor:'#EE2C0E',
     }
   },
   computed: {},
@@ -571,15 +601,14 @@ export default {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
         portalItem: {
-            id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
+            id: "1df07d93650e4b1892431e8e4a21ce31",
             portal: 'http://portal.ehjedu.cn/arcgis'
         }
       })
-			var _this = this
-				document.addEventListener('click',function(e){
-          _this.modelInoForm.posx = e.pageX
-          _this.modelInoForm.posy = e.pageY
-					console.log(e)
+		var _this = this
+		document.addEventListener('click',function(e){
+				_this.modelInoForm.posx = e.pageX
+				_this.modelInoForm.posy = e.pageY
         })
       this.view = new SceneView({
         container: 'viewDiv',
@@ -587,9 +616,13 @@ export default {
         qualityProfile: 'high',
         environment: {
           lighting: {
+			//  date: new Date(),
             directShadowsEnabled: true,
             ambientOcclusionEnabled: true
-          }
+          },   
+		  atmosphere: {
+			 quality: "high"
+		  },
         },
         // by default the highlight color is set to cyan
         highlightOptions: {
@@ -599,7 +632,7 @@ export default {
         }
       })
 
-      const typeRenderer = {
+      this.typeRenderer = {
         type: 'unique-value',
         legendOptions: {
           title: 'Level'
@@ -613,7 +646,7 @@ export default {
               symbolLayers: [
                 {
                   type: 'fill',
-                  material: { color: '#FFFFFF', colorMixMode: 'replace' }
+                  material: { color: this.scolor, colorMixMode: 'replace' }
                 }
               ]
             },
@@ -649,6 +682,45 @@ export default {
        }
        console.log("urlmap",urlmap)
        this.layerMap = urlmap; 
+       
+	   //剖切功能
+	    const excludedLayers = [];
+        const resetPlaneBtn = document.getElementById("resetPlaneBtn");
+        const clearPlaneBtn = document.getElementById("clearPlaneBtn");
+        const sliceOptions = document.getElementById("sliceOptions");
+		const plane = new SlicePlane({
+				position: {
+					latitude: 30.729167,
+					longitude: 98.980556,
+					z: 3133 
+				},
+				tilt: 32.62,
+				width: 140,
+				height: 29,
+				heading: 90
+			});
+	    // const slicesceneLayer = this.webscene.layers.getItemAt(0);
+        // slicesceneLayer.when(()=>{
+		// 			this.sliceWidget = new Slice({
+		// 					view: _this.view, 
+		// 					container: "sliceContainer"
+		// 			});
+		// })
+		let sliceWidget = null;
+		sliceWidget = new Slice({
+							view: this.view, 
+							container: "sliceContainer"
+					});
+		this.view.ui.add('menu',"bottom-left");
+
+        resetPlaneBtn.addEventListener("click", () => {
+		    sliceWidget.viewModel.tiltEnabled = true;
+			sliceWidget.viewModel.shape = plane;
+        });
+		clearPlaneBtn.addEventListener("click", () => {
+          sliceWidget.viewModel.clear();
+        });
+
       // const layer = new SceneLayer({
       //     url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
       //   // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
@@ -663,7 +735,6 @@ export default {
 
 
               const layerlength = this.webscene.layers.length;
-  
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
               this.view.on("immediate-click", (event) => {
@@ -724,6 +795,18 @@ export default {
               visible: false
             });
        this.view.ui.add(this.basemapGallery,"bottom-left");
+
+	//    日光
+      this.daylightWidget = new Daylight({
+		   view: this.view,
+		   playSpeedMultiplier: 2,
+		   visibleElements: {
+             timezone: false
+           },
+		   visible: false
+	  })
+	  this.view.ui.add(this.daylightWidget,"bottom-left");
+
       // this.view.ui.empty("top-left");
       // this.view.ui.add(layerList, "top-right");
       //   setSliceWidget();
@@ -849,38 +932,6 @@ export default {
       if (!value) return true
       return data.name.indexOf(value) !== -1
     },
-    // 获取构件的objectId
-    // getobjectId(campusSceneLayer, bimKey) {
-    //   return this.view.whenLayerView(campusSceneLayer).then(
-    //     async(campusSceneLayerView) => {
-    //       const result = await campusSceneLayerView.queryFeatures()
-
-    //       const tempfeature = result.features.find(item => {
-    //         return item.attributes.oid == bimKey
-    //       })
-    //       // console.log(tempfeature, bimKey)
-    //       const objectId = tempfeature.attributes.oid
-    //       return objectId
-    //     })
-    // },
-     // 点击目录树节点获取ebs
-    // getebs(campusSceneLayer, bimKey) {
-    //   return this.view.whenLayerView(campusSceneLayer).then(
-    //     async(campusSceneLayerView) => {
-    //       campusSceneLayer.outFields = ['*']
-    //         const result = await campusSceneLayerView.queryFeatures()
-    //       if(result.features.length > 0){
-    //             const tempfeature = result.features.find(item => {
-    //                return item.attributes.oid == bimKey
-    //             })
-    //             if(tempfeature && tempfeature.attributes.ebs){
-    //                 const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-    //                 //  console.log("这是点击节点获取ebs", ebs)
-    //                 return ebs
-    //             }
-    //       }
-    //     })
-    // },
     // 双击节点
     async handleNodeClick(data, node, self) {
       // console.log( this.layerMap);
@@ -893,7 +944,7 @@ export default {
       // 第一个异步 获取objectId queryExtent
           if (bimKey){
                 const objectId = bimKey;
-                const ebs =  data.ebs;          //await this.getebs(campusSceneLayer, bimKey)
+                const ebs =  data.ebs;   
                 if(ebs){
                     this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                 return  res.data;
@@ -1016,6 +1067,13 @@ export default {
 			this.layerTreeVisible = false
 			this.layerCardService  = false
 			this.opcitysliderService = !this.opcitysliderService
+		},
+		Openslice(){
+			 this.isShow = ! this.isShow;
+            // this.sliceWidget.visible = ! this.sliceWidget.visible;
+		},
+		Opendaylight(){
+            this.daylightWidget.visible = !this.daylightWidget.visible
 		},
     // 关闭图层面板
     closeLayerTreePanel() {
@@ -1395,6 +1453,36 @@ export default {
 		position: absolute;
 		z-index: 991;
 	}
+//剖切
+      #menu {
+        padding: 0.8em;
+        min-width: 240px;
+	    // left: 80px;
+		// top: 10px;
+	    position: absolute;
+		z-index: 991;
+      }
+
+      #sliceContainer {
+        // width: inherit;
+		    padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #sliceOptions {
+        margin: 0 15px;
+      }
+
+      #sliceOptions>button {
+        margin-bottom: 15px;
+      }
+
+      #sliceContainer {
+        max-width: 228px;
+      }
+//
   .opcityslider{
     	left: 5%;
 		top: 20px;
@@ -1437,6 +1525,22 @@ export default {
 	.mapselecttttt {
 		background: #333333;
 		top: 34%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+  .mapselectttttt {
+		background: #333333;
+		top: 39%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	  .mapselecttttttt {
+		background: #333333;
+		top: 44%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
