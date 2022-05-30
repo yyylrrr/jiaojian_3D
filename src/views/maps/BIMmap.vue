@@ -416,7 +416,7 @@ export default {
 				document.addEventListener('click',function(e){
           _this.modelInoForm.posx = e.pageX
           _this.modelInoForm.posy = e.pageY
-					console.log(e)
+					// console.log(e)
         })
       this.view = new SceneView({
         container: 'viewDiv',
@@ -473,7 +473,7 @@ export default {
       }
       let urlmap = new Map();
       await this.geturlServer();
-      console.log(this.serverUrls);
+      // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
@@ -484,7 +484,7 @@ export default {
           this.webscene.layers.add(sceneLayer);
 
        }
-       console.log("urlmap",urlmap)
+      //  console.log("urlmap",urlmap)
        this.layerMap = urlmap; 
       // const layer = new SceneLayer({
       //     url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
@@ -940,7 +940,7 @@ export default {
 			var br = []
 			var cr = []
 			var dr = []
-				console.log(this.modelinfos,'1234566')
+				// console.log(this.modelinfos,'1234566')
 			for(let i = 0; i < this.modelinfos.length; i++){
 					var info = {}
 					var infobox = []
@@ -1218,7 +1218,7 @@ export default {
 			async geturltree(){
 				await getreportQuery(1,9999,true,'modifyDate').then(res => {
 					this.reportarr = res.data
-					console.log(this.reportarr)
+					// console.log(this.reportarr)
 				}).catch(err =>{
 					console.log(err);
 				})
@@ -1235,7 +1235,7 @@ export default {
 					datainfo[reportType].children.push({'name':item.reportName,'url':item.link,'id':'02'})
 				})
 				this.urltree = Object.values(datainfo);
-				console.log(this.urltree)
+				// console.log(this.urltree)
 			}
   }
 }
