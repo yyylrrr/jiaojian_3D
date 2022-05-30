@@ -341,8 +341,6 @@ export default {
       opcityvalue:80,
       sliderdate:null,
       serverUrls:[],
-      basemapGallery:null,
-	  daylightWidget:null,
 	  isShow:false,
       layerTreeVisible: false,
       layerRegisterService: false,
@@ -699,13 +697,9 @@ export default {
 				height: 29,
 				heading: 90
 			});
-	    // const slicesceneLayer = this.webscene.layers.getItemAt(0);
-        // slicesceneLayer.when(()=>{
-		// 			this.sliceWidget = new Slice({
-		// 					view: _this.view, 
-		// 					container: "sliceContainer"
-		// 			});
-		// })
+
+
+
 		let sliceWidget = null;
 		sliceWidget = new Slice({
 							view: this.view, 
@@ -797,6 +791,7 @@ export default {
        this.view.ui.add(this.basemapGallery,"bottom-left");
 
 	//    日光
+
       this.daylightWidget = new Daylight({
 		   view: this.view,
 		   playSpeedMultiplier: 2,
@@ -1070,7 +1065,6 @@ export default {
 		},
 		Openslice(){
 			 this.isShow = ! this.isShow;
-            // this.sliceWidget.visible = ! this.sliceWidget.visible;
 		},
 		Opendaylight(){
             this.daylightWidget.visible = !this.daylightWidget.visible
