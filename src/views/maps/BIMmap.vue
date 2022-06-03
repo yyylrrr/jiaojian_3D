@@ -1,6 +1,27 @@
 <template>
   <div>
-    <div id="viewDiv" />
+	<div id="viewDiv" />
+	<div id="menu" class="esri-widget" v-show="isShow">
+		<div id="sliceContainer"></div>
+		<div id="sliceOptions">
+			<button
+				class="esri-button esri-button--secondary"
+				id="resetPlaneBtn"
+				type="button"
+				title="Reset slice plane"
+			>
+				重置切片
+			</button>
+			<button
+				class="esri-button esri-button--secondary"
+				id="clearPlaneBtn"
+				type="button"
+				title="Clear slice plane"
+			>
+				清除切片
+			</button>
+		</div>
+	</div>
       <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
       <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
@@ -9,7 +30,11 @@
       </el-button>
       <el-button type="primary" icon="el-icon-news" class="mapselectttt" @click="Opencard">
       </el-button>
-      <el-button type="primary" icon="el-icon-s-operation" class="mapselecttttt" @click="Openopcityslider">
+      <el-button type="primary" icon="el-icon-view" class="mapselecttttt" @click="Openopcityslider">
+      </el-button>
+	  <el-button type="primary" icon="el-icon-s-operation" class="mapselectttttt" @click="Openslice">
+      </el-button>
+	  <el-button type="primary" icon="el-icon-sunny" class="mapselecttttttt" @click="Opendaylight">
       </el-button>
     <dialog-drag
       v-show="layerTreeVisible"
@@ -127,7 +152,13 @@
     >
 				<div class="device-tree">
 					<el-scrollbar class="scrolldevice-tree">
-					<el-tree :data="urltree" class="pictree" :props="defaultProps" @node-click="gotourl"></el-tree>
+					<el-tree
+					:data="urltree" class="pictree" 
+					:props="defaultProps"
+					node-key="id"
+					:default-expanded-keys="urltreeexpand"
+					@node-click="gotourl">
+					</el-tree>
 					</el-scrollbar>
 				</div>
     </dialog-drag>
@@ -277,6 +308,7 @@ import WebScene from '@arcgis/core/WebScene'
 import SceneView from '@arcgis/core/views/SceneView'
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
 import BuildingSceneLayer from '@arcgis/core/layers/BuildingSceneLayer'
+import Daylight from "@arcgis/core/widgets/Daylight";
 import Slice from '@arcgis/core/widgets/Slice'
 import SlicePlane from '@arcgis/core/analysis/SlicePlane'
 import LayerList from '@arcgis/core/widgets/LayerList'
@@ -315,7 +347,7 @@ export default {
       opcityvalue:80,
       sliderdate:null,
       serverUrls:[],
-      basemapGallery:null,
+			isShow:false,
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
@@ -349,6 +381,7 @@ export default {
       templist: null,
       expandedkeys: ['01010201', '0101020103', '0101020102', '0101020101',
 			'0101020103001', '0101020102002', '0101020102001', '0101020101001', '0101020101002'],
+			urltreeexpand: [],
       featuresArray: [],
 			reportarr:[],
 			urltree:[],
@@ -377,6 +410,8 @@ export default {
 			},
 			mergeday: '',
 			mergeregion: '',
+			typeRenderer:{},
+			scolor:'#EE2C0E',
     }
   },
   computed: {},
@@ -408,7 +443,7 @@ export default {
       // Load webscene and display it in a SceneView
       this.webscene = new WebScene({
         portalItem: {
-            id: "1df07d93650e4b1892431e8e4a21ce31",//92c97bd4e91447d6b3319da22bfa9147
+            id: "1df07d93650e4b1892431e8e4a21ce31",
             portal: 'http://portal.ehjedu.cn/arcgis'
         }
       })
@@ -424,9 +459,13 @@ export default {
         qualityProfile: 'high',
         environment: {
           lighting: {
+			//  date: new Date(),
             directShadowsEnabled: true,
             ambientOcclusionEnabled: true
-          }
+          },   
+		  atmosphere: {
+			 quality: "high"
+		  },
         },
         // by default the highlight color is set to cyan
         highlightOptions: {
@@ -436,7 +475,7 @@ export default {
         }
       })
 
-      const typeRenderer = {
+      this.typeRenderer = {
         type: 'unique-value',
         legendOptions: {
           title: 'Level'
@@ -450,7 +489,7 @@ export default {
               symbolLayers: [
                 {
                   type: 'fill',
-                  material: { color: '#FFFFFF', colorMixMode: 'replace' }
+                  material: { color: this.scolor, colorMixMode: 'replace' }
                 }
               ]
             },
@@ -486,6 +525,41 @@ export default {
        }
       //  console.log("urlmap",urlmap)
        this.layerMap = urlmap; 
+       
+	   //剖切功能
+	    const excludedLayers = [];
+        const resetPlaneBtn = document.getElementById("resetPlaneBtn");
+        const clearPlaneBtn = document.getElementById("clearPlaneBtn");
+        const sliceOptions = document.getElementById("sliceOptions");
+		const plane = new SlicePlane({
+				position: {
+					latitude: 30.729167,
+					longitude: 98.980556,
+					z: 3133 
+				},
+				tilt: 32.62,
+				width: 140,
+				height: 29,
+				heading: 90
+			});
+
+
+
+		let sliceWidget = null;
+		sliceWidget = new Slice({
+							view: this.view, 
+							container: "sliceContainer"
+					});
+		this.view.ui.add('menu',"bottom-left");
+
+        resetPlaneBtn.addEventListener("click", () => {
+		    sliceWidget.viewModel.tiltEnabled = true;
+			sliceWidget.viewModel.shape = plane;
+        });
+		clearPlaneBtn.addEventListener("click", () => {
+          sliceWidget.viewModel.clear();
+        });
+
       // const layer = new SceneLayer({
       //     url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_P2/SceneServer',
       //   // url:'https://portal.ehjedu.cn/server/rest/services/Hosted/c3%E5%8F%B7%E6%A8%AA%E6%B4%9E_%E5%B7%B2%E6%96%BD%E5%B7%A5_BG3F2Multipatch_v32/SceneServer',
@@ -500,7 +574,6 @@ export default {
 
 
               const layerlength = this.webscene.layers.length;
-  
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
               this.view.on("immediate-click", (event) => {
@@ -561,6 +634,19 @@ export default {
               visible: false
             });
        this.view.ui.add(this.basemapGallery,"bottom-left");
+
+	//    日光
+
+      this.daylightWidget = new Daylight({
+		   view: this.view,
+		   playSpeedMultiplier: 2,
+		   visibleElements: {
+             timezone: false
+           },
+		   visible: false
+	  })
+	  this.view.ui.add(this.daylightWidget,"bottom-left");
+
       // this.view.ui.empty("top-left");
       // this.view.ui.add(layerList, "top-right");
       //   setSliceWidget();
@@ -686,38 +772,6 @@ export default {
       if (!value) return true
       return data.name.indexOf(value) !== -1
     },
-    // 获取构件的objectId
-    // getobjectId(campusSceneLayer, bimKey) {
-    //   return this.view.whenLayerView(campusSceneLayer).then(
-    //     async(campusSceneLayerView) => {
-    //       const result = await campusSceneLayerView.queryFeatures()
-
-    //       const tempfeature = result.features.find(item => {
-    //         return item.attributes.oid == bimKey
-    //       })
-    //       // console.log(tempfeature, bimKey)
-    //       const objectId = tempfeature.attributes.oid
-    //       return objectId
-    //     })
-    // },
-     // 点击目录树节点获取ebs
-    // getebs(campusSceneLayer, bimKey) {
-    //   return this.view.whenLayerView(campusSceneLayer).then(
-    //     async(campusSceneLayerView) => {
-    //       campusSceneLayer.outFields = ['*']
-    //         const result = await campusSceneLayerView.queryFeatures()
-    //       if(result.features.length > 0){
-    //             const tempfeature = result.features.find(item => {
-    //                return item.attributes.oid == bimKey
-    //             })
-    //             if(tempfeature && tempfeature.attributes.ebs){
-    //                 const ebs = tempfeature.attributes.ebs.replace(/[\r\n]/g,"")
-    //                 //  console.log("这是点击节点获取ebs", ebs)
-    //                 return ebs
-    //             }
-    //       }
-    //     })
-    // },
     // 双击节点
     async handleNodeClick(data, node, self) {
       // console.log( this.layerMap);
@@ -730,7 +784,7 @@ export default {
       // 第一个异步 获取objectId queryExtent
           if (bimKey){
                 const objectId = bimKey;
-                const ebs =  data.ebs;          //await this.getebs(campusSceneLayer, bimKey)
+                const ebs =  data.ebs;   
                 if(ebs){
                     this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                 return  res.data;
@@ -823,6 +877,8 @@ export default {
 			this.layerTreeVisible = false
 			this.layerCardService  = false
 			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = false
       this.basemapGallery.visible = ! this.basemapGallery.visible;
     },
 		OpenregisterService(){
@@ -830,6 +886,8 @@ export default {
 			this.layerTreeVisible = false
 			this.layerCardService  = false
 			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = false
 			this.layerRegisterService = !this.layerRegisterService
 		},
 		OpenshowLayer(){
@@ -837,6 +895,8 @@ export default {
 			this.layerRegisterService = false
 			this.layerCardService  = false
 			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = false
 			this.layerTreeVisible = !this.layerTreeVisible
 			this.json2tree()
 		},
@@ -845,6 +905,8 @@ export default {
 			this.layerRegisterService = false
 			this.layerTreeVisible = false
 			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = false
 			this.layerCardService = !this.layerCardService
 		},
 		Openopcityslider(){
@@ -852,7 +914,27 @@ export default {
 			this.layerRegisterService = false
 			this.layerTreeVisible = false
 			this.layerCardService  = false
+			this.isShow = false
+			this.daylightWidget.visible = false
 			this.opcitysliderService = !this.opcitysliderService
+		},
+		Openslice(){
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
+			this.daylightWidget.visible = false
+			this.isShow = !this.isShow;
+		},
+		Opendaylight(){
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = !this.daylightWidget.visible
 		},
     // 关闭图层面板
     closeLayerTreePanel() {
@@ -998,9 +1080,9 @@ export default {
 			}
 			// console.log(this.modelinforef)
 		},
-		gotourl(data){
-			if(data.id == '02'){
-				// console.log(data);
+		gotourl(data,node){
+			if(data.id.substring(0,2) == '03'){
+				// console.log(data.id.substring(0,2));
 				window.open(data.url, '_blank')
 			}
 		},
@@ -1224,19 +1306,47 @@ export default {
 				})
 				let datainfo = {}
 				this.reportarr.forEach((item, index) => {
-					let {reportType} =item;
-					if(!datainfo[reportType]) {
-						datainfo[reportType] = {
-							'name':reportType,
-							'id':'01',
+					let {locationName} =item;
+					if(!datainfo[locationName]) {
+						datainfo[locationName] = {
+							'name':locationName,
+							'id':'01' + locationName,
 							children: []
 						}
 					}
-					datainfo[reportType].children.push({'name':item.reportName,'url':item.link,'id':'02'})
 				})
 				this.urltree = Object.values(datainfo);
-				// console.log(this.urltree)
-			}
+
+				this.reportarr.forEach(item => {
+					for(let i = 0; i< this.urltree.length; i++ ){
+						if(this.urltree[i].name == item.locationName){
+							this.urltree[i].children.push({'name':item.typeName,'id':'02' + item.typeName,children:[]})
+						}
+					}
+				})
+				
+				for(let i = 0; i< this.urltree.length; i++ ){
+					let obj = {};
+					this.urltree[i].children = this.urltree[i].children.reduce(function (item, next) {
+						obj[next.name] ? '' : obj[next.name] = true && item.push(next);
+						return item;
+						}, []);
+						this.urltreeexpand.push('01' + this.urltree[i].name)
+						console.log(this.urltreeexpand)
+				}
+
+				this.reportarr.forEach(item =>{
+					for(let i = 0; i< this.urltree.length; i++ ){
+								if(this.urltree[i].name == item.locationName){
+									for(let j = 0; j< this.urltree[i].children.length; j++ )
+									if(this.urltree[i].children[j].name == item.typeName)
+										this.urltree[i].children[j].children.push({'name':item.reportName,'id':'03' + item.reportName,'url':item.link})
+								}
+					}
+				})
+			},
+			
+
   }
 }
 </script>
@@ -1254,16 +1364,46 @@ export default {
 		position: absolute;
 		z-index: 991;
 	}
+//剖切
+      #menu {
+        padding: 0.8em;
+        min-width: 240px;
+	    // left: 80px;
+		// top: 10px;
+	    position: absolute;
+		z-index: 991;
+      }
+
+      #sliceContainer {
+        // width: inherit;
+		    padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #sliceOptions {
+        margin: 0 15px;
+      }
+
+      #sliceOptions>button {
+        margin-bottom: 15px;
+      }
+
+      #sliceContainer {
+        max-width: 228px;
+      }
+//
   .opcityslider{
-    	left: 5%;
+		left: 5%;
 		top: 20px;
 		width: 90%;
-     	position: absolute;
+		position: absolute;
 		z-index: 991;
   }
 	.mapselect {
 		background: #333333;
-		top: 14%;
+		top: 7%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
@@ -1271,7 +1411,7 @@ export default {
 	}
 	.mapselectt {
 		background: #333333;
-		top: 19%;
+		top: 11%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
@@ -1279,7 +1419,7 @@ export default {
 	}
 	.mapselecttt {
 		background: #333333;
-		top: 24%;
+		top: 15%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
@@ -1287,7 +1427,7 @@ export default {
 	}
 	.mapselectttt {
 		background: #333333;
-		top: 29%;
+		top: 19%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
@@ -1295,7 +1435,23 @@ export default {
 	}
 	.mapselecttttt {
 		background: #333333;
-		top: 34%;
+		top: 23%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+  .mapselectttttt {
+		background: #333333;
+		top: 27%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;
+	}
+	  .mapselecttttttt {
+		background: #333333;
+		top: 31%;
 		margin: 1%;
 		position: absolute;
 		z-index: 991;
