@@ -1,27 +1,6 @@
 <template>
   <div>
 	<div id="viewDiv" />
-	<div id="menu" class="esri-widget" v-show="isShow">
-		<div id="sliceContainer"></div>
-		<div id="sliceOptions">
-			<button
-				class="esri-button esri-button--secondary"
-				id="resetPlaneBtn"
-				type="button"
-				title="Reset slice plane"
-			>
-				重置切片
-			</button>
-			<button
-				class="esri-button esri-button--secondary"
-				id="clearPlaneBtn"
-				type="button"
-				title="Clear slice plane"
-			>
-				清除切片
-			</button>
-		</div>
-	</div>
       <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
       <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
@@ -32,10 +11,25 @@
       </el-button>
       <el-button type="primary" icon="el-icon-view" class="mapselecttttt" @click="Openopcityslider">
       </el-button>
-	  <el-button type="primary" icon="el-icon-s-operation" class="mapselectttttt" @click="Openslice">
+			<el-button type="primary" icon="el-icon-s-operation" class="mapselectttttt" @click="Openslice">
       </el-button>
-	  <el-button type="primary" icon="el-icon-sunny" class="mapselecttttttt" @click="Opendaylight">
-      </el-button>
+			<el-button type="primary" icon="el-icon-sunny" class="mapselecttttttt" @click="Opendaylight">
+			</el-button>
+		<div class="logo">
+			<img :src="logoSrc" width="10%" height="10%" alt="" />
+			<div class="logo-title">中国交通建设集团</div>
+		</div>
+		<div class="date">{{dateFormat(date)}}</div>
+		<div class="time">{{timeFormat(date)}}</div>
+		<div class="week">{{weekFormat(date)}}</div>
+			<div class="center-title">CZSCZQ-13B标隧道施工数字孪生</div>
+			<div><el-link class="text-button" target="_blank">隧道掘进</el-link></div>
+			<div><el-link  class="text-buttonn" target="_blank" href="https://portal.ehjedu.cn/czbusiness">后台管理</el-link></div>
+			<el-image
+				class="banner"
+				:src="imgSrc">
+			</el-image>
+
     <dialog-drag
       v-show="layerTreeVisible"
       id="dialog-1"
@@ -100,8 +94,7 @@
       id="dialog-1"
       class="dialog-3"
       title="注册服务"
-      pinned="false"
-      :options="{ top: 120, left: 90, width: 320, buttonPin: false }"
+      :options="{ top: 60, left: 70, width: 320, buttonPin: false, pinned: true }"
       @close="closeRegisterService"
     >
       <el-input
@@ -181,18 +174,40 @@
     </el-slider>
     </dialog-drag>
 
+	<div id="menu" class="esri-widget" v-show="isShow">
+		<div id="sliceContainer"></div>
+		<div id="sliceOptions">
+			<button
+				class="esri-button esri-button--secondary"
+				id="resetPlaneBtn"
+				type="button"
+				title="Reset slice plane"
+			>
+				重置切片
+			</button>
+			<button
+				class="esri-button esri-button--secondary"
+				id="clearPlaneBtn"
+				type="button"
+				title="Clear slice plane"
+			>
+				清除切片
+			</button>
+		</div>
+	</div>
 
     <div>
       <el-card class="box-card">
-        <el-card class="box-title">
-          <dt class="title-font">构件施工信息</dt>
-        </el-card>
+				<el-image
+				:src="titleSrc">				
+				</el-image>
+				<div class="title-font">构件施工信息</div>
         <div class="msg">
 					<el-scrollbar class="scrollInfoBox">
 					<el-table
 						:data = "modelinforef"
 						:show-header="false"
-						:cell-style="tableRowStyles"
+						:cell-style="tableRowStyle"
 						class="search-result-list"
           >
             <el-table-column
@@ -208,9 +223,12 @@
 					</el-table>
 					</el-scrollbar>
         </div>
-        <el-card class="box-titlee">
-          <dt class="title-font">预警统计</dt>
-        </el-card>
+				<div class="pic">
+				<el-image
+				:src="titleSrc">				
+				</el-image>
+				</div>
+        <div class="title-font">预警统计</div>
         <div class="merge-button-group">
           <el-button type="primary" size="small" round plain class="merge-button" :style="button1" @click="clicktoday">今日</el-button>
           <el-button type="primary" size="small" round plain class="merge-button" :style="button2" @click="clickyesterday">昨日</el-button>
@@ -228,7 +246,6 @@
 					<el-scrollbar style="height:220px;width:100%;">
           <el-table
 						:data = "mergeselectdata"
-						border
             :cell-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
             class="search-result-list"
@@ -263,10 +280,15 @@
           </el-table>
 					</el-scrollbar>
         </div>
-				<el-card class="box-titleee">
-					<dt class="title-font">施工模拟</dt>
-				</el-card>
-			<el-card class="box-bar">
+				<div class="pic">
+				<el-image
+				:src="titleSrc">
+				</el-image>
+				</div>
+					<div class="title-font">施工模拟</div>
+				<el-image
+				:src="dataSrc">
+				</el-image>
 				<div class="datetitle">日期滑块</div>
 				<div class="sliderblock">
 					<el-slider
@@ -294,7 +316,6 @@
           <el-button size="small" type="primary" class="date-button" @click="pickmonth"
             >确认</el-button>
 				</div>
-			</el-card>
       </el-card>
     </div>
 		<ModelInfoPage :modelSelectInfo ="modelInoForm" />
@@ -412,6 +433,11 @@ export default {
 			mergeregion: '',
 			typeRenderer:{},
 			scolor:'#EE2C0E',
+        imgSrc:require('../../assets/images/banner.png'),
+				logoSrc:require('../../assets/images/logo.png'),
+				titleSrc:require('../../assets/images/title.png'),
+				dataSrc:require('../../assets/images/data.png'),
+				date: new Date(),
     }
   },
   computed: {},
@@ -436,6 +462,15 @@ export default {
 
   mounted() {
     this.init()
+    let that= this;
+    this.timer = setInterval(function() {
+      that.date = new Date().toLocaleString();
+    });
+  },
+  beforeDestroy: function() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   },
 
   methods: {
@@ -579,7 +614,7 @@ export default {
               this.view.on("immediate-click", (event) => {
            	          this.modelInoForm.opened = false;
                     this.webscene.layers.forEach(async sceneLayer =>{
-                        console.log(sceneLayer)
+                        // console.log(sceneLayer)
                                 
                         await this.view.hitTest(event).then(async (hitTestResult) => {
 												
@@ -679,7 +714,7 @@ export default {
     // 滑块控制
      async changeModel() {
       this.formatTooltip(this.levelvalue)
-      console.log(this.sliderdate,'123')
+      // console.log(this.sliderdate,'123')
       let modeloid = await getoidByDate(this.sliderdate).then(res =>{
                         return res.data;
                       });  
@@ -699,9 +734,9 @@ export default {
               //       sceneLayerView.filter = filterSilderLayer;
               //   })
           })
-          console.log(modeloid);
+          // console.log(modeloid);
       }else{            
-            console.log(this.urlres);
+            // console.log(this.urlres);
             this.urlres.forEach(item =>{
                   let campusSceneLayer = this.layerMap.get(item); 
                   campusSceneLayer.definitionExpression = "oid <100000" 
@@ -1002,18 +1037,18 @@ export default {
 		},
     // 修改table tr行的背景色
     tableRowStyle({ row, rowIndex }) {
-      return 'background-color: rgba(255,255,255,0.29); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
+      return 'background-color: rgba(255,255,255,0.29); color: #000;font-weight: 500;border: 1px solid #1E90FF60;'
     },
 
     // 修改table tr行的背景色
     tableRowStyles({ row, rowIndex }) {
-      return 'background-color: rgba(255,255,255,0); color: #fff;font-weight: 500;border: 1px solid #FACD91C2;'
+      return 'background-color: rgba(255,255,255,0); color: #000;font-weight: 500;border: 1px solid #1E90FF60;'
     },
 
     // 修改table header的背景色
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
-        return ' background-color:rgba(129,211,248,0.23); color: #000;font-weight: 500;border: 1px solid #FACD91C2;'
+        return ' background-color:rgba(129,211,248,0.23); color: #000;font-weight: 500;border: 1px solid #1E90FF60;'
       }
     },
 
@@ -1332,7 +1367,7 @@ export default {
 						return item;
 						}, []);
 						this.urltreeexpand.push('01' + this.urltree[i].name)
-						console.log(this.urltreeexpand)
+						// console.log(this.urltreeexpand)
 				}
 
 				this.reportarr.forEach(item =>{
@@ -1345,7 +1380,30 @@ export default {
 					}
 				})
 			},
-			
+	// 时间格式化
+    dateFormat () {
+    	var date = new Date()
+        var year = date.getFullYear()
+        var month = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1
+        var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
+
+
+        // 拼接 时间格式处理
+        return year + '/' + month + '/' + day
+    },
+		timeFormat() {
+    	var date = new Date()
+        var hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours()
+        var minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+        var seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
+				return  hours + ':' + minutes + ':' + seconds
+		},
+		weekFormat() {
+    	var date = new Date()
+        let week = date.getDay() // 星期
+        let weekArr = [ '星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六' ]
+				return  weekArr[week]
+		}			
 
   }
 }
@@ -1356,7 +1414,7 @@ export default {
 
 <style scoped="scoped" lang="scss">
 	#viewDiv {
-		height: calc(100vh - 85px);;
+		height: calc(100vh);;
 	}
 	.mainMenu {
 		left: 80px;
@@ -1449,7 +1507,7 @@ export default {
 		z-index: 991;
 		border: 1px solid #333333;
 	}
-	  .mapselecttttttt {
+	.mapselecttttttt {
 		background: #333333;
 		top: 31%;
 		margin: 1%;
@@ -1457,26 +1515,83 @@ export default {
 		z-index: 991;
 		border: 1px solid #333333;
 	}
+	.logo {
+		top: 5px;
+		left: 15px;
+		z-index: 21;
+		position: absolute;
+	}
+	.logo-title {
+		position: absolute;
+    font-size: 18px;
+		z-index: 21;
+    font-weight: bold;
+		color:#efefef;
+    left: 30%;
+    top: 6px;
+    transform: translateX(-50%);
+	}
+  .center-title {
+    position: absolute;
+    font-size: 32px;
+		z-index: 21;
+    font-weight: bold;
+		color:#efefef;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+  }
+	.text-button{
+		position: absolute;
+		z-index: 21;
+		left: 89%;
+		top: 14px;
+		font-weight: bold;
+		color:#efefef;
+	}
+	.text-buttonn{
+		position: absolute;
+		z-index: 21;
+		left: 94%;
+		top: 14px;
+		font-weight: bold;
+		color:#efefef;
+	}
+	.banner{
+		position: absolute;
+		z-index: 20;
+		width: 100%;
+		top: 0%;
+	}
 	.sliderblock {
 		margin-left: 5%;
-		width: 90%;
+		width: 80%;
+		margin-top: -195px;
+		position: absolute;
 	}
 	.block {
-		margin-left: 5%;
-		margin-top: 5%;
+		position: absolute;
+		z-index: 9999;
+		width: 90%;
+		margin-left: 2.5%;
+		margin-top: -70px;
 	}
 	.datefont {
+		z-index: 999;
+		position: absolute;
+		margin-top: -150px;
+		margin-left: 10px;
 		font-size: 2px;
-		z-index: 9999;
 		color: #F2F2F2;
 		width: 20%;
 	}
 	.datefontt {
+		z-index: 999;
+		position: absolute;
+		margin-top: -150px;
+		margin-left: 78%;
 		font-size: 2px;
-		z-index: 9999;
 		color: #F2F2F2;
-		margin-left: 90%;
-		margin-top: -14px;
 		width: 20%;
 	}
 	.datetitle {
@@ -1484,11 +1599,16 @@ export default {
 		z-index: 9999;
 		color: #F2F2F2;
 		font-weight: bold;
+		margin-top: -210px;
+		margin-left: 10px;
+		position: absolute;
 	}
 	.datetitlee {
-		font-size: 13px;
-		margin-top: 5%;
+		position: absolute;
 		z-index: 9999;
+		font-size: 15px;
+		margin-top: -110px;
+		margin-left: 10px;
 		color: #F2F2F2;
 		font-weight: bold;
 	}
@@ -1507,47 +1627,37 @@ export default {
     width: 22%;
 		z-index: 991;
 		position: absolute;
-		background: #02233960;
-		border: 1px solid #4B9696;
-		top: 5px;
+		background: #02233900;
+		background-image: linear-gradient(to right,#00BFFF10,#4682B450,#00BFFF10);
+		border: 0px solid #4B9696;
+		top: 9%;
 		right: 5px;
-		height: 97%;
+		height: 85%;
   }
-	.box-title {
-		width: 40%;
-		background: #12374F;
-		height: 30px;
-		border: 1px solid #03C4DBD1;
+	.pic{
+		margin-top: 5%;
 	}
-	.box-titlee {
-		width: 40%;
-		background: #12374F;
-		height: 30px;
-		margin-top: 15px;
-		border: 1px solid #03C4DBD1;
-	}
-	.box-titleee {
-		width: 40%;
-		background: #12374F;
-		height: 30px;
-		margin-top: 25px;
-		border: 1px solid #03C4DBD1;
-	}
+	// .box-title {
+	// 	width: 40%;
+	// 	background: #12374F;
+	// 	height: 30px;
+	// 	border: 1px solid #03C4DBD1;
+	// }
 	.box-bar {
 		background: #303133;
 		border: 1px solid #409EFF;
-		margin-top: 15px;
 		height: 200px;
 	}
 	.title-font {
-    font-size: 13px;
+		position: absolute;
+    font-size: 16px;
     font-weight: bold;
-		margin-top: -12px;
+		margin-top: -40px;
+		margin-left: 40px;
 		color: aliceblue;
 		text-align:center;
 	}
 	.msg {
-		margin-top: 3%;
 		margin-left: 1%;
 		width: 98%;
 		font-size: 14px;
@@ -1614,7 +1724,7 @@ export default {
 	.search-result-list{
 		width: 100%;
 		background-color:transparent;
-		border: 1px solid #FACD91C2;
+		border: 1px solid #1E90FF60;
 		font-size: 2px;
 	}
 	.el-input__inner {
@@ -1622,6 +1732,7 @@ export default {
 		width: 70%;
 	}
 	.date-button{
+		z-index: 99;
 		margin-left: 5%;
 		width: 20%;
 	}
@@ -1660,7 +1771,15 @@ export default {
     height: 600px;
     width: 100%;
 }
+  .header-center-decoration {
+    width: 100%;
+    height: 30px;
+  }
 
+  .header-left-decoration, .header-right-decoration {
+    width: 25%;
+    height: 40px;
+  }
 </style>
 
 <style>
@@ -1702,6 +1821,38 @@ export default {
 .el-table th, .el-table tr {
  background-color: transparent;
  }
+	.date{
+    position: absolute;
+    font-size: 13px;
+		/* color:#7BABCF; */
+		color: #eee;
+    left: 25%;
+    top: 23px;
+		z-index: 9999;
+    transform: translateX(-50%);
+	}
+	.time{
+    position: absolute;
+    font-size: 17px;
+		/* color:#7BABCF; */
+		color: #eee;
+		font-weight: bold;
+    left: 25%;
+    top: 3px;
+		z-index: 9999;
+    transform: translateX(-50%);
+	}
+	.week{
+    position: absolute;
+    font-size: 18px;
+		/* color:#7BABCF; */
+		color: #eee;
+		font-weight: bold;
+    left: 28.5%;
+    top: 12px;
+		z-index: 9999;
+    transform: translateX(-50%);
+	}
 </style>
 
 <style scoped>

@@ -1,10 +1,10 @@
 <template>
   <div :class="classObj" class="app-wrapper">
 
-      <div :class="{'fixed-header':fixedHeader}">
+      <!-- <div :class="{'fixed-header':fixedHeader}">
         <navbar />
         <tags-view v-if="needTagsView" />
-      </div>
+      </div> -->
       <app-main />
       <right-panel v-if="showSettings">
         <settings />

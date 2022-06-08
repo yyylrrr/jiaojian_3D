@@ -1,7 +1,6 @@
 <template>
   <div id="top-header">
 		<div class="logo">
-			<img :src="logoSrc" width="20%" height="20%" alt="" />
 			<div class="logo-title">中国交通建设集团</div>
 		</div>
 		<div class="text-button"><el-link>隧道掘进</el-link></div>
@@ -24,7 +23,6 @@
 export default {
 	data () {    
     return {
-        imgSrc:require('../../assets/images/mb1.jpg'),
 				logoSrc:require('../../assets/images/logo.png'),
 				date: new Date(),
     }
