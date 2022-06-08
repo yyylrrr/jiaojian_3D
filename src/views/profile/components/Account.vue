@@ -30,7 +30,7 @@ export default {
       this.$message({
         message: 'User information has been updated successfully',
         type: 'success',
-        duration: 5 * 1000
+        duration: 5 * 10000
       })
     }
   }

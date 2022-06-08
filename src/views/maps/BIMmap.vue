@@ -607,15 +607,15 @@ export default {
       // wait until the webscene finished loading
       this.webscene.when(() => {
 
-
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
               this.view.on("immediate-click", (event) => {
+								
            	          this.modelInoForm.opened = false;
                     this.webscene.layers.forEach(async sceneLayer =>{
                         // console.log(sceneLayer)
-                                
+
                         await this.view.hitTest(event).then(async (hitTestResult) => {
 												
                                 if (hitTestResult.results.length > 0) {
@@ -630,7 +630,7 @@ export default {
                                             this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
                                                     this.highlightModel(filterSceneLayerView,objectId);      
                                             })
-                                            // console.log("这是ebs" , ebs)
+                                            console.log("这是ebs" , ebs)
                                             if(ebs){
                                                   this.modelinfos = await  getmodulinfo(ebs).then((res) => {
                                                           return  res.data;
@@ -1100,6 +1100,7 @@ export default {
 				})
 			}
 			// console.log(this.atbarr)
+			if(this.atbarr.length>0){
 			let modelname = {"name":"模型名称","size":this.atbarr[0].modelType}
 			let startSegment = {"name":"起始里程","size":this.atbarr[0].startSegment}
 			let endSegment = {"name":"终止里程","size":this.atbarr[0].endSegment}
@@ -1113,7 +1114,15 @@ export default {
 					this.modelinforef.push(modelinfoatr)
 				}
 			}
+
+			let hash = {};
+			var newArr = this.modelinforef.reduce((item, next) => {
+					hash[next.name] ? '' : hash[next.name] = true && item.push(next);
+					return item
+			}, [])
+			this.modelinforef = newArr
 			// console.log(this.modelinforef)
+			}
 		},
 		gotourl(data,node){
 			if(data.id.substring(0,2) == '03'){
