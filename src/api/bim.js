@@ -17,6 +17,20 @@ export function getServer() {
     })
 }
 
+//获取服务地址分页
+export function getServerQuery(page,size,sortType,sortableFields) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/bimUpload/getServerPage',
+    method: 'get',
+		params: {
+			page: page,
+			size: size,
+			sortType: sortType,
+			sortableFields: sortableFields
+		}
+  })
+}
+
 //注册上传BIM地址，获取构件属性，post特定格式
 export function uploadBIM(bimUploadRequest) {
   return request({
@@ -85,5 +99,43 @@ export function getreportQuery(page,size,sortType,sortableFields) {
 			sortType: sortType,
 			sortableFields: sortableFields
 		}
+  })
+}
+
+//获取隧道类型字典
+export function gettunnel() {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/addProperty/tunnel',
+    method: 'get',
+  })
+}
+
+//获取所属区域字典
+export function getregion(tunnelCode) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/addProperty/region',
+    method: 'get',
+		params: {
+			tunnelCode
+		}
+  })
+}
+
+//获取里程段
+export function getmileageSection(regionCode) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/addProperty/mileageSection',
+    method: 'get',
+		params: {
+			regionCode
+		}
+  })
+}
+
+//删除注册的BIM模型
+export function deleteserver(id) {
+  return request({
+    url: `https://portal.ehjedu.cn/arcgisService/bimUpload/delete/${id}`,
+    method: 'delete',
   })
 }

@@ -9,11 +9,13 @@
       </el-button>
       <el-button type="primary" icon="el-icon-news" class="mapselectttt" @click="Opencard">
       </el-button>
-      <el-button type="primary" icon="el-icon-view" class="mapselecttttt" @click="Openopcityslider">
+      <el-button type="primary" icon="el-icon-view" class="mapselectttttt" @click="Openopcityslider">
       </el-button>
-			<el-button type="primary" icon="el-icon-s-operation" class="mapselectttttt" @click="Openslice">
+			<el-button type="primary" icon="el-icon-s-operation" class="mapselecttttttt" @click="Openslice">
       </el-button>
-			<el-button type="primary" icon="el-icon-sunny" class="mapselecttttttt" @click="Opendaylight">
+			<el-button type="primary" icon="el-icon-sunny" class="mapselectttttttt" @click="Opendaylight">
+			</el-button>
+			<el-button type="primary" icon="el-icon-magic-stick" class="mapselecttttt" @click="Opendaycolor">
 			</el-button>
 		<div class="logo">
 			<img :src="logoSrc" width="10%" height="10%" alt="" />
@@ -25,6 +27,7 @@
 			<div class="center-title">CZSCZQ-13B标隧道施工数字孪生</div>
 			<div><el-link class="text-button" target="_blank">隧道掘进</el-link></div>
 			<div><el-link  class="text-buttonn" target="_blank" href="https://portal.ehjedu.cn/czbusiness">后台管理</el-link></div>
+			<div><el-button type="text" class="text-buttonnn" @click="positionmanage = true">服务管理</el-button></div>
 			<el-image
 				class="banner"
 				:src="imgSrc">
@@ -87,6 +90,111 @@
         />
 				</el-scrollbar>
 				</div>
+    </dialog-drag>
+
+    <dialog-drag
+      v-show="layerColorService"
+      id="dialog-1"
+      class="dialog-3"
+      title="模型赋色"
+      :options="{ top: 60, left: 70, width: 400, buttonPin: false, pinned: true }"
+      @close="closecolorService"
+    >
+								<el-select v-model="tunnelvalue" 
+          class="select1"
+          clearable
+          placeholder="请选择隧道类型"
+					:popper-append-to-body = "false"
+									@change="getregiontype">
+									<el-option
+										v-for="item in tunneloptions"
+										:key="item.code"
+										:label="item.chineseName"
+										:value="item.code">
+									</el-option>
+								</el-select>
+								<el-select v-model="regionvalue" 
+          class="select2"
+          clearable
+          placeholder="请选择所属区域"
+					:popper-append-to-body = "false"
+									@change="getfactortype">
+									<el-option
+										v-for="item in regionoptions"
+										:key="item.code"
+										:label="item.chineseName"
+										:value="item.code">
+									</el-option>
+								</el-select>
+								<el-select v-model="legendvalue" 
+          class="select1"
+          clearable
+          placeholder="请选择围岩等级"
+					:popper-append-to-body = "false"
+									@change="getlegendtype">
+									<el-option
+										v-for="item in legendoptions"
+										:key="item.legendvalue"
+										:label="item.legendlabel"
+										:value="item.legendvalue">
+									</el-option>
+								</el-select>
+								<el-select v-model="factorvalue" 
+          class="select2"
+          clearable
+          placeholder="请选择围岩里程段"
+					:popper-append-to-body = "false"
+									@change="confirmfactor">
+									<el-option
+										v-for="item in factoroptions"
+										:key="item.code"
+										:label="item.chineseName"
+										:value="item.code">
+									</el-option>
+								</el-select>
+								<el-select v-model="circlevalue" 
+          class="select1"
+          clearable
+          placeholder="请选择循环类型"
+					:popper-append-to-body = "false"
+									@change="confirmcircle">
+									<el-option
+										v-for="item in circleoptions"
+										:key="item.circlevalue"
+										:label="item.circlelabel"
+										:value="item.circlevalue">
+									</el-option>
+								</el-select>
+								<el-select v-model="componentvalue" 
+          class="select2"
+          clearable
+          placeholder="请选择构件类型"
+					:popper-append-to-body = "false"
+									@change="confirmcomponent">
+									<el-option
+										v-for="item in componentoptions"
+										:key="item.componentvalue"
+										:label="item.componentlabel"
+										:value="item.componentvalue">
+									</el-option>
+								</el-select>
+      <el-row>
+<el-col :span="2">
+	<el-color-picker v-model="color1" show-alpha></el-color-picker>
+</el-col>
+        <el-col :span="22">
+          <el-button
+            size="medium"
+						style="background:transparent;color:#fff"
+            @click="givemodelcolor"
+          >确认</el-button>
+          <el-button
+            size="medium"
+            style="background:transparent;color:#fff"
+            @click="deletemodelcolor"
+          >清空颜色</el-button>
+        </el-col>
+      </el-row>
     </dialog-drag>
 
     <dialog-drag
@@ -167,7 +275,7 @@
     >
     <el-slider class="opcityslider"
       v-model="opcityvalue"
-      :min ='1'
+      :min ='0'
       :max ="100"
       :format-tooltip="formatopcity"
 			@input="changeopcityvalue">
@@ -318,6 +426,66 @@
 				</div>
       </el-card>
     </div>
+
+			<el-dialog
+				title="注册服务管理"
+				:visible.sync="positionmanage"
+				width="60%">
+				<el-table
+					:data="positionData"
+					style="width: 100%"
+					height="400">
+					<el-table-column
+						label="序号"
+						align="center"
+						type = "index"
+						:index="indexMethod"
+						width="80">
+					</el-table-column>
+					<el-table-column
+						label="名称"
+						prop="name"
+						align="center"
+						width="160">
+					</el-table-column>
+					<el-table-column
+						label="链接"
+						prop="url"
+						align="center">
+					</el-table-column>
+					<el-table-column
+						label="版本"
+						prop="version"
+						align="center"
+						width="80">
+					</el-table-column>
+					<el-table-column
+						label="修改时间"
+						prop="modifyCreatDate"
+						align="center"
+						width="160">
+					</el-table-column>					
+					<el-table-column
+						label="操作"
+						align="center"
+						width="80">
+						<template slot-scope="scope">
+							<el-button
+								size="mini"
+								type="danger"
+								@click="deleteposition(scope.row)">删除</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+									<el-pagination
+										@size-change="handleSizeChange"
+										@current-change="handleCurrentChange"
+										:page-sizes = [10,20,30,40]
+										:page-size = 10
+										layout="total, sizes, prev, pager, next, jumper"
+										:total= totalpage>
+									</el-pagination>
+			</el-dialog>
 		<ModelInfoPage :modelSelectInfo ="modelInoForm" />
   </div>
 </template>
@@ -341,7 +509,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getoidByDate, getjsontree, getServer, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, getServerQuery, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery, gettunnel, getregion, getmileageSection,deleteserver} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -357,6 +525,26 @@ export default {
 
   data() {
     return {
+			totalpage: 0,
+			size: 10,
+			page: 1,
+			positionData: [],
+			positionmanage: false,
+			color1: 'rgba(19, 206, 102, 0.8)',
+			tunneloptions: [],
+			tunnelvalue:'',
+			legendoptions: [],
+			legendvalue:'',
+			regionoptions: [],
+			regionvalue:'',
+			factoroptions: [],
+			setlegened: [],
+			factorvalue:'',
+			circleoptions: [],
+			circlevalue: '',
+			componentoptions:[],
+			componentvalue:'',
+			ebscode:'',
 			button1: '',
 			button2: '',
 			button3: '',
@@ -372,6 +560,7 @@ export default {
       layerTreeVisible: false,
       layerRegisterService: false,
 			layerCardService: false,
+			layerColorService:false,
 			opcitysliderService: false,
       levelvalue: 0,
 			timepiker:['2021-12', '2022-05'],
@@ -414,6 +603,7 @@ export default {
 			attrirefsize:[],
 			attrirefunit:[],
 			atbarr: [],
+			ebsarr:[],
 			modelinforef:[{"name":"模型名称","size":"小导管"},{"name":"小导管规格","size":"BH1108"},
 			{"name":"小导管数量","size":"142"},{"name":"小导管间距","size":"0.6m"},
 			{"name":"外插角","size":"45°"},{"name":"注浆量","size":"1.47L"},{"name":"注浆压力","size":"0.56pa"}],
@@ -458,6 +648,8 @@ export default {
 		this.pickmonth()
 		this.getwarninfo()
 		this.geturltree()
+		this.gettunneltype()
+		this.getserverurl()
   },
 
   mounted() {
@@ -510,53 +702,23 @@ export default {
         }
       })
 
-      this.typeRenderer = {
-        type: 'unique-value',
-        legendOptions: {
-          title: 'Level'
-        },
-        field: 'Level',
-        uniqueValueInfos: [
-          {
-            value: 1,
-            symbol: {
-              type: 'mesh-3d',
-              symbolLayers: [
-                {
-                  type: 'fill',
-                  material: { color: this.scolor, colorMixMode: 'replace' }
-                }
-              ]
-            },
-            label: '1'
-          },
-          {
-            value: 64,
-            symbol: {
-              type: 'mesh-3d',
-              symbolLayers: [
-                {
-                  type: 'fill',
-                  material: { color: '#7EB0D5', colorMixMode: 'replace' }
-                }
-              ]
-            },
-            label: '64'
-          }
-        ]
-      }
+			this.gettypeRenderer()
+
       let urlmap = new Map();
       await this.geturlServer();
       // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
+				debugger
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
              url:layerurl,
-             outFields: ["*"]
+             outFields: ["*"],
+						//  renderer: this.typeRenderer,
              }));
           let sceneLayer = urlmap.get(layerurl);
+					// sceneLayer.renderer = this.typeRenderer
           this.webscene.layers.add(sceneLayer);
-
+					sceneLayer.renderer = this.typeRenderer
        }
       //  console.log("urlmap",urlmap)
        this.layerMap = urlmap; 
@@ -638,7 +800,7 @@ export default {
                                                         .catch((error) => {
                                                           console.log(error);
                                                         });
-                                                  //  console.log("点击模型获取构件施工信息",this.modelinfos);
+                                                   console.log("点击模型获取构件施工信息",this.modelinfos);
                                                   // this.getmodelinfo()
 																									this.getmodelrefinfo(ebs.replace(/[\r\n]/g,""))
                                             }
@@ -711,6 +873,19 @@ export default {
       return
         
     },
+
+		gettypeRenderer(){
+      this.typeRenderer = {
+        type: 'unique-value',
+        legendOptions: {
+          title: 'ebs'
+        },
+        field: 'ebs',
+        uniqueValueInfos: [
+        ]
+      }
+		},
+
     // 滑块控制
      async changeModel() {
       this.formatTooltip(this.levelvalue)
@@ -891,7 +1066,15 @@ export default {
              hash[item.ebs] ? '' : hash[item.ebs] = true && pre.push(item);
              return pre;
           },[])
-           uploadBIM(that.registerInfo)
+           uploadBIM(that.registerInfo).then(res => {
+						that.$message({
+							message: "注册成功！",
+							type: 'success'
+						});
+						this.getserverurl()
+				}).catch(err =>{
+					console.log(err);
+				})
           // console.log(that.registerInfo)
         })
       })
@@ -905,7 +1088,9 @@ export default {
         this.layerRegisterService = true
       } else if (command === 'card') {
         this.layerCardService = true
-      }
+      } else if (command === 'color') {
+				this.layerColorService =true
+			}
     },
     OpenbasemapGallery(){
 			this.layerRegisterService = false
@@ -923,6 +1108,7 @@ export default {
 			this.opcitysliderService = false
 			this.isShow = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
 			this.layerRegisterService = !this.layerRegisterService
 		},
 		OpenshowLayer(){
@@ -932,6 +1118,7 @@ export default {
 			this.opcitysliderService = false
 			this.isShow = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
 			this.layerTreeVisible = !this.layerTreeVisible
 			this.json2tree()
 		},
@@ -942,6 +1129,7 @@ export default {
 			this.opcitysliderService = false
 			this.isShow = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
 			this.layerCardService = !this.layerCardService
 		},
 		Openopcityslider(){
@@ -951,6 +1139,7 @@ export default {
 			this.layerCardService  = false
 			this.isShow = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
 			this.opcitysliderService = !this.opcitysliderService
 		},
 		Openslice(){
@@ -960,6 +1149,7 @@ export default {
 			this.layerCardService  = false
 			this.opcitysliderService = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
 			this.isShow = !this.isShow;
 		},
 		Opendaylight(){
@@ -969,7 +1159,18 @@ export default {
 			this.layerCardService  = false
 			this.opcitysliderService = false
 			this.isShow = false
+			this.layerColorService = false
 			this.daylightWidget.visible = !this.daylightWidget.visible
+		},
+		Opendaycolor(){
+			this.basemapGallery.visible = false
+			this.layerRegisterService = false
+			this.layerTreeVisible = false
+			this.layerCardService  = false
+			this.opcitysliderService = false
+			this.isShow = false
+			this.daylightWidget.visible = false
+			this.layerColorService = !this.layerColorService
 		},
     // 关闭图层面板
     closeLayerTreePanel() {
@@ -983,6 +1184,15 @@ export default {
     },
 		closeopcitysliderService() {
 			this.opcitysliderService = false
+		},
+		closecolorService(){
+				this.tunnelvalue = ''
+				this.regionvalue = ''
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+			this.layerColorService =false
 		},
     doRegisterService() {
       // console.log(this.registerInfo.url);
@@ -1099,8 +1309,8 @@ export default {
 					}
 				})
 			}
-			// console.log(this.atbarr)
-			if(this.atbarr.length>0){
+			// console.log(this.atbarr.length)
+			if(this.atbarr.length != 0){
 			let modelname = {"name":"模型名称","size":this.atbarr[0].modelType}
 			let startSegment = {"name":"起始里程","size":this.atbarr[0].startSegment}
 			let endSegment = {"name":"终止里程","size":this.atbarr[0].endSegment}
@@ -1313,7 +1523,6 @@ export default {
 					this.mergeregion = "01";
 				}
 			},
-
 			click02(evt){
 				this.buttontoblur(evt)
 				if(this.mergeregion == "02"){
@@ -1412,8 +1621,435 @@ export default {
         let week = date.getDay() // 星期
         let weekArr = [ '星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六' ]
 				return  weekArr[week]
-		}			
+		},
+		gettunneltype() {
+			gettunnel().then(res => {
+				this.tunneloptions = res.data;
+			}).catch(err =>{
+				console.log(err);
+			})
+		},
+		getregiontype(item) {
+      if (!item) {
+				this.regionvalue = ''
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+        return
+      }
+			getregion(item).then(res => {
+				this.regionvalue = ''
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+				this.regionoptions = res.data;
+			}).catch(err =>{
+				console.log(err);
+			})
+		},
+		getfactortype(item) {
+      if (!item) {
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+        return
+      }
+			getmileageSection(item).then(res => {
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+				this.setlegened = res.data;
+				this.legendoptions= [{
+					legendvalue: '01',
+					legendlabel: 'Ⅲ级'
+				},{
+					legendvalue: '02',
+					legendlabel: 'Ⅳ级'				
+				},{
+					legendvalue: '03',
+					legendlabel: 'Ⅴ级'
+				}]
+			}).catch(err =>{
+				console.log(err);
+			})
+		},
+		getlegendtype(item) {
+			if (!item) {
+				this.factorvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+        return
+      } else {
+				this.factorvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+				this.legendoptions.levle = item
+				this.factoroptions = this.setlegened.filter(item => item.code.substr(8,2) == this.legendoptions.levle)
+			}
+		},
+		confirmfactor(item) {
+      if (!item) {
+				this.circlevalue = ''
+				this.componentvalue = ''
+        return
+      } else {
+				this.circlevalue = ''
+				this.componentvalue = ''
+				this.factoroptions.code = item
+				this.circleoptions= [{
+					circlevalue: '01',
+					circlelabel: '初支开挖',
+					children: [{
+						componentvalue: '01',
+						componentlabel: '喷混模型',
+					},{
+						componentvalue: '02',
+						componentlabel: '拱架模型',
+					},{
+						componentvalue: '03',
+						componentlabel: '小导管模型',
+					},{
+						componentvalue: '04',
+						componentlabel: '管棚模型',
+					},{
+						componentvalue: '05',
+						componentlabel: '锚杆模型',
+					}]
+				},{
+					circlevalue: '02',
+					circlelabel: '仰拱',
+					children: [{
+						componentvalue: '01',
+						componentlabel: '仰拱（底板）模型',
+					},{
+						componentvalue: '02',
+						componentlabel: '仰拱填充模型',
+					}]
+				},{
+					circlevalue: '03',
+					circlelabel: '二衬',
+					children: [{
+						componentvalue: '01',
+						componentlabel: '拱墙衬砌模型',
+					}]
+				},{
+					circlevalue: '04',
+					circlelabel: '防、排水',
+					children: [{
+						componentvalue: '01',
+						componentlabel: '排水盲管模型',
+					},{
+						componentvalue: '02',
+						componentlabel: '洞内排水沟模型',
+					},{
+						componentvalue: '03',
+						componentlabel: '检查井模型',
+					},{
+						componentvalue: '04',
+						componentlabel: '泄水洞模型',
+					},{
+						componentvalue: '05',
+						componentlabel: '隧底深埋排水沟模型',
+					},{
+						componentvalue: '06',
+						componentlabel: '接口工程预埋',
+					}]
+				}]
+			}
+		},
+		confirmcircle(item) {
+      if (!item) {
+				this.componentvalue = ''
+        return
+			} else {
+				this.componentvalue = ''
+				this.circleoptions.code = item
+				this.componentoptions = this.circleoptions.find(item => item.circlevalue == this.circleoptions.code).children
+				// console.log(this.componentoptions)
+			}			
+		},
+		confirmcomponent(item) {
+      if (!item) {
 
+        return
+			} else {
+				this.componentoptions.code = item
+				// console.log(this.componentoptions.code)
+			}			
+		},
+		async givemodelcolor(){
+			this.ebsarr.length = 0
+			if(this.tunnelvalue != '' && this.regionvalue == ''){
+				const str1 = this.tunnelvalue.substr(0,2)
+				const str2 = this.tunnelvalue.substr(2,2)
+				const str3 = this.tunnelvalue.substr(4,2)
+				this.ebscode = str1 + '-' + str2 + '-' + str3
+				// console.log(this.ebscode)
+			}else if(this.regionvalue != '' && this.legendvalue == '' ){
+				const str1 = this.regionvalue.substr(0,2)
+				const str2 = this.regionvalue.substr(2,2)
+				const str3 = this.regionvalue.substr(4,2)
+				const str4 = this.regionvalue.substr(6,2)
+				this.ebscode = str1 + '-' + str2 + '-' + str3 + '-' + str4
+				// console.log(this.ebscode)
+			}else if(this.legendvalue != '' && this.factorvalue == ''){
+				const str1 = this.regionvalue.substr(0,2)
+				const str2 = this.regionvalue.substr(2,2)
+				const str3 = this.regionvalue.substr(4,2)
+				const str4 = this.regionvalue.substr(6,2)
+				this.ebscode = str1 + '-' + str2 + '-' + str3 + '-' + str4 + '-' + this.legendvalue
+				// console.log(this.ebscode)
+			}else if(this.factorvalue != '' && this.circlevalue == ''){
+				const str1 = this.factorvalue.substr(0,2)
+				const str2 = this.factorvalue.substr(2,2)
+				const str3 = this.factorvalue.substr(4,2)
+				const str4 = this.factorvalue.substr(6,2)
+				const str5 = this.factorvalue.substr(8,2)
+				const str6 = this.factorvalue.substr(10,3)
+				this.ebscode = str1 + '-' + str2 + '-' + str3 + '-' + str4 + '-' + str5 + '-' + str6
+				// console.log(this.ebscode)
+			}else if(this.circlevalue != '' && this.componentvalue == ''){
+				const str1 = this.factorvalue.substr(0,2)
+				const str2 = this.factorvalue.substr(2,2)
+				const str3 = this.factorvalue.substr(4,2)
+				const str4 = this.factorvalue.substr(6,2)
+				const str5 = this.factorvalue.substr(8,2)
+				const str6 = this.factorvalue.substr(10,3)
+				this.ebscode = str1 + '-' + str2 + '-' + str3 + '-' + str4 + '-' + str5 + '-' + str6+ '-' + this.circlevalue
+				// console.log(this.ebscode)
+			}else if(this.componentvalue != ''){
+				const str1 = this.factorvalue.substr(0,2)
+				const str2 = this.factorvalue.substr(2,2)
+				const str3 = this.factorvalue.substr(4,2)
+				const str4 = this.factorvalue.substr(6,2)
+				const str5 = this.factorvalue.substr(8,2)
+				const str6 = this.factorvalue.substr(10,3)
+				this.ebscode = str1 + '-' + str2 + '-' + str3 + '-' + str4 + '-' + str5 + '-' + str6+ '-' + this.circlevalue + '-' + this.componentvalue
+				// console.log(this.ebscode)
+			}
+			let partname = ['测量队', '实验室', '工程部', '质检部']
+			for(let i = 0; i < partname.length; i++){
+				await	getpageQuery(partname[i], true, this.ebscode,'modifyDate', 1, 999999).then(res=> {
+					for (let j = 0; j < res.data.length; j++) {
+						this.ebsarr.push(res.data[j].ebs)
+						this.ebsarr.push(res.data[j].ebs + '\n')
+					}
+				})
+			}
+				this.tunnelvalue = ''
+				this.regionvalue = ''
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+			// console.log(this.ebsarr)
+			this.webscene.layers.removeAll()
+				for(let i = 0; i < this.ebsarr.length; i++){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.color1, colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+		// this.gettypeRenderer()
+			console.log(this.typeRenderer)
+      let urlmap = new Map();
+      // console.log(this.serverUrls);
+      for(let i = 0;i < this.serverUrls.length;i++){
+          const layerurl = this.serverUrls[i].url;
+          urlmap.set(layerurl,new SceneLayer({
+             url:layerurl,
+             outFields: ["*"],
+						//  renderer: this.typeRenderer,
+             }));
+          let sceneLayer = urlmap.get(layerurl);
+					// sceneLayer.renderer = this.typeRenderer
+          this.webscene.layers.add(sceneLayer);
+					sceneLayer.renderer = this.typeRenderer
+       }
+			 this.layerMap = urlmap; 
+      this.webscene.when(() => {
+
+              const layerlength = this.webscene.layers.length;
+              this.view.popup.autoOpenEnabled = false;
+              // retrieve the layer view of the scene layer
+              this.view.on("immediate-click", (event) => {
+								
+           	          this.modelInoForm.opened = false;
+                    this.webscene.layers.forEach(async sceneLayer =>{
+                        // console.log(sceneLayer)
+
+                        await this.view.hitTest(event).then(async (hitTestResult) => {
+												
+                                if (hitTestResult.results.length > 0) {
+                                            const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                                            const filterLayer = await hitTestResult.results[0].graphic.layer;
+                                            console.log("点击模型获取属性:" ,modelAttributes);
+                                            this.modelInoForm.modelInfo = modelAttributes
+                                            const ebs = modelAttributes.ebs;
+																					  this.modelInoForm.opened = false;
+                                            const objectId = modelAttributes.oid;
+                                            //点击模型构件，高亮显示
+                                            this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                                    this.highlightModel(filterSceneLayerView,objectId);      
+                                            })
+                                            console.log("这是ebs" , ebs)
+                                            if(ebs){
+                                                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                                          return  res.data;
+                                                        })
+                                                        .catch((error) => {
+                                                          console.log(error);
+                                                        });
+                                                   console.log("点击模型获取构件施工信息",this.modelinfos);
+                                                  // this.getmodelinfo()
+																									this.getmodelrefinfo(ebs.replace(/[\r\n]/g,""))
+                                            }
+                                } 
+                                return;
+                                }).catch((error) => {
+                                    console.error(error);
+                                    });
+                      
+                    })
+              });
+
+       })
+     
+      // Add a layer list widget
+      const layerList = new LayerList({
+        view: this.view
+      })
+		},
+		async deletemodelcolor(){
+			this.ebsarr.length = 0
+			this.webscene.layers.removeAll()
+			this.typeRenderer.uniqueValueInfos.length = 0
+		// this.gettypeRenderer()
+			// console.log(this.typeRenderer
+				this.tunnelvalue = ''
+				this.regionvalue = ''
+				this.factorvalue = ''
+				this.legendvalue = ''
+				this.circlevalue = ''
+				this.componentvalue = ''
+      let urlmap = new Map();
+      // console.log(this.serverUrls);
+      for(let i = 0;i < this.serverUrls.length;i++){
+          const layerurl = this.serverUrls[i].url;
+          urlmap.set(layerurl,new SceneLayer({
+             url:layerurl,
+             outFields: ["*"],
+						//  renderer: this.typeRenderer,
+             }));
+          let sceneLayer = urlmap.get(layerurl);
+					// sceneLayer.renderer = this.typeRenderer
+          this.webscene.layers.add(sceneLayer);
+					sceneLayer.renderer = this.typeRenderer
+       }
+			 this.layerMap = urlmap; 
+      this.webscene.when(() => {
+
+              const layerlength = this.webscene.layers.length;
+              this.view.popup.autoOpenEnabled = false;
+              // retrieve the layer view of the scene layer
+              this.view.on("immediate-click", (event) => {
+								
+           	          this.modelInoForm.opened = false;
+                    this.webscene.layers.forEach(async sceneLayer =>{
+                        // console.log(sceneLayer)
+
+                        await this.view.hitTest(event).then(async (hitTestResult) => {
+												
+                                if (hitTestResult.results.length > 0) {
+                                            const modelAttributes = await hitTestResult.results[0].graphic.attributes;
+                                            const filterLayer = await hitTestResult.results[0].graphic.layer;
+                                            console.log("点击模型获取属性:" ,modelAttributes);
+                                            this.modelInoForm.modelInfo = modelAttributes
+                                            const ebs = modelAttributes.ebs;
+																					  this.modelInoForm.opened = false;
+                                            const objectId = modelAttributes.oid;
+                                            //点击模型构件，高亮显示
+                                            this.view.whenLayerView(filterLayer).then( filterSceneLayerView => {
+                                                    this.highlightModel(filterSceneLayerView,objectId);      
+                                            })
+                                            console.log("这是ebs" , ebs)
+                                            if(ebs){
+                                                  this.modelinfos = await  getmodulinfo(ebs).then((res) => {
+                                                          return  res.data;
+                                                        })
+                                                        .catch((error) => {
+                                                          console.log(error);
+                                                        });
+                                                   console.log("点击模型获取构件施工信息",this.modelinfos);
+                                                  // this.getmodelinfo()
+																									this.getmodelrefinfo(ebs.replace(/[\r\n]/g,""))
+                                            }
+                                } 
+                                return;
+                                }).catch((error) => {
+                                    console.error(error);
+                                    });
+                      
+                    })
+              });
+
+       })
+     
+      // Add a layer list widget
+      const layerList = new LayerList({
+        view: this.view
+      })
+		},
+		handleSizeChange(val) {
+			this.size = val
+			this.getserverurl()
+    },
+		handleCurrentChange(val) {
+			this.page = val
+			this.getserverurl()
+    },
+		indexMethod(index) {
+			return (this.page - 1) * this.size + index + 1;
+		},
+		getserverurl(){
+			getServerQuery(this.page, this.size, true, 'modifyDate').then(res => {
+				this.totalpage = res.detail.totalCount
+					this.positionData = res.data.map(item =>{
+					var date = new Date(item.modifyDate).toJSON();
+					item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
+					return item;
+				})
+					console.log(this.positionData)
+				}).catch(err =>{
+					console.log(err);
+				})
+		},
+		deleteposition(row){
+			// console.log(row.objectID)
+			deleteserver(row.objectID).then(res => {
+				this.getserverurl()
+						this.$message({
+							message: "删除成功！",
+							type: 'success'
+						});
+				}).catch(err =>{
+					console.log(err);
+				})
+		}
   }
 }
 </script>
@@ -1435,16 +2071,18 @@ export default {
       #menu {
         padding: 0.8em;
         min-width: 240px;
-	    // left: 80px;
-		// top: 10px;
-	    position: absolute;
-		z-index: 991;
+				left: 80px;
+				top: -800px;
+				position: absolute;
+				background: #333333;
+				z-index: 991;
       }
 
       #sliceContainer {
         // width: inherit;
 		    padding: 0;
         margin: 0;
+				background: #333333;
         height: 100%;
         width: 100%;
       }
@@ -1524,6 +2162,14 @@ export default {
 		z-index: 991;
 		border: 1px solid #333333;
 	}
+	.mapselectttttttt{
+		background: #333333;
+		top: 35%;
+		margin: 1%;
+		position: absolute;
+		z-index: 991;
+		border: 1px solid #333333;		
+	}
 	.logo {
 		top: 5px;
 		left: 15px;
@@ -1553,7 +2199,7 @@ export default {
 	.text-button{
 		position: absolute;
 		z-index: 21;
-		left: 89%;
+		left: 84%;
 		top: 14px;
 		font-weight: bold;
 		color:#efefef;
@@ -1561,8 +2207,16 @@ export default {
 	.text-buttonn{
 		position: absolute;
 		z-index: 21;
-		left: 94%;
+		left: 89%;
 		top: 14px;
+		font-weight: bold;
+		color:#efefef;
+	}
+	.text-buttonnn{
+		position: absolute;
+		z-index: 21;
+		left: 94%;
+		top: 4px;
 		font-weight: bold;
 		color:#efefef;
 	}
@@ -1723,6 +2377,7 @@ export default {
 	}
 	.select1, .select2 {
 		width: 48%;
+		margin: 10px 0;
 	}
 	.select2 {
 		margin-left: 4%;
@@ -1784,7 +2439,9 @@ export default {
     width: 100%;
     height: 30px;
   }
-
+.esri-daylight{
+	color: #333333;
+}
   .header-left-decoration, .header-right-decoration {
     width: 25%;
     height: 40px;
