@@ -25,7 +25,6 @@
 		<div class="time">{{timeFormat(date)}}</div>
 		<div class="week">{{weekFormat(date)}}</div>
 			<div class="center-title">CZSCZQ-13B标隧道施工数字孪生</div>
-			<div><el-link class="text-button" target="_blank">隧道掘进</el-link></div>
 			<div><el-link  class="text-buttonn" target="_blank" href="https://portal.ehjedu.cn/czbusiness">后台管理</el-link></div>
 			<div><el-button type="text" class="text-buttonnn" @click="positionmanage = true">服务管理</el-button></div>
 			<el-image
@@ -87,6 +86,7 @@
           :default-expanded-keys="expandedkeys"
           :filter-node-method="filterNode"
           @node-click="handleNodeClick"
+					ref="tree"
         />
 				</el-scrollbar>
 				</div>
@@ -192,9 +192,43 @@
             size="medium"
             style="background:transparent;color:#fff"
             @click="deletemodelcolor"
-          >清空颜色</el-button>
+          >恢复初始</el-button>
         </el-col>
       </el-row>
+    </dialog-drag>
+    <dialog-drag
+      v-show="layerColorService"
+      id="dialog-1"
+      class="dialog-3"
+      title="模型初始颜色预设"
+      :options="{ top: 360, left: 70, width: 400, buttonPin: false, pinned: true }"
+      @close="closecolorService"
+    >
+			<el-col :span="12">
+					<el-select v-model="initiallegendvalue" 
+								class="select3"
+								clearable
+								placeholder="请选择围岩等级"
+								:popper-append-to-body = "false"
+								@change="getlegendtype">
+								<el-option
+								v-for="item in initiallegendoptions"
+								:key="item.legendvalue"
+								:label="item.legendlabel"
+								:value="item.legendvalue">
+								</el-option>
+						</el-select>
+			</el-col>
+			<el-col :span="7">
+				<el-color-picker v-model="color2" show-alpha></el-color-picker>
+			</el-col>
+			<el-col :span="5">
+				<el-button
+				size="medium"
+				style="background:transparent;color:#fff"
+				@click="givemodelcolor"
+				>确认</el-button>
+			</el-col>
     </dialog-drag>
 
     <dialog-drag
@@ -394,9 +428,7 @@
 				</el-image>
 				</div>
 					<div class="title-font">施工模拟</div>
-				<el-image
-				:src="dataSrc">
-				</el-image>
+			<el-card class="box-bar">
 				<div class="datetitle">日期滑块</div>
 				<div class="sliderblock">
 					<el-slider
@@ -424,6 +456,7 @@
           <el-button size="small" type="primary" class="date-button" @click="pickmonth"
             >确认</el-button>
 				</div>
+			</el-card>
       </el-card>
     </div>
 
@@ -434,6 +467,7 @@
 				<el-table
 					:data="positionData"
 					style="width: 100%"
+					@row-dblclick="clickchange"
 					height="400">
 					<el-table-column
 						label="序号"
@@ -444,36 +478,51 @@
 					</el-table-column>
 					<el-table-column
 						label="名称"
-						prop="name"
 						align="center"
 						width="160">
+											<template slot-scope="{row}">
+												<el-input v-if="row.edit" type="textarea"  v-model="row.name" size="small" clearable/>
+												<span v-else>{{ row.name }}</span>
+											</template>
 					</el-table-column>
 					<el-table-column
 						label="链接"
-						prop="url"
 						align="center">
+											<template slot-scope="{row}">
+												<el-input v-if="row.edit" type="textarea" v-model="row.url" size="small" clearable/>
+												<span v-else>{{ row.url }}</span>
+											</template>
 					</el-table-column>
 					<el-table-column
 						label="版本"
-						prop="version"
 						align="center"
-						width="80">
+						width="100">
+											<template slot-scope="{row}">
+												<el-input v-if="row.edit" type="textarea"  v-model="row.version" size="small" clearable/>
+												<span v-else>{{ row.version }}</span>
+											</template>
 					</el-table-column>
 					<el-table-column
 						label="修改时间"
 						prop="modifyCreatDate"
 						align="center"
-						width="160">
+						width="100">
 					</el-table-column>					
 					<el-table-column
 						label="操作"
 						align="center"
-						width="80">
+						width="160">
 						<template slot-scope="scope">
 							<el-button
 								size="mini"
-								type="danger"
-								@click="deleteposition(scope.row)">删除</el-button>
+								@click="editreport(scope.row)"
+								>保存</el-button>
+								<el-popconfirm 
+								title="确定删除吗？"
+								@onConfirm="deleteposition(scope.row)"
+								>
+								<el-button style="margin-left: 5px" size="mini" type="danger" slot="reference">删除</el-button>
+								</el-popconfirm>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -509,7 +558,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getoidByDate, getjsontree, getServer, getServerQuery, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery, gettunnel, getregion, getmileageSection,deleteserver} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, getServerQuery, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery, gettunnel, getregion, getmileageSection, deleteserver, updateBIM} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -531,10 +580,23 @@ export default {
 			positionData: [],
 			positionmanage: false,
 			color1: 'rgba(19, 206, 102, 0.8)',
+			color2: 'rgba(255, 69, 0, 0.68)',
+			colorarr: ['','#F4CDC9','#98D0DE','#6976B2'],
 			tunneloptions: [],
 			tunnelvalue:'',
 			legendoptions: [],
+			initiallegendoptions: [{
+				legendvalue: '01',
+				legendlabel: 'Ⅲ级'
+				},{
+					legendvalue: '02',
+					legendlabel: 'Ⅳ级'				
+				},{
+					legendvalue: '03',
+					legendlabel: 'Ⅴ级'
+				}],
 			legendvalue:'',
+			initiallegendvalue:'',
 			regionoptions: [],
 			regionvalue:'',
 			factoroptions: [],
@@ -553,7 +615,7 @@ export default {
 			button6: '',
 			button7: '',
       urlres:[],
-      opcityvalue:80,
+      opcityvalue:100,
       sliderdate:null,
       serverUrls:[],
 			isShow:false,
@@ -674,6 +736,7 @@ export default {
             portal: 'http://portal.ehjedu.cn/arcgis'
         }
       })
+			
 			var _this = this
 				document.addEventListener('click',function(e){
           _this.modelInoForm.posx = e.pageX
@@ -685,6 +748,11 @@ export default {
         map: this.webscene,
         qualityProfile: 'high',
         environment: {
+            // set a transparent background
+            background: {
+              type: "color",
+              color: [100, 100, 10, 0]
+            },					
           lighting: {
 			//  date: new Date(),
             directShadowsEnabled: true,
@@ -703,6 +771,7 @@ export default {
       })
 
 			this.gettypeRenderer()
+			await this.getinitialcolor()
 
       let urlmap = new Map();
       await this.geturlServer();
@@ -768,7 +837,8 @@ export default {
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
-
+          // to see through the ground, set the ground opacity to 0.4
+          
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
@@ -865,10 +935,8 @@ export default {
     //透明度
     changeopcityvalue(){
       const opcityv = this.opcityvalue / 100;
-      if(this.webscene.basemap){
-            const basemap = this.webscene.basemap.baseLayers.getItemAt(0);
-            basemap.opacity = opcityv;
-            console.log(opcityv,basemap)
+      if(this.webscene){
+            this.webscene.ground.opacity = opcityv;
       }
       return
         
@@ -930,9 +998,14 @@ export default {
     json2tree() {
       getjsontree().then((res) => {
         const nodelist = res.data
+				nodelist.forEach((item,index) => {
+					if(item.name.slice(0,4) == "无法识别"){
+						nodelist.splice(index,1)
+					}
+				})
         nodelist.sort((a,b) =>{
-          var val1 = a.level == 9 ? a.name.slice(6,11) : "";
-          var val2 = b.level == 9 ? b.name.slice(6,11) : "";
+          var val1 = a.level == 9 ? a.name.slice(6,9) : "";
+          var val2 = b.level == 9 ? b.name.slice(6,9) : "";
           return val1 -val2;
 
         })
@@ -1215,7 +1288,7 @@ export default {
 			}
 		},
     formatopcity(val){
-        return val / 100;
+        return val+'%';
     },
 		formatTooltip(val) {
 			if(this.timepiker != ''){
@@ -1840,12 +1913,6 @@ export default {
 					}
 				})
 			}
-				this.tunnelvalue = ''
-				this.regionvalue = ''
-				this.factorvalue = ''
-				this.legendvalue = ''
-				this.circlevalue = ''
-				this.componentvalue = ''
 			// console.log(this.ebsarr)
 			this.webscene.layers.removeAll()
 				for(let i = 0; i < this.ebsarr.length; i++){
@@ -1865,10 +1932,12 @@ export default {
 					)
 				}
 		// this.gettypeRenderer()
-			console.log(this.typeRenderer)
+			// console.log(this.typeRenderer)
       let urlmap = new Map();
+      await this.geturlServer();
       // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
+				debugger
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
              url:layerurl,
@@ -1880,9 +1949,11 @@ export default {
           this.webscene.layers.add(sceneLayer);
 					sceneLayer.renderer = this.typeRenderer
        }
-			 this.layerMap = urlmap; 
+      //  console.log("urlmap",urlmap)
+       this.layerMap = urlmap; 
       this.webscene.when(() => {
-
+          // to see through the ground, set the ground opacity to 0.4
+          
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
@@ -1928,18 +1999,136 @@ export default {
               });
 
        })
-     
-      // Add a layer list widget
-      const layerList = new LayerList({
-        view: this.view
-      })
+		},
+		async getinitialcolor(){
+			let partname = ['测量队', '实验室', '工程部', '质检部']
+			for(let i = 0; i < partname.length; i++){
+				await	getpageQuery(partname[i], true, this.ebscode,'modifyDate', 1, 999999).then(res=> {
+					for (let j = 0; j < res.data.length; j++) {
+						this.ebsarr.push(res.data[j].ebs)
+						this.ebsarr.push(res.data[j].ebs + '\n')
+					}
+				})
+			}
+			// console.log(this.ebsarr)
+				for(let i = 0; i < this.ebsarr.length; i++){
+					// console.log(this.colorarr[1])
+					if(this.ebsarr[i].substr(12,2) == '01'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[1], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+				else if(this.ebsarr[i].substr(12,2) == '02'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[2], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+				else if(this.ebsarr[i].substr(12,2) == '03'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[3], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+					}
 		},
 		async deletemodelcolor(){
 			this.ebsarr.length = 0
 			this.webscene.layers.removeAll()
 			this.typeRenderer.uniqueValueInfos.length = 0
-		// this.gettypeRenderer()
-			// console.log(this.typeRenderer
+			let partname = ['测量队', '实验室', '工程部', '质检部']
+			for(let i = 0; i < partname.length; i++){
+				await	getpageQuery(partname[i], true, this.ebscode,'modifyDate', 1, 999999).then(res=> {
+					for (let j = 0; j < res.data.length; j++) {
+						this.ebsarr.push(res.data[j].ebs)
+						this.ebsarr.push(res.data[j].ebs + '\n')
+					}
+				})
+			}
+			// console.log(this.ebsarr)
+			this.webscene.layers.removeAll()
+				for(let i = 0; i < this.ebsarr.length; i++){
+					// console.log(this.colorarr[1])
+					if(this.ebsarr[i].substr(12,2) == '01'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[1], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+				else if(this.ebsarr[i].substr(12,2) == '02'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[2], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+				else if(this.ebsarr[i].substr(12,2) == '03'){
+					this.typeRenderer.uniqueValueInfos.push(
+								{
+										value: this.ebsarr[i],
+										symbol: {
+											type: 'mesh-3d',
+											symbolLayers: [
+												{
+													type: 'fill',
+													material: { color: this.colorarr[3], colorMixMode: 'replace' }
+												}
+											]
+										},
+									},
+					)
+				}
+					}
 				this.tunnelvalue = ''
 				this.regionvalue = ''
 				this.factorvalue = ''
@@ -1947,8 +2136,10 @@ export default {
 				this.circlevalue = ''
 				this.componentvalue = ''
       let urlmap = new Map();
+      await this.geturlServer();
       // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
+				debugger
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
              url:layerurl,
@@ -1960,9 +2151,11 @@ export default {
           this.webscene.layers.add(sceneLayer);
 					sceneLayer.renderer = this.typeRenderer
        }
-			 this.layerMap = urlmap; 
+      //  console.log("urlmap",urlmap)
+       this.layerMap = urlmap;
       this.webscene.when(() => {
-
+          // to see through the ground, set the ground opacity to 0.4
+          
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
@@ -2008,11 +2201,6 @@ export default {
               });
 
        })
-     
-      // Add a layer list widget
-      const layerList = new LayerList({
-        view: this.view
-      })
 		},
 		handleSizeChange(val) {
 			this.size = val
@@ -2029,11 +2217,11 @@ export default {
 			getServerQuery(this.page, this.size, true, 'modifyDate').then(res => {
 				this.totalpage = res.detail.totalCount
 					this.positionData = res.data.map(item =>{
-					var date = new Date(item.modifyDate).toJSON();
-					item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
-					return item;
+						item.edit = false;
+						var date = new Date(item.modifyDate).toJSON();
+						item.modifyCreatDate = new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')  
+						return item;
 				})
-					console.log(this.positionData)
 				}).catch(err =>{
 					console.log(err);
 				})
@@ -2049,7 +2237,40 @@ export default {
 				}).catch(err =>{
 					console.log(err);
 				})
-		}
+		},
+		async editreport(row){
+			// console.log(this.positionData)
+			for(let i = 0; i < this.positionData.length; i++){
+				if(this.positionData[i].name != '' && this.positionData[i].url != '' && this.positionData[i].version != ''){
+				let bimUploadDO = {
+					"createDate" : null,
+					"modifyDate": null,
+					"name": this.positionData[i].name,
+					"objectID": this.positionData[i].objectID,
+					"url": this.positionData[i].url,
+					"version": this.positionData[i].version
+				}
+				await updateBIM(bimUploadDO).then(res => {
+										this.$message({
+											message: "编辑服务信息成功！",
+											type: 'success'
+											});
+										this.positionData[i].edit =false
+									}).catch(err =>{
+										console.log(err);
+									})
+				await this.positionmanage()
+				}else{
+							this.$message({
+								message: "缺少参数！",
+								type: 'warning'
+								});
+				}				
+			}
+		},
+		clickchange(row) {
+			row.edit = !row.edit
+		},
   }
 }
 </script>
@@ -2171,7 +2392,7 @@ export default {
 		border: 1px solid #333333;		
 	}
 	.logo {
-		top: 5px;
+		top: 10px;
 		left: 15px;
 		z-index: 21;
 		position: absolute;
@@ -2193,7 +2414,7 @@ export default {
     font-weight: bold;
 		color:#efefef;
     left: 50%;
-    top: 8px;
+    top: 15px;
     transform: translateX(-50%);
   }
 	.text-button{
@@ -2208,7 +2429,7 @@ export default {
 		position: absolute;
 		z-index: 21;
 		left: 89%;
-		top: 14px;
+		top: 18px;
 		font-weight: bold;
 		color:#efefef;
 	}
@@ -2216,7 +2437,7 @@ export default {
 		position: absolute;
 		z-index: 21;
 		left: 94%;
-		top: 4px;
+		top: 8px;
 		font-weight: bold;
 		color:#efefef;
 	}
@@ -2224,37 +2445,29 @@ export default {
 		position: absolute;
 		z-index: 20;
 		width: 100%;
+		height: 7%;
 		top: 0%;
 	}
 	.sliderblock {
 		margin-left: 5%;
-		width: 80%;
-		margin-top: -195px;
-		position: absolute;
+		width: 90%;
 	}
 	.block {
-		position: absolute;
-		z-index: 9999;
-		width: 90%;
-		margin-left: 2.5%;
-		margin-top: -70px;
+		margin-left: 5%;
+		margin-top: 5%;
 	}
 	.datefont {
-		z-index: 999;
-		position: absolute;
-		margin-top: -150px;
-		margin-left: 10px;
 		font-size: 2px;
+		z-index: 9999;
 		color: #F2F2F2;
 		width: 20%;
 	}
 	.datefontt {
-		z-index: 999;
-		position: absolute;
-		margin-top: -150px;
-		margin-left: 78%;
 		font-size: 2px;
+		z-index: 9999;
 		color: #F2F2F2;
+		margin-left: 90%;
+		margin-top: -14px;
 		width: 20%;
 	}
 	.datetitle {
@@ -2262,16 +2475,11 @@ export default {
 		z-index: 9999;
 		color: #F2F2F2;
 		font-weight: bold;
-		margin-top: -210px;
-		margin-left: 10px;
-		position: absolute;
 	}
 	.datetitlee {
-		position: absolute;
+		font-size: 13px;
+		margin-top: 5%;
 		z-index: 9999;
-		font-size: 15px;
-		margin-top: -110px;
-		margin-left: 10px;
 		color: #F2F2F2;
 		font-weight: bold;
 	}
@@ -2291,7 +2499,7 @@ export default {
 		z-index: 991;
 		position: absolute;
 		background: #02233900;
-		background-image: linear-gradient(to right,#00BFFF10,#4682B450,#00BFFF10);
+		background-image: linear-gradient(to right,#00BFFF30,#4682B490,#00BFFF30);
 		border: 0px solid #4B9696;
 		top: 9%;
 		right: 5px;
@@ -2307,8 +2515,8 @@ export default {
 	// 	border: 1px solid #03C4DBD1;
 	// }
 	.box-bar {
-		background: #303133;
-		border: 1px solid #409EFF;
+		background-color:rgba(129,211,248,0.23);
+		border: 1px solid #1E90FF60;
 		height: 200px;
 	}
 	.title-font {
@@ -2473,6 +2681,12 @@ export default {
 			border: 1px solid #eee;
 		}
 
+    .select3 .el-input__inner {
+			background: transparent;
+			color: #eee;
+			border: 1px solid #eee;
+		}
+
     .searchinput .el-input__inner {
 			background: transparent;
 			color: #eee;
@@ -2493,7 +2707,7 @@ export default {
 		/* color:#7BABCF; */
 		color: #eee;
     left: 25%;
-    top: 23px;
+    top: 30px;
 		z-index: 9999;
     transform: translateX(-50%);
 	}
@@ -2504,7 +2718,7 @@ export default {
 		color: #eee;
 		font-weight: bold;
     left: 25%;
-    top: 3px;
+    top: 10px;
 		z-index: 9999;
     transform: translateX(-50%);
 	}
@@ -2515,7 +2729,7 @@ export default {
 		color: #eee;
 		font-weight: bold;
     left: 28.5%;
-    top: 12px;
+    top: 18px;
 		z-index: 9999;
     transform: translateX(-50%);
 	}

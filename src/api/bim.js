@@ -139,3 +139,12 @@ export function deleteserver(id) {
     method: 'delete',
   })
 }
+
+//更新服务
+export function updateBIM(bimUploadDO) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/bimUpload/update',
+    method: 'post',
+    data:bimUploadDO 
+  })
+}
