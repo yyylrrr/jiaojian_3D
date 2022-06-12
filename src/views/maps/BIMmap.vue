@@ -87,6 +87,7 @@
           :default-expanded-keys="expandedkeys"
           :filter-node-method="filterNode"
           @node-click="handleNodeClick"
+		  ref="tree"
         />
 				</el-scrollbar>
 				</div>
@@ -708,7 +709,7 @@ export default {
       await this.geturlServer();
       // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
-				debugger
+				// debugger
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
              url:layerurl,
@@ -930,9 +931,21 @@ export default {
     json2tree() {
       getjsontree().then((res) => {
         const nodelist = res.data
+		console.log(nodelist);
+		nodelist.forEach( (item,index) =>{
+			if(item.name.slice(0,4) == "无法识别"){
+                 nodelist.splice(index, 1)
+			}
+		})
         nodelist.sort((a,b) =>{
-          var val1 = a.level == 9 ? a.name.slice(6,11) : "";
-          var val2 = b.level == 9 ? b.name.slice(6,11) : "";
+          var val1 = a.level == 9 ? a.name.slice(6,9) : "";
+          var val2 = b.level == 9 ? b.name.slice(6,9) : "";
+		//   if(val1 == "470H3"){
+        //         console.log(val1,val2)
+
+		// 		console.log(a,b)
+		//   }
+		  
           return val1 -val2;
 
         })
@@ -943,7 +956,7 @@ export default {
             : (prev[item.pCode] = [item])
           return prev
         }, {})
-        //  console.log(list);
+         console.log(list);
          //把子节点赋值给children
         for (const key in list) {
           list[key].forEach(function(item) {
