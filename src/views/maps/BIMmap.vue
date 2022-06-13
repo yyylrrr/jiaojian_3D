@@ -744,6 +744,10 @@ export default {
 					// console.log(e)
         })
       this.view = new SceneView({
+					// latitude: 30.729167,
+					// longitude: 98.980556,
+				zoom: 1,
+				center: [94, 30],
         container: 'viewDiv',
         map: this.webscene,
         qualityProfile: 'high',
@@ -837,7 +841,12 @@ export default {
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
-          
+// go to same point using center and zoom
+this.view.goTo({
+  center: [98.980556, 30.729167],
+  zoom: 17,
+	tilt: 45
+},3000);
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
