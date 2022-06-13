@@ -148,3 +148,24 @@ export function updateBIM(bimUploadDO) {
     data:bimUploadDO 
   })
 }
+
+export function getcolor() {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/color/find',
+    method: 'get',
+		params: {
+		}
+  })
+}
+
+export function updatecolor(code,colorState,opacity) {
+  return request({
+    url: 'https://portal.ehjedu.cn/arcgisService/color/update',
+    method: 'post',
+		params: {
+			code: code,
+			colorState: colorState,
+			opacity: opacity
+		}
+  })
+}

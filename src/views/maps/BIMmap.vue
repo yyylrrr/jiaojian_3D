@@ -86,7 +86,7 @@
           :default-expanded-keys="expandedkeys"
           :filter-node-method="filterNode"
           @node-click="handleNodeClick"
-					ref="tree"
+		  ref="tree"
         />
 				</el-scrollbar>
 				</div>
@@ -226,7 +226,7 @@
 				<el-button
 				size="medium"
 				style="background:transparent;color:#fff"
-				@click="givemodelcolor"
+				@click="setmodelcolor"
 				>确认</el-button>
 			</el-col>
     </dialog-drag>
@@ -349,7 +349,7 @@
 					<el-table
 						:data = "modelinforef"
 						:show-header="false"
-						:cell-style="tableRowStyle"
+						:cell-style="tableRowStyle1"
 						class="search-result-list"
           >
             <el-table-column
@@ -388,7 +388,7 @@
 					<el-scrollbar style="height:220px;width:100%;">
           <el-table
 						:data = "mergeselectdata"
-            :cell-style="tableRowStyle"
+            :cell-style="tableRowStyle2"
             :header-cell-style="tableHeaderColor"
             class="search-result-list"
           >
@@ -558,7 +558,7 @@ import Query from '@arcgis/core/rest/support/Query'
 import FeatureFilter from '@arcgis/core/layers/support/FeatureFilter'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import DialogDrag from 'vue-dialog-drag'
-import { getoidByDate, getjsontree, getServer, getServerQuery, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery, gettunnel, getregion, getmileageSection, deleteserver, updateBIM} from '@/api/bim.js'
+import { getoidByDate, getjsontree, getServer, getServerQuery, uploadBIM, getmodulinfo, getpageQuery, getwarninfoQuery, getreportQuery, gettunnel, getregion, getmileageSection, deleteserver, updateBIM, getcolor, updatecolor} from '@/api/bim.js'
 
 import ModelInfoPage from "./components/model-info-page.vue"
 
@@ -581,7 +581,7 @@ export default {
 			positionmanage: false,
 			color1: 'rgba(19, 206, 102, 0.8)',
 			color2: 'rgba(255, 69, 0, 0.68)',
-			colorarr: ['','#F4CDC9','#98D0DE','#6976B2'],
+			colorarr: ['','rgba(19, 206, 102, 0.8)','rgba(255, 69, 0, 0.68)','rgba(115, 34, 74, 0.32)'],
 			tunneloptions: [],
 			tunnelvalue:'',
 			legendoptions: [],
@@ -777,7 +777,7 @@ export default {
       await this.geturlServer();
       // console.log(this.serverUrls);
       for(let i = 0;i < this.serverUrls.length;i++){
-				debugger
+				// debugger
           const layerurl = this.serverUrls[i].url;
           urlmap.set(layerurl,new SceneLayer({
              url:layerurl,
@@ -837,7 +837,6 @@ export default {
 
       // wait until the webscene finished loading
       this.webscene.when(() => {
-          // to see through the ground, set the ground opacity to 0.4
           
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
@@ -1319,15 +1318,12 @@ export default {
 			}
 		},
     // 修改table tr行的背景色
-    tableRowStyle({ row, rowIndex }) {
-      return 'background-color: rgba(255,255,255,0.29); color: #000;font-weight: 500;border: 1px solid #1E90FF60;'
+    tableRowStyle1({ row, rowIndex }) {
+      return 'background-color: rgba(255,255,255,0.29); color: #000;font-size: 15px;border: 1px solid #1E90FF60;'
     },
-
-    // 修改table tr行的背景色
-    tableRowStyles({ row, rowIndex }) {
-      return 'background-color: rgba(255,255,255,0); color: #000;font-weight: 500;border: 1px solid #1E90FF60;'
+    tableRowStyle2({ row, rowIndex }) {
+      return 'background-color: rgba(255,255,255,0.29); color: #000;font-size: 15px;border: 1px solid #1E90FF60;'
     },
-
     // 修改table header的背景色
     tableHeaderColor({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
@@ -2001,6 +1997,13 @@ export default {
        })
 		},
 		async getinitialcolor(){
+			await getcolor().then(res => {
+				// console.log(res.data,'fasfsdfd')
+				for(let i = 0; i< res.data.length; i++){
+					this.colorarr[parseInt(res.data[i].code)] = res.data[i].colorState
+				}
+				console.log(this.colorarr)
+			})
 			let partname = ['测量队', '实验室', '工程部', '质检部']
 			for(let i = 0; i < partname.length; i++){
 				await	getpageQuery(partname[i], true, this.ebscode,'modifyDate', 1, 999999).then(res=> {
@@ -2271,6 +2274,27 @@ export default {
 		clickchange(row) {
 			row.edit = !row.edit
 		},
+		async setmodelcolor() {
+			if(this.initiallegendvalue != '' && this.color2 != ''){
+					let code = this.initiallegendvalue
+				  let	colorState = this.color2
+					let opacity = "opacity"
+				await updatecolor(code,colorState,opacity).then(res => {
+					this.deletemodelcolor()
+										this.$message({
+											message: "预设颜色成功！",
+											type: 'success'
+											});
+									}).catch(err =>{
+										console.log(err);
+									})
+			}else{
+										this.$message({
+											message: "请设置颜色与围岩等级！",
+											type: 'danger'
+											});				
+			}
+		}
   }
 }
 </script>
@@ -2531,7 +2555,6 @@ export default {
 	.msg {
 		margin-left: 1%;
 		width: 98%;
-		font-size: 14px;
 		color: #606266;
 		height: 160px;
 	}
