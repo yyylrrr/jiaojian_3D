@@ -1,22 +1,38 @@
 <template>
   <div>
 	<div id="viewDiv" />
+	<el-tooltip class="item" effect="dark" content="地图底图选择" placement="left">
       <el-button type="primary" icon="el-icon-info" class="mapselect" @click="OpenbasemapGallery">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="注册服务" placement="left">
       <el-button type="primary" icon="el-icon-circle-plus" class="mapselectt" @click="OpenregisterService">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="BIM模型目录树" placement="left">
       <el-button type="primary" icon="el-icon-thumb" class="mapselecttt" @click="OpenshowLayer">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="超前地质勘探综合分析成果报告" placement="left">
       <el-button type="primary" icon="el-icon-news" class="mapselectttt" @click="Opencard">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="地图底图透明度滑块" placement="left">
       <el-button type="primary" icon="el-icon-view" class="mapselectttttt" @click="Openopcityslider">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="模型抛切" placement="left">
 			<el-button type="primary" icon="el-icon-s-operation" class="mapselecttttttt" @click="Openslice">
       </el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="日光模拟" placement="left">
 			<el-button type="primary" icon="el-icon-sunny" class="mapselectttttttt" @click="Opendaylight">
 			</el-button>
+	</el-tooltip>
+	<el-tooltip class="item" effect="dark" content="模型色彩管理" placement="left">
 			<el-button type="primary" icon="el-icon-magic-stick" class="mapselecttttt" @click="Opendaycolor">
 			</el-button>
+	</el-tooltip>
 		<div class="logo">
 			<img :src="logoSrc" width="10%" height="10%" alt="" />
 			<div class="logo-title">中国交通建设集团</div>
@@ -38,7 +54,7 @@
       class="dialog-3"
       title="BIM模型目录树"
       pinned="false"
-      :options="{ top: 60, left: 90, width: 360, buttonPin: false }"
+      :options="{ top: 80, left: 90, width: 400, buttonPin: false }"
       @close="closeLayerTreePanel"
     >
         <el-select
@@ -86,8 +102,20 @@
           :default-expanded-keys="expandedkeys"
           :filter-node-method="filterNode"
           @node-click="handleNodeClick"
-		  ref="tree"
-        />
+		  ref="tree">
+      <span class="custom-tree-node" slot-scope="{ node, data }">
+        <span>{{ node.label }}</span>
+        <span>
+          <el-button
+            size="mini"
+						icon="el-icon-search"
+						class="linkbutton"
+            @click="() => gotolink(data)"
+						v-if="data.ebs.substr(19,5) == '01-01' && data.level == '9'">      
+          </el-button>
+        </span>
+      </span>
+        </el-tree>
 				</el-scrollbar>
 				</div>
     </dialog-drag>
@@ -97,7 +125,7 @@
       id="dialog-1"
       class="dialog-3"
       title="模型赋色"
-      :options="{ top: 60, left: 70, width: 400, buttonPin: false, pinned: true }"
+      :options="{ top: 180, left: 70, width: 400, buttonPin: false, pinned: true }"
       @close="closecolorService"
     >
 								<el-select v-model="tunnelvalue" 
@@ -201,7 +229,7 @@
       id="dialog-1"
       class="dialog-3"
       title="模型初始颜色预设"
-      :options="{ top: 360, left: 70, width: 400, buttonPin: false, pinned: true }"
+      :options="{ top: 60, left: 70, width: 400, buttonPin: false, pinned: true }"
       @close="closecolorService"
     >
 			<el-col :span="12">
@@ -514,6 +542,7 @@
 						width="160">
 						<template slot-scope="scope">
 							<el-button
+								type="primary"
 								size="mini"
 								@click="editreport(scope.row)"
 								>保存</el-button>
@@ -681,6 +710,7 @@ export default {
 				posx : '',
 				posy : '',
 			},
+			changed: '',
 			mergeday: '',
 			mergeregion: '',
 			typeRenderer:{},
@@ -703,6 +733,17 @@ export default {
 		mergeregion() {
 			this.getmergedata()
 		},
+		initiallegendvalue() {
+			this.color2 = this.colorarr[parseInt(this.initiallegendvalue)]
+			// console.log(this.color2)
+		},
+		changed(){
+			this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
+		}
   },
 
   created() {
@@ -715,7 +756,7 @@ export default {
   },
 
   mounted() {
-    this.init()
+    this.zoomtolayer()
     let that= this;
     this.timer = setInterval(function() {
       that.date = new Date().toLocaleString();
@@ -777,6 +818,12 @@ export default {
 			this.gettypeRenderer()
 			await this.getinitialcolor()
 
+			this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
+
       let urlmap = new Map();
       await this.geturlServer();
       // console.log(this.serverUrls);
@@ -794,6 +841,11 @@ export default {
 					sceneLayer.renderer = this.typeRenderer
        }
       //  console.log("urlmap",urlmap)
+						this.view.goTo({
+								center: [98.980556, 30.729167],
+								zoom: 17,
+								tilt: 45
+							},1);
        this.layerMap = urlmap; 
        
 	   //剖切功能
@@ -842,11 +894,11 @@ export default {
       // wait until the webscene finished loading
       this.webscene.when(() => {
 // go to same point using center and zoom
-this.view.goTo({
-  center: [98.980556, 30.729167],
-  zoom: 17,
-	tilt: 45
-},3000);
+						this.view.goTo({
+								center: [98.980556, 30.729167],
+								zoom: 17,
+								tilt: 45
+							},1);
               const layerlength = this.webscene.layers.length;
               this.view.popup.autoOpenEnabled = false;
               // retrieve the layer view of the scene layer
@@ -890,7 +942,13 @@ this.view.goTo({
                       
                     })
               });
-
+			console.log('tretr')
+				this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
+			console.log('fdsafa')
        })
      
       // Add a layer list widget
@@ -931,14 +989,43 @@ this.view.goTo({
       // });
 
       // this.view.ui.add(legend, "top-right");
+			console.log('sadsa')
+			await this.sleep(3000);
+				this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
+			console.log('sadsfds')
     },
+		sleep (time) {
+			return new Promise((resolve) => setTimeout(resolve, time));
+		},
+		async zoomtolayer(){
+			await this.init()
+			console.log('jkgh')
+			await this.sleep(3000);
+				this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
+			console.log('vfxbdf')
+		},
 
     async geturlServer() {
        this.serverUrls = await getServer().then(res => {
+			this.changed = 'hasbeenchanged'
           return res.data;
-      }).catch(error => {
+      }
+			).catch(error => {
         console.log(error)
       })
+				this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
     },
     //透明度
     changeopcityvalue(){
@@ -1065,8 +1152,15 @@ this.view.goTo({
     },
     // 双击节点
     async handleNodeClick(data, node, self) {
+			console.log(data)
+		if(data.level == "9"){
       // console.log( this.layerMap);
       var selfthis = this
+			await	this.view.goTo({
+					center: [98.980556, 30.729167],
+					zoom: 17,
+					tilt: 45
+				},1);
       const bimKey = data.bimKey
       const url = data.url
       if(url){
@@ -1105,8 +1199,8 @@ this.view.goTo({
                 })
           }
       }
-      //点击目录树节点，获取构件施工信息，右上角card渲染
 
+}
     },
     
     //highlight
@@ -1180,6 +1274,7 @@ this.view.goTo({
 			this.opcitysliderService = false
 			this.isShow = false
 			this.daylightWidget.visible = false
+			this.layerColorService = false
       this.basemapGallery.visible = ! this.basemapGallery.visible;
     },
 		OpenregisterService(){
@@ -1418,7 +1513,32 @@ this.view.goTo({
 				window.open(data.url, '_blank')
 			}
 		},
-
+		async gotolink(data){
+			console.log(data)
+			let link = []
+			let partname = ['测量队', '实验室', '工程部', '质检部']
+			for(let i = 0; i < partname.length; i++){
+				await	getpageQuery(partname[i], true, data.ebs,'modifyDate', 1, 10).then(res=> {
+					console.log(res.data)
+					for(let j = 0; j < res.data.length; j++){
+						if(res.data[j].link != null){
+							link.push(res.data[j].link)
+						}
+					}
+				})
+			}
+			console.log(link)
+			if(link.length == 0){
+						this.$message({
+							message: "对不起，未设置链接！",
+							type: 'warning'
+						});
+			}else{
+				for(let k = 0; k < link.length; k++){
+					window.open(link[k], '_blank')
+				}
+			}
+		},
 		async getwarninfo() {
 			await getwarninfoQuery(false,'', "modifyDate", 1, 9999999).then(res => {
 				this.mergedata = res.data.map(item =>{
@@ -2079,68 +2199,7 @@ this.view.goTo({
 			this.ebsarr.length = 0
 			this.webscene.layers.removeAll()
 			this.typeRenderer.uniqueValueInfos.length = 0
-			let partname = ['测量队', '实验室', '工程部', '质检部']
-			for(let i = 0; i < partname.length; i++){
-				await	getpageQuery(partname[i], true, this.ebscode,'modifyDate', 1, 999999).then(res=> {
-					for (let j = 0; j < res.data.length; j++) {
-						this.ebsarr.push(res.data[j].ebs)
-						this.ebsarr.push(res.data[j].ebs + '\n')
-					}
-				})
-			}
-			// console.log(this.ebsarr)
-			this.webscene.layers.removeAll()
-				for(let i = 0; i < this.ebsarr.length; i++){
-					// console.log(this.colorarr[1])
-					if(this.ebsarr[i].substr(12,2) == '01'){
-					this.typeRenderer.uniqueValueInfos.push(
-								{
-										value: this.ebsarr[i],
-										symbol: {
-											type: 'mesh-3d',
-											symbolLayers: [
-												{
-													type: 'fill',
-													material: { color: this.colorarr[1], colorMixMode: 'replace' }
-												}
-											]
-										},
-									},
-					)
-				}
-				else if(this.ebsarr[i].substr(12,2) == '02'){
-					this.typeRenderer.uniqueValueInfos.push(
-								{
-										value: this.ebsarr[i],
-										symbol: {
-											type: 'mesh-3d',
-											symbolLayers: [
-												{
-													type: 'fill',
-													material: { color: this.colorarr[2], colorMixMode: 'replace' }
-												}
-											]
-										},
-									},
-					)
-				}
-				else if(this.ebsarr[i].substr(12,2) == '03'){
-					this.typeRenderer.uniqueValueInfos.push(
-								{
-										value: this.ebsarr[i],
-										symbol: {
-											type: 'mesh-3d',
-											symbolLayers: [
-												{
-													type: 'fill',
-													material: { color: this.colorarr[3], colorMixMode: 'replace' }
-												}
-											]
-										},
-									},
-					)
-				}
-					}
+			await this.getinitialcolor()
 				this.tunnelvalue = ''
 				this.regionvalue = ''
 				this.factorvalue = ''
@@ -2289,7 +2348,6 @@ this.view.goTo({
 				  let	colorState = this.color2
 					let opacity = "opacity"
 				await updatecolor(code,colorState,opacity).then(res => {
-					this.deletemodelcolor()
 										this.$message({
 											message: "预设颜色成功！",
 											type: 'success'
@@ -2303,6 +2361,7 @@ this.view.goTo({
 											type: 'danger'
 											});				
 			}
+			await this.deletemodelcolor()
 		}
   }
 }
@@ -2367,6 +2426,11 @@ this.view.goTo({
 		position: absolute;
 		z-index: 991;
 		border: 1px solid #333333;
+	}
+	.linkbutton{
+		background: #333333;
+		border: 1px solid #333333;
+		z-index: -1;
 	}
 	.mapselectt {
 		background: #333333;
@@ -2618,6 +2682,7 @@ this.view.goTo({
 	.select1, .select2 {
 		width: 48%;
 		margin: 10px 0;
+		
 	}
 	.select2 {
 		margin-left: 4%;
